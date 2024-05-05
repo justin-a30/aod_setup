@@ -15,6 +15,6 @@
 # START CURL
     # SHELL
         ui_print " [i] cURL-ing shells"
-            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh $MODPATH/mo.sh
-            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/permission.sh $MODPATH/permission.sh
+            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
+            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/permission.sh --output $MODPATH/permission.sh
 
