@@ -225,9 +225,10 @@ ui_print " [0] [Getting ready...]"
                     if [ -r $HEPath ]; then
                         # PLACE HEPROP
                             ui_print " "
-                            package_extract_file files/system.prop "$MODPATH/system.prop"
-                            settings put system deviceLevelList "v:1;c:3;g:3"
                             ui_print " [15] [Placing High End props...]"
+                            add_lines_string "ro.config.low_ram=false" "ro.config.low_ram.threshold_gb=0" "ro.miui.backdrop_sampling_enabled=true" "ro.miui.has_real_blur=1" "ro.miui.has_blur=1"  "ro.miui.has_handy_mode_sf=1"  "ro.launcher.blur.appLaunch=1" "ro.surface_flinger.supports_background_blur=1" "ro.sf.blurs_are_expensive=1" "persist.sys.sf.disable_blurs=false" "enable_blurs_on_windows=1" "ro.sf.blurs_are_caro=0" "persist.sys.background_blur_supported=true" "vendor.perf.framepacing.enable=false" "persist.sys.power.default.powermode=1" "ro.vendor.sf.detect.aod.enable=true" $MODPATH/system.prop
+                            settings put system deviceLevelList "v:1;c:3;g:3"
+                            add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1;c:3;g:3"' post-fs-data.sh
                     else
                         ui_print " "
                         ui_print " [15] [Skipping HighEnd props]"
@@ -236,10 +237,11 @@ ui_print " [0] [Getting ready...]"
     # INSTALL CHARGE MOD
         # CHECK CHARGE OPTIONS
             if [ -r $ChargePath ]; then
-                # PLACE CHARGE          
-                    package_extract_file files/chargemod/GMDMiuiModOverlay.apk "$CHARGERMODPATH/GMDMiuiModOverlay.apk"
+                # PLACE CHARGE       
                     ui_print " "
                     ui_print " [30] [Installing Charging Animation]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output $MODPATH/files/chargemod/GlowCharge.apk
+                    copy "$MODPATH/files/chargemod/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
             else
                 ui_print " [30] [Skipping Charging Animation]"        
             fi
@@ -252,14 +254,14 @@ ui_print " [0] [Getting ready...]"
                         ui_print " "
                         ui_print " [60] [Placing AOD app for HyperOS $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip $MODPATH/temp/hos1.zip
-                        package_extract_dir $MODPATH/files/aod/hos1 "$AODMODPATH"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output $MODPATH/temp/hos1.zip
+                        copy "$MODPATH/files/aod/hos1" "$AODMODPATH"
                     elif [ "$OS" -lt 816 ]; then
                         ui_print " "
                         ui_print " [60] [Placing AOD app for MIUI $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip $MODPATH/temp/mibug.zip
-                        package_extract_dir $MODPATH/files/aod/mibug "$AODMODPATH"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output $MODPATH/temp/mibug.zip
+                        copy "$MODPATH/files/aod/mibug" "$AODMODPATH"
                     fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
@@ -267,15 +269,11 @@ ui_print " [0] [Getting ready...]"
                     ui_print " "
                     ui_print " [67] [Adding AOD's properties...]"
                     ui_print " [i] cURL-ing XAMLs"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/xaml.zip $MODPATH/temp/xaml.zip
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/xaml/DEPTH_AOD.txt --output $MODPATH/files/DEPTH_AOD.txt
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
-                    package_extract_file files/DEPTH_AOD.txt "/data/local/tmp/prop/DEPTH_AOD.txt"
+                    copy "$MODPATH/files/DEPTH_AOD.txt" "/data/local/tmp/prop/DEPTH_AOD.txt"
                     update_file "/data/local/tmp/prop/DEPTH_AOD.txt" "/data/local/tmp/prop/xaml/$DevName.xml"
-                    add_lines_string -bl '</features>' '    <bool name="is_aod_need_grayscale">false</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
-                    add_lines_string -bl '</features>' '    <bool name="support_gesture_wakeup">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
-                    add_lines_string -bl '</features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
-                    add_lines_string -bl '</features>' '    <bool name="support_screen_paper_mode">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
-                    add_lines_string -bl '</features>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
+                    add_lines_string -bl '</features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
                     mkdir "$MODPATH/system/product/etc/device_features"
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
@@ -286,9 +284,7 @@ ui_print " [0] [Getting ready...]"
                 # GETTING FILES READY
                     ui_print " "
                     ui_print " [79] [Getting overlay files]"
-                    package_extract_file files/device_feat_xml/aod.txt "/data/local/tmp/prop/aod.txt"
-                    package_extract_file files/device_feat_xml/string.txt "/data/local/tmp/prop/string.txt"
-                    package_extract_file files/device_feat_xml/integer.txt "/data/local/tmp/prop/integer.txt"
+                    
                 # EDIT APK
                     ui_print " "
                     ui_print " [80] [Editing overlay files]"
@@ -305,11 +301,11 @@ ui_print " [0] [Getting ready...]"
                     ui_print " "
                     ui_print " [99] [Adding prop to product]"
                     copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
-                    package_extract_file files/product.prop "/data/local/tmp/prop/product.prop"
+                    copy "$MODPATH/files/product.prop" "/data/local/tmp/prop/product.prop"
                     force_update_file "/data/local/tmp/prop/product.prop" "/data/local/tmp/prop/build.prop"
                     copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
                     copy "/product/etc/permissions/privapp-permissions-product.xml" "/data/local/tmp/prop/permxaml.xml"
-                    . $MODPATH/permission.sh
+                    # SOMETHING HERE IS REQUIRED! #TODO
                     copy "/data/local/tmp/prop/permxaml.xml"  "$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
             else
                 ui_print " [85] [Skipping AOD]"        
