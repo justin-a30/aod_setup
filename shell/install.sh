@@ -9,7 +9,7 @@
 ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
 ui_print " [i] Getting cURL configuration from GitHub..." 
-# curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/curl.sh $MODPATH/curl.sh
+bash -c "$(curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/curl.sh)"
 # INCLUDE THE NEW multi_option PICKER
 # But first
 off_readonly multi_option
