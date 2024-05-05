@@ -249,19 +249,25 @@ ui_print " [0] [Getting ready...]"
             if [ -r $AodPath ]; then
                 # PLACE AOD          
                     if [ "$OS" -ge 816 ]; then
-                        package_extract_dir files/aod/hos1 "$AODMODPATH"
                         ui_print " "
                         ui_print " [60] [Placing AOD app for HyperOS $OS...]"
+                        ui_print " [i] cURL-ing base AOD APK"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip $MODPATH/temp/hos1.zip
+                        package_extract_dir $MODPATH/files/aod/hos1 "$AODMODPATH"
                     elif [ "$OS" -lt 816 ]; then
-                        package_extract_dir files/aod/mibug "$AODMODPATH"
                         ui_print " "
                         ui_print " [60] [Placing AOD app for MIUI $OS...]"
+                        ui_print " [i] cURL-ing base AOD APK"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip $MODPATH/temp/mibug.zip
+                        package_extract_dir $MODPATH/files/aod/mibug "$AODMODPATH"
                     fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
                     ui_print " "
                     ui_print " [67] [Adding AOD's properties...]"
+                    ui_print " [i] cURL-ing XAMLs"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/xaml.zip $MODPATH/temp/xaml.zip
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
                     package_extract_file files/DEPTH_AOD.txt "/data/local/tmp/prop/DEPTH_AOD.txt"
                     update_file "/data/local/tmp/prop/DEPTH_AOD.txt" "/data/local/tmp/prop/xaml/$DevName.xml"
