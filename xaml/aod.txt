@@ -1,4 +1,0 @@
-    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>
-    <bool name="config_dozeSupportsAodWallpaper">true</bool>
-    <bool name="config_dozeAfterScreenOff">true</bool>
-    <bool name="config_displayBlanksAfterDoze">false</bool>
