@@ -137,6 +137,7 @@ multi_option.sh
         ui_print " "
         sleep 0.5
         ui_print "_________________________________"
+        ui_print " "
         ui_print " [+] Volume Up = Select"
         ui_print " [-] Volume Down = Change option"
         ui_print "_________________________________"
@@ -149,29 +150,29 @@ multi_option.sh
     # VOLUME KEY LOGIC
     #MULTI_OPTION TIME!
     multi_option "cg" 4 loop
-    if undefined my_menu; then
+    if undefined cg; then
         abort " [!] No valid selection was obtained, Please retry"
     fi
     # SELECTION LOGIC
-    if [[ $my_menu == 1 ]]; then
+    if [[ $cg == 1 ]]; then
             ui_print " "
             ui_print "_________________________________"
             ui_print " [i] Glow animation has been "
             ui_print "     added to queue."
             touch $ChargeGlow
-    elif [[ $my_menu == 2 ]]; then
+    elif [[ $cg == 2 ]]; then
             ui_print " "
             ui_print "_________________________________"
             ui_print " [i] Minimal animation has been "
             ui_print "     added to queue."
             touch $ChargeMini
-    elif [[ $my_menu == 3 ]]; then
+    elif [[ $cg == 3 ]]; then
             ui_print " "
             ui_print "_________________________________"
             ui_print " [i] Bottle animation has been "
             ui_print "     added to queue."
             touch $ChargeBottle
-    elif [[ $my_menu == 4 ]]; then
+    elif [[ $cg == 4 ]]; then
             ui_print " "
             ui_print "_________________________________"
             ui_print " [i] Skipped Charging Animation."
