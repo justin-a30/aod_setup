@@ -260,7 +260,11 @@ ui_print " [0] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
-            AODMODPATH="$MODPATH/system/product/"
+            if [[ "$Android" -le 12 ]]; then
+                AODMODPATH="$MODPATH/system/"
+            else
+                AODMODPATH="$MODPATH/system/product/"
+            fi
                 # CHECK HEPROP OPTIONS
                     if [ -r $HEPath ]; then
                         # PLACE HEPROP
@@ -295,13 +299,14 @@ ui_print " [0] [Getting ready...]"
                         ui_print " [60] [Placing AOD app for HyperOS $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output $MODPATH/temp/hos1.zip
-                        unzip $MODPATH/temp/hos1.zip -d $MODPATH/files/aod/hos1
+                        unzip $MODPATH/temp/hos1.zip -d $MODPATH/files/aod
                         copy "$MODPATH/files/aod/hos1" "$AODMODPATH"
                     elif [ "$OS" -lt 816 ]; then
                         ui_print " "
                         ui_print " [60] [Placing AOD app for MIUI $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output $MODPATH/temp/mibug.zip
+                        unzip $MODPATH/temp/mibug.zip -d $MODPATH/files/aod
                         copy "$MODPATH/files/aod/mibug" "$AODMODPATH"
                     fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
