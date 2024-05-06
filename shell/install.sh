@@ -6,6 +6,27 @@
 # Ideas+Clues: LLions
 # Thanks to 30+ testers!
 
+#### CUSTOM MO BINARY
+# CUSTOM MULTI OPTION BINARY
+# BY: BlassGO
+
+# FIRST, TURN OFF CURRENT MULTI OPTION BINARY
+off_readonly multi_option
+# NOW, MAKE CUSTOM ONE
+multi_option() {
+   local end="$2" i=0 loop=false
+   [ -z "$1" ] && return 0
+   [[ "$3" == "loop" ]] && loop=true 
+   while true; do
+      i=$(($i+1))
+      if $yes; then ui_print "${n}Selected: $i" && setdefault "$1" $i && return $i
+      fi
+      if is_number $end && is_greater_equal $i $end; then if $loop; then i=0; echo " "; continue; else setdefault "$1" ""; return 0; fi; fi
+   done
+}
+# FOR NOW, EVERYTIME YOU MENTION "multi_option"
+# MODIFIED BINARY WILL RUN, INSTEAD OF ORIGINAL ONE.
+
 # Download files first
 ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
@@ -25,11 +46,6 @@ ui_print " [i] Getting cURL configuration from GitHub..."
     # SHELL
         ui_print " [i] cURL-ing shells"
             # curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
-# INCLUDE THE NEW multi_option PICKER
-# But first
-off_readonly multi_option
-# now exec
-multi_option.sh
 # sign: peperies
 
 # DEFINATION LOGIC
