@@ -1,3 +1,4 @@
+# shellcheck disable=SC2148
 # AOD PROJECT
 # MADE BY LOVE, LLIONS.
 # CodeBase: Bobert
@@ -32,7 +33,9 @@ off_readonly multi_option
         mkdir /data/local/tmp/prop/xaml
     # DEFIND PROP
         HEPath="/data/local/tmp/prop/he.prop"
-        ChargePath="/data/local/tmp/prop/charge.prop"
+        ChargeGlow="/data/local/tmp/prop/glow.prop"
+        ChargeMini="/data/local/tmp/prop/mini.prop"
+        ChargeBottle="/data/local/tmp/prop/bottle.prop"
         AodPath="/data/local/tmp/prop/aod.prop"
 # PRINT INFO
     ui_print " [i] Device info"
@@ -44,7 +47,7 @@ off_readonly multi_option
         ui_print " "
     fi
 # CHECKING ANDROID VERSION
-    if [ "$Android" -lt 9 ]; then
+    if [[ "$Android" -lt 9 ]]; then
         abort " [!!!!!!!] Error: Android $Android not supported."
     elif [ -r "$RMOV" ]; then
         ui_print " [#] Note"
@@ -98,8 +101,8 @@ off_readonly multi_option
         sleep 0.5
         ui_print "_________________________________"
         ui_print " "
-        ui_print " [✓] Volume Up = Yes!"
-        ui_print " [✕] Volume Down = No."
+        ui_print " [+] Volume Up = Yes!"
+        ui_print " [-] Volume Down = No."
         # VOLUME KEY LOGIC
             if $yes; then
                 ui_print "_________________________________"
@@ -115,15 +118,15 @@ off_readonly multi_option
     # PRINT OUT PROMPT
         ui_print " "
         ui_print "===================================================="
-        ui_print " [?] Do you want to add Charging Animation?"
-        ui_print "     This will install glow (flagship)
-     charging effect."
+        ui_print " [?] Select your favourite Charge Animation style"
         ui_print " "
         sleep 0.5
         ui_print "_________________________________"
+        ui_print " [+] Volume Up = Yes!"
+        ui_print " [-] Volume Down = No."
+        ui_print "_________________________________"
         ui_print " "
-        ui_print " [✓] Volume Up = Yes!"
-        ui_print " [✕] Volume Down = No."
+
     # VOLUME KEY LOGIC
         if $yes; then
             ui_print " "
@@ -156,8 +159,8 @@ off_readonly multi_option
                 sleep 0.5
                 ui_print "_________________________________"
                 ui_print " "
-                ui_print " [✓] Volume Up = Yes!"
-                ui_print " [✕] Volume Down = No."
+                ui_print " [+] Volume Up = Yes!"
+                ui_print " [-] Volume Down = No."
             # VOLUME KEY LOGIC
                 if $yes; then
                     ui_print " "
@@ -195,8 +198,8 @@ off_readonly multi_option
                 fi
     # PRINT OUT OPTIONS
         ui_print "===================================================="
-        ui_print " [✓] Volume Up = Yes!"
-        ui_print " [✕] Volume Down = No."
+        ui_print " [+] Volume Up = Yes!"
+        ui_print " [-] Volume Down = No."
             # VOLUME KEY LOGIC
                 if ! $yes; then
                 ui_print "===================================================="
@@ -243,7 +246,7 @@ ui_print " [0] [Getting ready...]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output $MODPATH/files/chargemod/GlowCharge.apk
                     copy "$MODPATH/files/chargemod/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
             else
-                ui_print " [30] [Skipping Charging Animation]"        
+                ui_print " [30] [Skipping Charging Animation]"
             fi
 
     # # INSTALL AOD
@@ -255,6 +258,7 @@ ui_print " [0] [Getting ready...]"
                         ui_print " [60] [Placing AOD app for HyperOS $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output $MODPATH/temp/hos1.zip
+                        unzip $MODPATH/temp/hos1.zip -d $MODPATH/files/aod/hos1
                         copy "$MODPATH/files/aod/hos1" "$AODMODPATH"
                     elif [ "$OS" -lt 816 ]; then
                         ui_print " "
@@ -428,11 +432,52 @@ ui_print " [0] [Getting ready...]"
                     ui_print " "
                     ui_print " [99] [Adding prop to product]"
                     copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
-                    copy "$MODPATH/files/product.prop" "/data/local/tmp/prop/product.prop"
-                    force_update_file "/data/local/tmp/prop/product.prop" "/data/local/tmp/prop/build.prop"
                     copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
-                    copy "/product/etc/permissions/privapp-permissions-product.xml" "/data/local/tmp/prop/permxaml.xml"
-                    # SOMETHING HERE IS REQUIRED! #TODO
+                    # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
+                    if [[ "$Android" -le 12 ]]; then
+                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
+                    else
+                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                    fi
+                    # COPY
+                    copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
+                    # DOING THE WORK
+                        if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
+                        # IF CONTAINS A PERMISSION, SKIP, OTHERWISE, ADD. KEEP DOING THIS UNTIL THE END.
+                            if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
+                            fi
+                        #
+                            if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
+                            fi
+                        #
+                            if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
+                            fi
+                        #
+                            if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
+                            fi
+                        # IF THERE'S NO FUCKING AOD PERMISSIONS, YOU'RE COMPLETELY COOKED DUMBASS - im telling the one who make miui ( dont even yap about "miui is not the same as hyperos 🤓🤓" dude they both the same even package name hyperohshit is just the renamed of gayui )
+                        else
+                            add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
+                          <permission name="android.permission.BIND_WALLPAPER" />
+                          <permission name="android.permission.INTERACT_ACROSS_USERS" />
+                          <permission name="android.permission.READ_DREAM_STATE" />
+                          <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+                       </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
+                        fi
                     copy "/data/local/tmp/prop/permxaml.xml"  "$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
             else
                 ui_print " [85] [Skipping AOD]"        

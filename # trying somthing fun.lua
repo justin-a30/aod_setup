@@ -174,3 +174,494 @@ if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp
 else
     add_lines_string -bl '</features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
 fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# IM BORED
+# ok
+# now uhh
+# perm time
+
+# CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
+if [[ "$Android" -le 12 ]]; then
+    PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+    FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
+else
+    PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+    FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+fi
+# COPY
+copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
+# DOING THE WORK
+    if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
+    # IF CONTAINS A PERMISSION, SKIP, OTHERWISE, ADD. KEEP DOING THIS UNTIL THE END.
+        if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml; then
+            echo "bomb" > /dev/null
+        else
+            add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
+        fi
+    #
+        if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml; then
+            echo "bomb" > /dev/null
+        else
+            add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
+        fi
+    #
+        if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml; then
+            echo "bomb" > /dev/null
+        else
+            add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
+        fi
+    #
+        if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml; then
+            echo "bomb" > /dev/null
+        else
+            add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
+        fi
+    # IF THERE'S NO FUCKING AOD PERMISSIONS, YOU'RE COMPLETELY COOKED DUMBASS - im telling the one who make miui ( dont even yap about "miui is not the same as hyperos 🤓🤓" dude they both the same even package name hyperohshit is just the renamed of gayui )
+    else
+        add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
+      <permission name="android.permission.BIND_WALLPAPER" />
+      <permission name="android.permission.INTERACT_ACROSS_USERS" />
+      <permission name="android.permission.READ_DREAM_STATE" />
+      <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+   </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
+    fi
