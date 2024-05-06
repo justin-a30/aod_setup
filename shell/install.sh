@@ -10,7 +10,21 @@
 ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
 ui_print " [i] Getting cURL configuration from GitHub..." 
-bash -c "$(curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/curl.sh)"
+# NOTIFY AND MKDIR
+    ui_print " [i] Preparing destination..."
+        mkdir $MODPATH/files
+        mkdir $MODPATH/files/aod
+        mkdir $MODPATH/files/chargemod
+        mkdir $MODPATH/temp
+
+# NOTIFY CURL START
+    ui_print " [i] cURL start."
+        sleep 1
+        
+# START CURL
+    # SHELL
+        ui_print " [i] cURL-ing shells"
+            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
 # INCLUDE THE NEW multi_option PICKER
 # But first
 off_readonly multi_option
@@ -107,8 +121,9 @@ off_readonly multi_option
             if $yes; then
                 ui_print "_________________________________"
                 ui_print " "
-                ui_print " [i] Installation of High End
-     Properties has been added to queue."
+                ui_print " [i] Installation of High End"
+                ui_print "     Properties has been added"
+                ui_print "     to queue."
                 touch $HEPath
             else
                 ui_print "_________________________________"
@@ -122,23 +137,45 @@ off_readonly multi_option
         ui_print " "
         sleep 0.5
         ui_print "_________________________________"
-        ui_print " [+] Volume Up = Yes!"
-        ui_print " [-] Volume Down = No."
+        ui_print " [+] Volume Up = Select"
+        ui_print " [-] Volume Down = Change option"
         ui_print "_________________________________"
         ui_print " "
+        ui_print " [1] Glow (Flagship)"
+        ui_print " [2] Minimal Animation"
+        ui_print " [3] Bottle Animation (flowing to battery packet)"
+        ui_print " [4] Skip"
 
     # VOLUME KEY LOGIC
-        if $yes; then
+    #MULTI_OPTION TIME!
+    multi_option "cg" 4 loop
+    if undefined my_menu; then
+        abort " [!] No valid selection was obtained, Please retry"
+    fi
+    # SELECTION LOGIC
+    if [[ $my_menu == 1 ]]; then
             ui_print " "
             ui_print "_________________________________"
-            ui_print " [i] Installation of Charging
-    Animation has been added to queue."
-            touch $ChargePath
-        else
+            ui_print " [i] Glow animation has been "
+            ui_print "     added to queue."
+            touch $ChargeGlow
+    elif [[ $my_menu == 2 ]]; then
+            ui_print " "
+            ui_print "_________________________________"
+            ui_print " [i] Minimal animation has been "
+            ui_print "     added to queue."
+            touch $ChargeMini
+    elif [[ $my_menu == 3 ]]; then
+            ui_print " "
+            ui_print "_________________________________"
+            ui_print " [i] Bottle animation has been "
+            ui_print "     added to queue."
+            touch $ChargeBottle
+    elif [[ $my_menu == 4 ]]; then
             ui_print " "
             ui_print "_________________________________"
             ui_print " [i] Skipped Charging Animation."
-        fi
+    fi
 
 # # AOD MOD
     # CHECK PACKAGE LOGIC (IMPLEMENT SOON)

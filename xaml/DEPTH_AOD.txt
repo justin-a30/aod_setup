@@ -1,6 +1,0 @@
-    <bool name="is_xiaomi">true</bool>
-    <bool name="is_hongmi">false</bool>
-    <bool name="is_redmi">false</bool>
-    <bool name="support_gesture_wakeup">true</bool>
-    <bool name="support_aod">true</bool>
-    <bool name="aod_support_keycode_goto_dismiss">true</bool>

@@ -1,1 +1,0 @@
-    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>

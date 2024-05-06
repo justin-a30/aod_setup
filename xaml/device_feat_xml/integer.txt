@@ -1,1 +1,0 @@
-    <integer name="config_screenBrightnessDoze">17</integer>
