@@ -74,4 +74,103 @@ else
 fi
 
 
+
 ### temporary: di-4.8> xml_kit -open '<resources>' '</resources>' -open '<string name="config_dozeComponent">' '</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml | grep 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SAME THING TO TRY THIS SHIT AHAHAHAHAHDASJDHJSD HF
+# NO GAYMI, BE XIMI
+if contains '    <bool name="is_xiaomi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="is_xiaomi">false</bool>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+#
+if contains '    <bool name="is_hongmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="is_hongmi">true</bool>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+#
+if contains '    <bool name="is_redmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="is_redmi">true</bool>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+# AOD SHITS 
+if contains '    <bool name="support_gesture_wakeup">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="support_gesture_wakeup">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+#
+if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+#
+if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi
+#
+if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp/prop/xaml/$DevName.xml; then
+    if contains '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+        echo "bomb" > /dev/null
+    else
+        replace '    <bool name="aod_support_keycode_goto_dismiss">false</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+    fi
+else
+    add_lines_string -bl '</features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+fi

@@ -269,11 +269,78 @@ ui_print " [0] [Getting ready...]"
                     ui_print " "
                     ui_print " [67] [Adding AOD's properties...]"
                     ui_print " [i] cURL-ing XAMLs"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/xaml/DEPTH_AOD.txt --output $MODPATH/files/DEPTH_AOD.txt
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
-                    copy "$MODPATH/files/DEPTH_AOD.txt" "/data/local/tmp/prop/DEPTH_AOD.txt"
-                    update_file "/data/local/tmp/prop/DEPTH_AOD.txt" "/data/local/tmp/prop/xaml/$DevName.xml"
-                    add_lines_string -bl '</features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
+                    # NO GAYMI, BE XIMI
+                        if contains '    <bool name="is_xiaomi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="is_xiaomi">false</bool>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="is_hongmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="is_hongmi">true</bool>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="is_redmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="is_redmi">true</bool>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    # AOD SHITS 
+                        if contains '    <bool name="support_gesture_wakeup">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="support_gesture_wakeup">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="aod_support_keycode_goto_dismiss">false</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -bl '</features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                        add_lines_string -bl '</features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
                     mkdir "$MODPATH/system/product/etc/device_features"
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
@@ -288,7 +355,7 @@ ui_print " [0] [Getting ready...]"
                 # EDIT APK
                     ui_print " "
                     ui_print " [80] [Editing overlay files]"
-                        # BOOLEANS
+                    # BOOLEANS
                         if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                                 echo "bomb" > /dev/null
@@ -298,7 +365,7 @@ ui_print " [0] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                        #
+                    #
                         if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                                 echo "bomb" > /dev/null
@@ -308,7 +375,7 @@ ui_print " [0] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                        #
+                    #
                         if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                                 echo "bomb" > /dev/null
@@ -318,7 +385,7 @@ ui_print " [0] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                        #
+                    #
                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBlanksAfterDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                                 echo "bomb" > /dev/null
@@ -328,7 +395,7 @@ ui_print " [0] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                        # INTEGER
+                    # INTEGER
                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                                 echo "bomb" > /dev/null
@@ -339,7 +406,7 @@ ui_print " [0] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml
                         fi
-                        # STRINGS
+                    # STRINGS
                         if contains '    <string name="config_dozeComponent">' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
                             if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
                                 echo "bomb" > /dev/null
