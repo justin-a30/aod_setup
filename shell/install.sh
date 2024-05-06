@@ -29,7 +29,7 @@ ui_print " [i] Getting cURL configuration from GitHub..."
 # But first
 off_readonly multi_option
 # now exec
-multi_option
+multi_option.sh
 # sign: peperies
 
 # DEFINATION LOGIC
