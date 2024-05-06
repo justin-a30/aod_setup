@@ -24,12 +24,12 @@ ui_print " [i] Getting cURL configuration from GitHub..."
 # START CURL
     # SHELL
         ui_print " [i] cURL-ing shells"
-            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
+            # curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
 # INCLUDE THE NEW multi_option PICKER
 # But first
 off_readonly multi_option
 # now exec
-. $MODPATH/mo.sh
+multi_option
 # sign: peperies
 
 # DEFINATION LOGIC
