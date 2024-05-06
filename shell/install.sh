@@ -224,9 +224,15 @@ off_readonly multi_option
                 ui_print "     - High End properties"
                 fi
             # CHARGEPROP CHECK
-                if [ -r $ChargePath ]; then
+                if [ -r $ChargeGlow ]; then
                 ui_print "*"
                 ui_print "     - Charging Animation - Glow"
+                elif [ -r $ChargeMini ]; then
+                ui_print "*"
+                ui_print "     - Charging Animation - Minimal"
+                elif [ -r $ChargeBottle ]; then
+                ui_print "*"
+                ui_print "     - Charging Animation - Bottle"
                 fi
             # HEPROP CHECK
                 if [ -r $AodPath ]; then
