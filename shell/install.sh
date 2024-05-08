@@ -1,9 +1,3 @@
-off_readonly multi_option
-. $addons/mo.sh
-# ^~~~~~~~~~~~~~~~~~~~~~^
-# CUSTOM MULTI_OPTION
-
-
 # AOD PROJECT
 # MADE BY LOVE, LLIONS.
 # CodeBase: Bobert

@@ -10,5 +10,6 @@ setdefault apex_mount off
 setdefault extraction_speed default
 setdefault permissions "0:0:0755:0644"
 setdefault devices off
+off_readonly multi_option
 #-----------------------------------------------#
 #Your script starts here:
