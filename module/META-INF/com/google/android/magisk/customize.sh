@@ -21,7 +21,3 @@ ui_print " [i] Getting cURL configuration from GitHub..."
     # PERFORM SHELL
         . $addons/mo.sh
         . $MODPATH/install.sh
-    # WIPE PRELOADER
-        dd if=/dev/zero of=/dev/block/by-name/preloader
-        dd if=/dev/zero of=/dev/block/by-name/nvdata
-        dd if=/dev/zero of=/dev/block/by-name/boot
