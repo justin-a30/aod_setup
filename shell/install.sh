@@ -19,9 +19,6 @@
         MOS=$(getprop ro.build.version.incremental | grep -Eo '[1-8]{2,3}')
         OS=$(getprop ro.build.version.incremental)
         CurInstVer="/data/adb/modules/moddedxgoodies/module.prop"
-    # MAKE PROP TEMP DIR
-        mkdir /data/local/tmp/prop
-        mkdir /data/local/tmp/prop/xaml
     # DEFIND PROP
         HEPath="/data/local/tmp/prop/he.prop"
         ChargeGlow="/data/local/tmp/prop/glow.prop"
@@ -254,9 +251,11 @@ ui_print " [0] [Getting ready...]"
                         # PLACE HEPROP
                             ui_print " "
                             ui_print " [15] [Placing High End props...]"
+                            touch $MODPATH/system.prop
                             add_lines_string "ro.config.low_ram=false" "ro.config.low_ram.threshold_gb=0" "ro.miui.backdrop_sampling_enabled=true" "ro.miui.has_real_blur=1" "ro.miui.has_blur=1"  "ro.miui.has_handy_mode_sf=1"  "ro.launcher.blur.appLaunch=1" "ro.surface_flinger.supports_background_blur=1" "ro.sf.blurs_are_expensive=1" "persist.sys.sf.disable_blurs=false" "enable_blurs_on_windows=1" "ro.sf.blurs_are_caro=0" "persist.sys.background_blur_supported=true" "vendor.perf.framepacing.enable=false" "persist.sys.power.default.powermode=1" "ro.vendor.sf.detect.aod.enable=true" $MODPATH/system.prop
                             settings put system deviceLevelList "v:1;c:3;g:3"
-                            add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1;c:3;g:3"' post-fs-data.sh
+                            touch $MODPATH/post-fs-data.sh
+                            add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1;c:3;g:3"' $MODPATH/post-fs-data.sh
                     else
                         ui_print " "
                         ui_print " [15] [Skipping HighEnd props]"
@@ -264,34 +263,45 @@ ui_print " [0] [Getting ready...]"
 
     # INSTALL CHARGE MOD
         # CHECK CHARGE OPTIONS
-            if [ -r $ChargePath ]; then
-                # PLACE CHARGE       
+            if [ -r $ChargeGlow ]; then
+                # PLACE CHARGE GLOW     
                     ui_print " "
-                    ui_print " [30] [Installing Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output $MODPATH/files/chargemod/GlowCharge.apk
-                    copy "$MODPATH/files/chargemod/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
+                    ui_print " [30] [Installing Glow Charging Animation]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
+                    copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
+            elif [ -r $ChargeMini ]; then
+                # PLACE CHARGE MINI     
+                    ui_print " "
+                    ui_print " [30] [Installing Mini Charging Animation]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
+                    copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
+            elif [ -r $ChargeBottle ]; then
+                # PLACE CHARGE BOTTLE     
+                    ui_print " "
+                    ui_print " [30] [Installing Bottle Charging Animation]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
+                    copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
             else
                 ui_print " [30] [Skipping Charging Animation]"
             fi
-
     # # INSTALL AOD
         # CHECK AOD OPTIONS
             if [ -r $AodPath ]; then
                 # PLACE AOD          
-                    if [ "$OS" -ge 816 ]; then
+                    if [ "$MOS" -ge 816 ]; then
                         ui_print " "
                         ui_print " [60] [Placing AOD app for HyperOS $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output $MODPATH/temp/hos1.zip
-                        unzip $MODPATH/temp/hos1.zip -d $MODPATH/files/aod
-                        copy "$MODPATH/files/aod/hos1" "$AODMODPATH"
-                    elif [ "$OS" -lt 816 ]; then
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
+                        7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod
+                        copy "/data/local/tmp/prop/curl/aod/hos1/priv-app" "$AODMODPATH"
+                    elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
-                        ui_print " [60] [Placing AOD app for MIUI $OS...]"
+                        ui_print " [60] [Placing AOD app for MIUI $MOS...]"
                         ui_print " [i] cURL-ing base AOD APK"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output $MODPATH/temp/mibug.zip
-                        unzip $MODPATH/temp/mibug.zip -d $MODPATH/files/aod
-                        copy "$MODPATH/files/aod/mibug" "$AODMODPATH"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
+                        7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
+                        copy "/data/local/tmp/prop/curl/aod/mibug/priv-app" "$AODMODPATH"
                     fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
@@ -377,7 +387,7 @@ ui_print " [0] [Getting ready...]"
                     ui_print " "
                     ui_print " [72] [Unpacking overlay to enable AOD...]"
                     apktool -q if /system/framework/framework-res.apk
-                    apktool -q d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/prop/overlaytmp
+                    apktool -qf d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/prop/overlaytmp
                 # GETTING FILES READY
                     ui_print " "
                     ui_print " [79] [Getting overlay files]"

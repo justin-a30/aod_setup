@@ -5,10 +5,11 @@ ui_print " [!] Connection to the internet is required.
 ui_print " [i] Getting cURL configuration from GitHub..." 
 # NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
-        mkdir $MODPATH/files
-        mkdir $MODPATH/files/aod
-        mkdir $MODPATH/files/chargemod
-
+        mkdir /data/local/tmp/prop
+        mkdir /data/local/tmp/prop/xaml
+        mkdir /data/local/tmp/prop/curl
+        mkdir /data/local/tmp/prop/curl/aod
+        mkdir /data/local/tmp/prop/curl/cm
 # NOTIFY CURL START
     ui_print " [i] cURL start."
         sleep 1

@@ -172,7 +172,7 @@ check_content() {
    func=${#array[@]}
    [ $func == 0 ] && return 1
    for content in "${array[@]}"; do
-      unzip -l "$file" "$content" | grep -Fq "$content" || return 1
+      is_greater_equal $(zip_list "$file" "$content" | wc -l) 1 || return 1
    done
    return 0
 }
@@ -217,7 +217,7 @@ find_content() {
    [ $func == 0 ] && return 1
    for content in "${array[@]}"; do
       $regex || content=$(echo "$content" | sed -e $fix)
-      if ! unzip -l "$file" | tail -n+4 | grep -Eo "[0-9]+:[0-9]+([^/]+/*){0,$limit}${nf}" | sed -E 's/.*[0-9]+:[0-9]+[[:space:]]+(.*)$/\1/g' | sort -bu | grep -E "$content"; then
+      if ! zip_list "$file" | grep -E "$content"; then
          echo2 "Cant find contents with: \"$content\" in \"$file\""
       else pass=true
       fi
@@ -4601,21 +4601,49 @@ run_zip() {
     rm -f "$TMP/$(basename "$file")"
 }
 
+zip_list() {
+   if [ -n "$2" ]; then
+      7z l -ba -bse0 -slt "$1" "$2" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$1" ]; then
+      7z l -ba -bse0 -slt "$1" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$installzip" ]; then
+      7z l -ba -bse0 -slt "$installzip" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}' | sort -bu
+   fi
+}
+
+zip_list_file() {
+   if [ -n "$2" ]; then 7z l -ba -bse0 -slt "$1" "$2" | awk '/^Path =/{path=$0; getline; if (/^Folder = -/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$1" ]; then 7z l -ba -bse0 -slt "$1" | awk '/^Path =/{path=$0; getline; if (/^Folder = -/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$installzip" ]; then 7z l -ba -bse0 -slt "$installzip" | awk '/^Path =/{path=$0; getline; if (/^Folder = -/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   fi
+}
+
+
+zip_list_dir() {
+   if [ -n "$2" ]; then 7z l -ba -bse0 -slt "$1" "$2" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$1" ]; then 7z l -ba -bse0 -slt "$1" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   elif [ -n "$installzip" ]; then 7z l -ba -bse0 -slt "$installzip" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)}' | sort -bu
+   fi
+}
+
 package_extract_file() {
    [ -n "$3" ] && local installzip="$3"
    if [ ! -f "$installzip" ]; then echo2 "CANT FIND: $installzip" && return 1; fi
-   if unzip -l "$installzip" "$1" | grep -q "$1"; then
+   check=$(zip_list_file "$installzip" "$1" | wc -l)
+   if [ $check = 1 ]; then
       if [[ -n "$1" && -n "$2" ]]; then
          create_dir "$(dirname "$2")" || return 1
-         unzip -qp "$installzip" "$1" > "$2"
+         7z e "$installzip" "$1" -so -y -bd -bb0 -bso0 -bsp0 > "$2"
          if exist "$2"; then set_perm2 $di_uid $di_gid $di_perm_f "$2"
          else return 1
          fi
       elif [ -n "$1" ]; then
-         unzip -qp "$installzip" "$1" || return 1
+         7z e "$installzip" "$1" -so -y -bd -bb2 -bso2 -bsp2 || return 1
       else
          return 1
       fi
+   elif is_greater $check 1; then
+      echo2 "ZIP: You are trying to extract a folder [$1], use package_extract_dir" && return 1
    else
       echo2 "ZIP: Cant find file [$1]" && return 1
    fi
@@ -4625,8 +4653,13 @@ package_extract_dir() {
   local outfile return=0 a
   [ -n "$3" ] && local installzip="$3"
   if [ ! -f "$installzip" ]; then echo2 "CANT FIND: $installzip" && return 1; fi
+  check=$(zip_list_dir "$installzip" "$1" | wc -l)
+  if [ $check = 0 ]; then
+     check=$(zip_list_file "$installzip" "$1" | wc -l)
+     [ $check = 1 ] && echo2 "ZIP: You are trying to extract a file [$1], please use package_extract_file" || echo2 "ZIP: Cant find folder [${1%%/}]"
+     return 1
+  fi
   while read a; do
-    if undefined a; then unzip -l "$installzip" "$1" | grep -q "$1" && echo2 "ZIP: You are trying to extract a file [$1], please use package_extract_file" || echo2 "ZIP: Cant find folder [${1%%/}]"; return=1; break; fi
     if [[ -n "$1" && -n "$2" ]]; then
        outfile=$(echo "$a" | sed "s|${1}|${2}|");
        if echo "$a" | grep -q '/$'; then 
@@ -4634,16 +4667,16 @@ package_extract_dir() {
           continue
        else create_dir "$(dirname "$outfile")" || return 1
        fi
-       unzip -qp "$installzip" "$a" > "$outfile"
+       7z e "$installzip" "$a" -o"$(dirname "$outfile")" -y -bd -bb0 -bso0 -bsp0
        if exist "$outfile"; then set_perm2 $di_uid $di_gid $di_perm_f "$outfile"
        else return=1 && continue
        fi
     elif [ -n "$1" ]; then
        if echo "$a" | grep -q '/$'; then continue; fi
-       unzip -qp "$installzip" "$a" || return=1
+       7z e "$installzip" "$a" -so -y -bd -bb0 -bso0 -bsp0 || return=1
     else return=1 && break
     fi
-  done <<< $(unzip -l "$installzip" | tail -n+4 | grep -o " ${1%%/}/.*$" | cut -c2-)
+  done <<< $(zip_list "$installzip" | grep -o "^${1%%/}/.*$")
   return $return
 }
 
@@ -4755,12 +4788,14 @@ update() {
     done
     set -- "${restore[@]}"
     orig="$1"; dest="$2"
+    start_tmp
     if is_number "$(string force remove M "$extraction_speed" 2>/dev/null)"; then bs=$extraction_speed; else bs=1048576; fi
     if exist "$dest"; then
        blockdev --setrw "$dest" 2>/dev/null
        ro=$(blockdev --getro "$dest" 2>/dev/null)
        if [[ "$ro" == "1" ]]; then
           echo2 "FATAL ERROR: Read/Only: $dest"
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        elif [[ "$ro" != "0" ]]; then
           echo2 "Cant get state: $dest"
@@ -4770,8 +4805,9 @@ update() {
     fi
     if defined sparse; then
        if [ -f "$(which simg2img)" ]; then
-          dest="$TMP/$(basename "$orig").tmp"
+          dest="$TMP2/$(basename "$orig").tmp"
        else
+          end_tmp
           echo2 "update: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
     fi
@@ -4781,6 +4817,7 @@ update() {
              echo2 " "
              echo2 "-- Updated:xz: $(basename "$orig")"
              echo2 " "
+             end_tmp
              return 0
           else orig="$dest"
           fi
@@ -4788,6 +4825,7 @@ update() {
           echo2 " "
           echo2 "-- Cant update:xz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     elif defined gz; then
@@ -4796,6 +4834,7 @@ update() {
              echo2 " "
              echo2 "-- Updated:gz: $(basename "$orig")"
              echo2 " "
+             end_tmp
              return 0
           else orig="$dest"
           fi
@@ -4803,6 +4842,7 @@ update() {
           echo2 " "
           echo2 "-- Cant update:gz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     fi
@@ -4812,18 +4852,21 @@ update() {
               echo2 " "
               echo2 "-- Updated:sparse: $(basename "$orig")"
               echo2 " "
-              [[ "$orig" != "$1" ]] && delete "$orig"
+              end_tmp
               return 0
           else
               echo2 " "
               echo2 "-- Cant update:sparse: $(basename "$orig")"
               echo2 " "
+              end_tmp
               if [[ "$3" == "1" ]]; then abort; else return 1; fi
           fi
        else
+          end_tmp
           echo2 "update: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
     fi
+    end_tmp
     if dd if="$orig" of="$dest" bs=$bs; then
         echo2 " "
         echo2 "-- Updated:1: $(basename "$orig")"
@@ -4890,12 +4933,16 @@ update_zip() {
     done
     set -- "${restore[@]}"
     orig="$1"; dest="$2"
+    check=$(zip_list_file "$installzip" "$1" | wc -l)
+    if [ $check != 1 ]; then echo2 "ZIP: Cant find file [$1]" && return 1; fi
+    start_tmp
     if defined sparse; then
        if [ -f "$(which simg2img)" ]; then
-          dest="$TMP/$(basename "$orig").tmp"
-          package_extract_file "$orig" "$dest" || return 1
-          if update $xz $gz $sparse "$dest" "$2" "$3"; then delete "$dest"; return 0; else return 1; fi
+          dest="$TMP2/$(basename "$orig").tmp"
+          7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" || return 1
+          if update $xz $gz $sparse "$dest" "$2" "$3"; then end_tmp; return 0; else end_tmp; return 1; fi
        else
+          end_tmp
           echo2 "update_zip: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
     fi
@@ -4905,6 +4952,7 @@ update_zip() {
        ro=$(blockdev --getro "$dest" 2>/dev/null)
        if [[ "$ro" == "1" ]]; then
           echo2 "FATAL ERROR: Read/Only: $dest"
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        elif [[ "$ro" != "0" ]]; then
           echo2 "Cant get state: $dest"
@@ -4913,31 +4961,38 @@ update_zip() {
     else create_dir "$(dirname "$dest")"
     fi
     if defined xz; then
-       if unzip -qp "$installzip" "$orig" | xz -dc > "$dest"; then
+       dest="$TMP2/$(basename "$orig").tmp"
+       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && 7z e "$dest" -so -txz -y -bd -bb2 -bso2 -bsp2 > "$2"; then 
           echo2 " "
           echo2 "-- Updated:xz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           return 0
        else
           echo2 " "
           echo2 "-- Cant update:xz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     elif defined gz; then
-       if unzip -qp "$installzip" "$orig" | gunzip -c - > "$dest"; then
+       dest="$TMP2/$(basename "$orig").tmp"
+       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && gunzip -c "$dest" > "$2"; then
           echo2 " "
           echo2 "-- Updated:gz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           return 0
        else
           echo2 " "
           echo2 "-- Cant update:gz: $(basename "$orig")"
           echo2 " "
+          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     fi
-    if unzip -qp "$installzip" "$orig" | dd of="$dest" bs=$bs; then
+    end_tmp
+    if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest"; then
         echo2 " "
         echo2 "-- Updated:1: $(basename "$orig")"
         echo2 " "
@@ -5361,14 +5416,15 @@ apex_mount() {
     local apex="$1" dest loopdev
     local list="$di_apex_list"
     if [ -f "$apex" ]; then
-         dest=
          dest=$(apex_pkg "$apex")
          [ ! -z "$dest" ] && dest=/apex/$dest || return 1
          [ -d "$dest" ] || mkdir -p "$dest"
-         ( if unzip -l "$apex" original_apex | grep -q original_apex; then
-            unzip -p "$apex" original_apex | unzip -qo - apex_payload.img -d /apex
-         else unzip -qo "$apex" apex_payload.img -d /apex
-         fi ) 2>/dev/null
+         if zip_list "$apex" original_apex | grep -q original_apex; then
+            package_extract_file original_apex /apex/original_apex "$apex"
+            package_extract_file apex_payload.img /apex/apex_payload.img /apex/original_apex
+            rm -f /apex/original_apex
+         else package_extract_file apex_payload.img /apex/apex_payload.img "$apex"
+         fi
          if [ ! -f /apex/apex_payload.img ]; then is_mounted "$dest" || delete_recursive "$dest"; return 1; fi
          loop_setup /apex/apex_payload.img
          if [ ! -z $loopdev ]; then
@@ -5378,7 +5434,6 @@ apex_mount() {
          fi
          rm -f /apex/apex_payload.img
     elif [ -d "$apex" ]; then
-         dest=
          dest=$(apex_pkg "$apex")
          [ ! -z "$dest" ] && dest=/apex/$dest || return 1
          [ -d "$dest" ] || mkdir -p "$dest"
@@ -6313,11 +6368,6 @@ if [ $CUSTOM_SETUP = 1 ]; then
 
    bb="$TMP/busybox"; bin="$TMP/bin.xz"; extra="$TMP/extra.zip"
    
-   #Remove only zbin plugins
-   ( rm -rf "$l" "$TMP/zbin"
-     rm -f "$bb" "$TMP/bin" "$bin" "$extra" "$TMP/core"
-   ) 2>/dev/null
-   
    #Create work DIRs
    mkdir -p "$l" "$TMP/zbin" "$addons"
    if [ ! -d "$l" -o ! -d "$TMP/zbin" ]; then
@@ -6388,7 +6438,7 @@ if [ -d "$tmp2" ]; then abort "CANT SETUP:2: TMP2"; fi
 unset tmp2
 
 #Try using external unzip binary
-change_bin unzip -while -p
+#change_bin unzip -while -p
 
 #Checking possible exceptions (Read/Only Functions)
 pattern=off_readonly
