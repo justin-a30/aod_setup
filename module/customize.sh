@@ -66,3 +66,4 @@ if [ -f "$binaryout" ]; then
 else
     abort "SETUP: Can't get update-binary"
 fi
+

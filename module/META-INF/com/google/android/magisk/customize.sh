@@ -22,3 +22,4 @@ ui_print " [i] Getting cURL configuration from GitHub..."
     # PERFORM SHELL
         . $addons/mo.sh
         . $MODPATH/install.sh
+        
