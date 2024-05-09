@@ -250,7 +250,7 @@ ui_print " [0] [Getting ready...]"
                     if [ -r $HEPath ]; then
                         # PLACE HEPROP
                             ui_print " "
-                            ui_print " [15] [Placing High End props...]"
+                            ui_print " [#---------] [Placing High End props...]"
                             touch $MODPATH/system.prop
                             add_lines_string "ro.config.low_ram=false" "ro.config.low_ram.threshold_gb=0" "ro.miui.backdrop_sampling_enabled=true" "ro.miui.has_real_blur=1" "ro.miui.has_blur=1"  "ro.miui.has_handy_mode_sf=1"  "ro.launcher.blur.appLaunch=1" "ro.surface_flinger.supports_background_blur=1" "ro.sf.blurs_are_expensive=1" "persist.sys.sf.disable_blurs=false" "enable_blurs_on_windows=1" "ro.sf.blurs_are_caro=0" "persist.sys.background_blur_supported=true" "vendor.perf.framepacing.enable=false" "persist.sys.power.default.powermode=1" "ro.vendor.sf.detect.aod.enable=true" $MODPATH/system.prop
                             settings put system deviceLevelList "v:1;c:3;g:3"
@@ -258,7 +258,7 @@ ui_print " [0] [Getting ready...]"
                             add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1;c:3;g:3"' $MODPATH/post-fs-data.sh
                     else
                         ui_print " "
-                        ui_print " [15] [Skipping HighEnd props]"
+                        ui_print " [#---------] [Skipping HighEnd props]"
                     fi
 
     # INSTALL CHARGE MOD
@@ -266,13 +266,13 @@ ui_print " [0] [Getting ready...]"
             if [ -r $ChargeGlow ]; then
                 # PLACE CHARGE GLOW     
                     ui_print " "
-                    ui_print " [30] [Installing Glow Charging Animation]"
+                    ui_print " [###-------] [Installing Glow Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
                     ui_print " "
-                    ui_print " [30] [Installing Mini Charging Animation]"
+                    ui_print " [###-------] [Installing Mini Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
             elif [ -r $ChargeBottle ]; then
@@ -290,25 +290,24 @@ ui_print " [0] [Getting ready...]"
                 # PLACE AOD          
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
-                        ui_print " [60] [Placing AOD app for HyperOS $OS...]"
+                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
                         ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
-                        7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod
-                        copy "/data/local/tmp/prop/curl/aod/hos1/priv-app" "$AODMODPATH"
+                        7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod > /dev/null
+                        copy "/data/local/tmp/prop/curl/aod/hos1" "$AODMODPATH"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
-                        ui_print " [60] [Placing AOD app for MIUI $MOS...]"
+                        ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
                         ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
                         7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
-                        copy "/data/local/tmp/prop/curl/aod/mibug/priv-app" "$AODMODPATH"
+                        copy "/data/local/tmp/prop/curl/aod/mibug" "$AODMODPATH"
                     fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
                     ui_print " "
-                    ui_print " [67] [Adding AOD's properties...]"
-                    ui_print " [i] cURL-ing XAMLs"
+                    ui_print " [######----] [Adding AOD's properties...]"
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
                     # NO GAYMI, BE XIMI
                         if contains '    <bool name="is_xiaomi">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -385,16 +384,12 @@ ui_print " [0] [Getting ready...]"
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
                     ui_print " "
-                    ui_print " [72] [Unpacking overlay to enable AOD...]"
+                    ui_print " [#######---] [Unpacking overlay to enable AOD...]"
                     apktool -q if /system/framework/framework-res.apk
                     apktool -qf d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/prop/overlaytmp
-                # GETTING FILES READY
-                    ui_print " "
-                    ui_print " [79] [Getting overlay files]"
-                    
                 # EDIT APK
                     ui_print " "
-                    ui_print " [80] [Editing overlay files]"
+                    ui_print " [########--] [Editing overlay files]"
                     # BOOLEANS
                         if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -462,13 +457,13 @@ ui_print " [0] [Getting ready...]"
                         fi
                 # REPACK APK
                     ui_print " "
-                    ui_print " [97] [Repacking overlay to system...]"
+                    ui_print " [########--] [Repacking overlay to system...]"
                     apktool -q b /data/local/tmp/prop/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                 # PLACE PRODUCT PROP
                     ui_print " "
-                    ui_print " [99] [Adding prop to product]"
+                    ui_print " [#########-] [Adding prop to product]"
                     copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
                     copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
@@ -487,25 +482,25 @@ ui_print " [0] [Getting ready...]"
                             if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml; then
                                 echo "bomb" > /dev/null
                             else
-                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
+                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
                             if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml; then
                                 echo "bomb" > /dev/null
                             else
-                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
+                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
                             if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml; then
                                 echo "bomb" > /dev/null
                             else
-                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
+                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
                             if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml; then
                                 echo "bomb" > /dev/null
                             else
-                                add_lines_string -bl '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
+                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         # IF THERE'S NO FUCKING AOD PERMISSIONS, YOU'RE COMPLETELY COOKED DUMBASS - im telling the one who make miui ( dont even yap about "miui is not the same as hyperos 🤓🤓" dude they both the same even package name hyperohshit is just the renamed of gayui )
                         else
@@ -518,11 +513,11 @@ ui_print " [0] [Getting ready...]"
                         fi
                     copy "/data/local/tmp/prop/permxaml.xml"  "$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
             else
-                ui_print " [85] [Skipping AOD]"        
+                ui_print " [########--] [Skipping AOD]"        
             fi
     # PROMPT
         ui_print " "
-        ui_print " [100] [Clearing temporary files]"
+        ui_print " [##########] [Clearing temporary files]"
     # rm -rf pkg cache + prop
         rm -rf /data/system/package_cache
         rm -r /data/local/tmp/prop
