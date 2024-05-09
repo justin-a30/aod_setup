@@ -5,9 +5,9 @@ multi_option() {
    [[ "$3" == "loop" ]] && loop=true 
    while true; do
       i=$(($i+1))
-      if $yes; then ui_print " [i] ${n}Selected: $i" && setdefault "$1" $i && return $i
+      if $yes; then ui_print " [i] Selected: $i" && setdefault "$1" $i && return $i
       fi
-      if is_number $end && is_greater_equal $i $end; then if $loop; then i=0; echo " [>] ${n}Option $i "; continue; else setdefault "$1" ""; return 0; fi; fi
+      if is_number $end && is_greater_equal $i $end; then if $loop; then i=0; echo " [>] Option $end "; continue; else setdefault "$1" ""; return 0; fi; fi
    done
 }
 # FOR NOW, EVERYTIME YOU MENTION "multi_option"
