@@ -455,6 +455,8 @@ ui_print " [0] [Getting ready...]"
                                 REP=$(string inside '>' '<' "$AST")
                                 replace "$REP" 'com.android.systemui/com.android.systemui.doze.DozeService' /data/local/tmp/prop/overlaytmp/res/values/strings.xml
                             fi
+                        elif contains '    <string name="config_dozeComponent" />' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
+                            replace '<string name="config_dozeComponent" />' '<string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml
                         else
                             add_lines_string -bl '</resources>' '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml
                         fi
