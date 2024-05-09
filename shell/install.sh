@@ -318,7 +318,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="is_xiaomi">false</bool>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
                         if contains '    <bool name="is_hongmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -328,7 +328,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="is_hongmi">true</bool>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
                         if contains '    <bool name="is_redmi">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -338,7 +338,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="is_redmi">true</bool>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     # AOD SHITS 
                         if contains '    <bool name="support_gesture_wakeup">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -348,7 +348,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="support_gesture_wakeup">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
                         if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -358,7 +358,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
                         if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -368,7 +368,7 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
                         if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -378,9 +378,9 @@ ui_print " [0] [Getting ready...]"
                                 replace '    <bool name="aod_support_keycode_goto_dismiss">false</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                             fi
                         else
-                            add_lines_string -bl '</features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            add_lines_string -al '<features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
-                        add_lines_string -bl '</features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
+                        add_lines_string -al '<features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
                     mkdir "$MODPATH/system/product/etc/device_features"
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
