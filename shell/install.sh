@@ -470,8 +470,8 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE PRODUCT PROP
                     ui_print " "
                     ui_print " [#########-] [Adding prop to product]"
-                    copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
-                    copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
+                    #copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
+                    #copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
                         PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
@@ -484,6 +484,11 @@ ui_print " [----------] [Getting ready...]"
                     copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # DOING THE WORK
                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
+                        # TODO
+                        #TODO
+                        #TODO
+                        #use xml_kit, open '<permission>' '</permission>' '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>'
+                        #so that it dont search globally
                         # IF CONTAINS A PERMISSION, SKIP, OTHERWISE, ADD. KEEP DOING THIS UNTIL THE END.
                             if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml; then
                                 echo "bomb" > /dev/null
