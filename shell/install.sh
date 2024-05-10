@@ -80,6 +80,7 @@
         ui_print " "
         ui_print "===================================================="
         ui_print " [?] Do you want to add High End properties?"
+        ui_print " "
         ui_print "     This will add following components:"
         ui_print "     - Blurs (AOSP + MIUI/HOS BLURS TEXTURE)"
         ui_print "     - Control Center"
@@ -91,17 +92,19 @@
         ui_print " "
         ui_print " [+] Volume Up = Yes!"
         ui_print " [-] Volume Down = No."
+        ui_print "_________________________________"
         # VOLUME KEY LOGIC
             if $yes; then
-                ui_print "_________________________________"
                 ui_print " "
                 ui_print " [i] Installation of High End"
                 ui_print "     Properties has been added"
                 ui_print "     to queue."
+                ui_print "_________________________________"
                 touch $HEPath
             else
-                ui_print "_________________________________"
+                ui_print " "
                 ui_print " [i] Skipped High End Properties."
+                ui_print "_________________________________"
             fi
 # CHARGE MOD
     # PRINT OUT PROMPT
@@ -120,9 +123,9 @@
         ui_print " [2] Minimal Animation"
         ui_print " [3] Bottle Animation (flowing to battery packet)"
         ui_print " [4] Skip"
-
+        ui_print "_________________________________"
     # VOLUME KEY LOGIC
-    #MULTI_OPTION TIME!
+    # MULTI_OPTION TIME!
     multi_option "cg" 4 loop
     if undefined cg; then
         abort " [!] No valid selection was obtained, Please retry"
@@ -130,26 +133,26 @@
     # SELECTION LOGIC
     if [[ $cg == 1 ]]; then
             ui_print " "
-            ui_print "_________________________________"
             ui_print " [i] Glow animation has been "
             ui_print "     added to queue."
+            ui_print "_________________________________"
             touch $ChargeGlow
     elif [[ $cg == 2 ]]; then
             ui_print " "
-            ui_print "_________________________________"
             ui_print " [i] Minimal animation has been "
             ui_print "     added to queue."
+            ui_print "_________________________________"
             touch $ChargeMini
     elif [[ $cg == 3 ]]; then
             ui_print " "
-            ui_print "_________________________________"
             ui_print " [i] Bottle animation has been "
             ui_print "     added to queue."
+            ui_print "_________________________________"
             touch $ChargeBottle
     elif [[ $cg == 4 ]]; then
             ui_print " "
-            ui_print "_________________________________"
             ui_print " [i] Skipped Charging Animation."
+            ui_print "_________________________________"            
     fi
 
 # # AOD MOD
@@ -162,10 +165,12 @@
                 ui_print " "
                 ui_print "===================================================="
                 ui_print " [?] Do you want to install AOD?"
-                ui_print "     This will install AOD (not modded)
-     on every devices"
-                ui_print "     [!] Notice: AOD might not work well
-     on some devices."   
+                ui_print "     This will install AOD (not modded)"
+                ui_print "     on every devices"
+                ui_print " "
+                ui_print "     [!] Notice: AOD might not work well"
+                ui_print "     on some devices."
+                ui_print " "
                 ui_print "     [!] Notice: AMOLED users recommended to skip."
                 ui_print " "
                 sleep 0.5
@@ -173,17 +178,18 @@
                 ui_print " "
                 ui_print " [+] Volume Up = Yes!"
                 ui_print " [-] Volume Down = No."
+                ui_print "_________________________________"
             # VOLUME KEY LOGIC
                 if $yes; then
                     ui_print " "
+                    ui_print " [i] Installation of AOD"
+                    ui_print "     has been added"
                     ui_print "_________________________________"
-                    ui_print " [i] Installation of AOD
-     has been added to queue."
                     touch $AodPath
                 else
                     ui_print " "
-                    ui_print "_________________________________"
                     ui_print " [i] Skipped AOD."
+                    ui_print "_________________________________"
                 fi
         #fi
 
@@ -195,32 +201,32 @@
         ui_print "     Selected package(s):"
             # HEPROP CHECK
                 if [ -r $HEPath ]; then
-                ui_print "*"
+                ui_print " "
                 ui_print "     - High End properties"
                 fi
             # CHARGEPROP CHECK
                 if [ -r $ChargeGlow ]; then
-                ui_print "*"
+                ui_print " "
                 ui_print "     - Charging Animation - Glow"
                 elif [ -r $ChargeMini ]; then
-                ui_print "*"
+                ui_print " "
                 ui_print "     - Charging Animation - Minimal"
                 elif [ -r $ChargeBottle ]; then
-                ui_print "*"
+                ui_print " "
                 ui_print "     - Charging Animation - Bottle"
                 fi
             # HEPROP CHECK
                 if [ -r $AodPath ]; then
-                ui_print "*"
+                ui_print " "
                 ui_print "     - AOD for IPS "
                 fi
     # PRINT OUT OPTIONS
         ui_print "===================================================="
         ui_print " [+] Volume Up = Yes!"
         ui_print " [-] Volume Down = No."
+        ui_print "===================================================="
             # VOLUME KEY LOGIC
                 if ! $yes; then
-                ui_print "===================================================="
                 end " [i] Installation cancelled by the user.
      Reinstall module to pick again."
                 fi
@@ -237,7 +243,7 @@ sleep 1
 ui_print "[🏁] GO"
 ui_print " "
 ui_print "_________________________________"
-ui_print " [0] [Getting ready...]"
+ui_print " [----------] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
@@ -511,7 +517,7 @@ ui_print " [0] [Getting ready...]"
                           <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
                        </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
                         fi
-                    copy "/data/local/tmp/prop/permxaml.xml"  "$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                    copy "/data/local/tmp/prop/permxaml.xml"  "$FINALPERMDEST"
             else
                 ui_print " [########--] [Skipping AOD]"        
             fi
