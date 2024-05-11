@@ -115,8 +115,8 @@
         sleep 0.5
         ui_print "_________________________________"
         ui_print " "
-        ui_print " [+] Volume Up = Select"
-        ui_print " [-] Volume Down = Change option"
+        ui_print " [+] Volume Up = Change option"
+        ui_print " [-] Volume Down = Select"
         ui_print "_________________________________"
         ui_print " "
         ui_print " [1] Glow (Flagship)"
@@ -129,7 +129,7 @@
         cm=1
         while true; do
             ui_print " [>] Option: $cm"
-            "! $yes" && cm="$((cm + 1))" || break
+            "$yes" && cm="$((cm + 1))" || break
             [[ "$cm" -gt "4" ]] && cm=1
         done
 
