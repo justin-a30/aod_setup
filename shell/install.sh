@@ -129,7 +129,7 @@
         cm=1
         while true; do
             ui_print "  $cm"
-            "$yes" && cm="$((SM + 1))" || break
+            "$yes" && cm="$((cm + 1))" || break
             [[ "$cm" -gt "4" ]] && cm=1
         done
 
