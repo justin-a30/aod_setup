@@ -484,31 +484,26 @@ ui_print " [----------] [Getting ready...]"
                     copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # DOING THE WORK
                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
-                        # TODO
-                        #TODO
-                        #TODO
-                        #use xml_kit, open '<permission>' '</permission>' '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>'
-                        #so that it dont search globally
-                        # IF CONTAINS A PERMISSION, SKIP, OTHERWISE, ADD. KEEP DOING THIS UNTIL THE END.
-                            if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml; then
+                            xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/prop/permxaml.xml > /data/local/tmp/prop/temp.xml
+                            if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/temp.xml; then
                                 echo "bomb" > /dev/null
                             else
                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
-                            if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml; then
+                            if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/temp.xml; then
                                 echo "bomb" > /dev/null
                             else
                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
-                            if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml; then
+                            if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/temp.xml; then
                                 echo "bomb" > /dev/null
                             else
                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
                             fi
                         #
-                            if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml; then
+                            if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/temp.xml; then
                                 echo "bomb" > /dev/null
                             else
                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
