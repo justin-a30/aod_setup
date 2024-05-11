@@ -126,36 +126,47 @@
         ui_print "_________________________________"
     # VOLUME KEY LOGIC
     # MULTI_OPTION TIME!
-    multi_option "cg" 4 loop
-    if undefined cg; then
-        abort " [!] No valid selection was obtained, Please retry"
-    fi
-    # SELECTION LOGIC
-    if [[ $cg == 1 ]]; then
-            ui_print " "
-            ui_print " [i] Glow animation has been "
-            ui_print "     added to queue."
-            ui_print "_________________________________"
-            touch $ChargeGlow
-    elif [[ $cg == 2 ]]; then
-            ui_print " "
-            ui_print " [i] Minimal animation has been "
-            ui_print "     added to queue."
-            ui_print "_________________________________"
-            touch $ChargeMini
-    elif [[ $cg == 3 ]]; then
-            ui_print " "
-            ui_print " [i] Bottle animation has been "
-            ui_print "     added to queue."
-            ui_print "_________________________________"
-            touch $ChargeBottle
-    elif [[ $cg == 4 ]]; then
-            ui_print " "
-            ui_print " [i] Skipped Charging Animation."
-            ui_print "_________________________________"            
-    fi
+        cm=1
+        while true; do
+            ui_print "  $cm"
+            "$yes" && cm="$((SM + 1))" || break
+            [[ "$cm" -gt "4" ]] && cm=1
+        done
 
-# # AOD MOD
+        case "$cm" in
+            "1") option="Glow Animation" ;;
+            "2") option="Minimal Animation" ;;
+            "3") option="Bottle Animation" ;;
+            "4") option="Skip charging animation mod" ;;
+        esac
+        # PRINT OUT SELECTED OPTION
+            ui_print " [>] Option: $option"
+            ui_print ""
+        # LOGIC WHEN PRESSED
+            if [[ "$option" == "Glow Animation" ]]; then
+                      ui_print " "
+                      ui_print " [i] Glow animation has been "
+                      ui_print "     added to queue."
+                      ui_print "_________________________________"
+                      touch $ChargeGlow
+            elif [[ "$option" == "Minimal Animation" ]]; then
+                      ui_print " "
+                      ui_print " [i] Minimal animation has been "
+                      ui_print "     added to queue."
+                      ui_print "_________________________________"
+                      touch $ChargeMini
+            elif [[ "$option" == "Bottle Animation" ]]; then
+                      ui_print " "
+                      ui_print " [i] Bottle animation has been "
+                      ui_print "     added to queue."
+                      ui_print "_________________________________"
+                      touch $ChargeBottle
+            elif [[ "$option" == "Skip charging animation mod" ]]; then
+                      ui_print " "
+                      ui_print " [i] Skipped Charging Animation."
+                      ui_print "_________________________________"      
+            fi         
+ # AOD MOD
     # CHECK PACKAGE LOGIC (IMPLEMENT SOON)
         # if pm list packages | grep -q "^package:$miaod$"; then
         #    ui_print " [   i   ] Amoled user. Skipping AOD installation."

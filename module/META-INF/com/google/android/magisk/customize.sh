@@ -17,9 +17,7 @@ ui_print " [i] Getting cURL configuration from GitHub..."
 # START CURL
     # SHELL
         ui_print " [i] cURL-ing shells"
-            curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/mo.sh --output $MODPATH/mo.sh
             curl https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/install.sh --output $MODPATH/install.sh
     # PERFORM SHELL
-        . $MODPATH/mo.sh
         . $MODPATH/install.sh
         
