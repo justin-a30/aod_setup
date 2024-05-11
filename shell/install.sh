@@ -128,8 +128,8 @@
     # MULTI_OPTION TIME!
         cm=1
         while true; do
-            ui_print "  $cm"
-            "$yes" && cm="$((cm + 1))" || break
+            ui_print " [>] Option: $cm"
+            "! $yes" && cm="$((cm + 1))" || break
             [[ "$cm" -gt "4" ]] && cm=1
         done
 
@@ -140,7 +140,7 @@
             "4") option="Skip charging animation mod" ;;
         esac
         # PRINT OUT SELECTED OPTION
-            ui_print " [>] Option: $option"
+            ui_print " [i] Selected: $option"
             ui_print ""
         # LOGIC WHEN PRESSED
             if [[ "$option" == "Glow Animation" ]]; then
