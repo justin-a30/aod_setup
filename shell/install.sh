@@ -377,16 +377,6 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -al '<features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
-                        if contains '    <bool name="support_aod">' /data/local/tmp/prop/xaml/$DevName.xml; then
-                            if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
-                        fi
-                    #
                         if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp/prop/xaml/$DevName.xml; then
                             if contains '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
                                 echo "bomb" > /dev/null
@@ -396,8 +386,36 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -al '<features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
-                        add_lines_string -al '<features>' '    <bool name="is_aod_need_grayscale">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' '    <bool name="support_screen_paper_mode">true</bool>' '    <bool name="support_aod_aon">true</bool>'  /data/local/tmp/prop/xaml/$DevName.xml
-                    mkdir "$MODPATH/system/product/etc/device_features"
+                    #
+                        if contains '    <bool name="is_aod_need_grayscale">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="is_aod_need_grayscale">true</bool>' '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -al '<features>' '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="support_screen_paper_mode">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="support_screen_paper_mode">false</bool>' '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -al '<features>' '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
+                        if contains '    <bool name="support_aod_aon">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="support_aod_aon">false</bool>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
                     ui_print " "
