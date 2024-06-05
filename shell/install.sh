@@ -387,6 +387,16 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -al '<features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     #
+                        if contains '    <bool name="is_only_support_keycode_goto">' /data/local/tmp/prop/xaml/$DevName.xml; then
+                            if contains '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="is_only_support_keycode_goto">true</bool>' '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                            fi
+                        else
+                            add_lines_string -al '<features>' '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
+                        fi
+                    #
                         if contains '    <bool name="is_aod_need_grayscale">' /data/local/tmp/prop/xaml/$DevName.xml; then
                             if contains '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
                                 echo "bomb" > /dev/null
