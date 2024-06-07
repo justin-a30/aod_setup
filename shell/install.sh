@@ -427,6 +427,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                    add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1,c:3,g:3"' $MODPATH/post-fs-data.sh
                 # UNPACK APK
                     ui_print " "
                     ui_print " [#######---] [Unpacking overlay to enable AOD...]"
@@ -467,14 +468,55 @@ ui_print " [----------] [Getting ready...]"
                         fi
                     #
                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_displayBlanksAfterDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                            if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                                 echo "bomb" > /dev/null
                             else
-                                replace '    <bool name="config_displayBlanksAfterDoze">false</bool>' '    <bool name="config_displayBlanksAfterDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                                replace '    <bool name="config_displayBlanksAfterDoze">true</bool>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                             fi
                         else
-                            add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                            add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    #
+                        if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                            if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="config_displayBrightnessBucketsInDoze">false</bool>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                            fi
+                        else
+                            add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                        fi
+                    #
+                        if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                            if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="config_dozePulsePickup">true</bool>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                            fi
+                        else
+                            add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                        fi
+                    #
+                        if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                            if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                            fi
+                        else
+                            add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                        fi
+                    #
+                        if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                            if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
+                                echo "bomb" > /dev/null
+                            else
+                                replace '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                            fi
+                        else
+                            add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
+                        fi
+
                     # INTEGER
                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
@@ -547,7 +589,7 @@ ui_print " [----------] [Getting ready...]"
                             else
                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
                             fi
-                        # IF THERE'S NO FUCKING AOD PERMISSIONS, YOU'RE COMPLETELY COOKED DUMBASS - im telling the one who make miui ( dont even yap about "miui is not the same as hyperos 🤓🤓" dude they both the same even package name hyperohshit is just the renamed of gayui )
+                        # NO PERMISSIONS?
                         else
                             add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
                           <permission name="android.permission.BIND_WALLPAPER" />

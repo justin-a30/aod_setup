@@ -2,8 +2,26 @@ off_readonly multi_option
 # Download files first
 ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
-ui_print " [i] Getting cURL configuration from GitHub..." 
-# NOTIFY AND MKDIR
+ui_print " [i] Checking if cURL is working..." 
+# Define the URL of the version file
+VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/main/version"
+
+# Download the version file
+curl -sSL "$VERSION_URL" -o "$MODPATH/version"
+
+# Check if download was successful
+if [ $? -eq 0 ]; then
+  # Extract the version number from downloaded file
+  VERSION=$(cat "$MODPATH/version")
+
+  # Update the prop file with version and versionCode
+  sed -i "s/version=/$VERSION/g" "$MODPATH/module.prop"
+  sed -i "s/versionCode=/$VERSION/g" "$MODPATH/module.prop"
+
+  echo "Version and versionCode updated successfully!"
+else
+  echo "Error: Failed to download version file."
+fi# NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
         mkdir /data/local/tmp/prop
         mkdir /data/local/tmp/prop/xaml
