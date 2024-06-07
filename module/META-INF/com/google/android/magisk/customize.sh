@@ -12,16 +12,15 @@ curl -sSL "$VERSION_URL" -o "$MODPATH/version"
 # Check if download was successful
 if [ $? -eq 0 ]; then
   # Extract the version number from downloaded file
-  VERSION=$(cat "$MODPATH/version")
+  version=$(cat "$MODPATH/version")
 
   # Update the prop file with version and versionCode
-  sed -i "s/version=/$VERSION/g" "$MODPATH/module.prop"
-  sed -i "s/versionCode=/$VERSION/g" "$MODPATH/module.prop"
+    update_file_string 'version=$version' 'versionCode=$version' $MODPATH/module.prop
 
-  echo "Version and versionCode updated successfully!"
+  ui_print " [i] cURL works! the version is $version."
 else
-  echo "Error: Failed to download version file."
-fi# NOTIFY AND MKDIR
+  ui_print " [E] Failed to cURL, maybe you're on bad internet? Or you're on VPN?"
+fifi# NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
         mkdir /data/local/tmp/prop
         mkdir /data/local/tmp/prop/xaml
