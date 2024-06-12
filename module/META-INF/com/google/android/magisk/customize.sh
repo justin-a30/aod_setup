@@ -20,7 +20,8 @@ if [ $? -eq 0 ]; then
   ui_print " [i] cURL works! the version is $version."
 else
   ui_print " [E] Failed to cURL, maybe you're on bad internet? Or you're on VPN?"
-fifi# NOTIFY AND MKDIR
+fi
+# NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
         mkdir /data/local/tmp/prop
         mkdir /data/local/tmp/prop/xaml
