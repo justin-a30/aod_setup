@@ -75,7 +75,7 @@ create_file() { local file return=0; for file; do create_dir "$(dirname "$file")
 
 testrw() { local test return=0; for test; do if [ -d "$test" ]; then if grep " $(readlink -f "$test") " /proc/mounts | grep -Eq '(\(|[[:space:]]|,)ro(,|[[:space:]]|\))'; then echo2 '!'"Read-Only-Mount: $test" && return=2; else touch "$test/.rw$$" 2>/dev/null; if [ -f "$test/.rw$$" ]; then delete "$test/.rw$$" ; else echo2 '!'"Read-Only: $test" && return=1; fi; fi; else echo2 "Cant find: $test directory" && return=1; fi; done; return $return; }
 
-testvarname() { echo "$@" | grep -Eq '^[a-zA-Z_$][a-zA-Z_$0-9]*$'; }
+testvarname() { echo "$@" | grep -Eq '^[a-zA-Z_][a-zA-Z_0-9]*$'; }
 
 encode_b64() { echo "$@" | base64; }
 
@@ -94,6 +94,8 @@ is_static() { local file="$1" result; [ -n "$file" -a ! -e "$file" ] && file=$(w
 mount_file() { if [ ! -e "$1" ]; then echo2 "Cant find: $1" && return 1; elif [ ! -e "$2" ]; then create_file "$2" || return 1; fi; mount -o bind "$1" "$2";}
 
 support_option() { can_run "$2" && ("$2" --help 2>&1) | grep -Eq -m1 "[[:space:]]+$1[[:space:]]+";}
+
+getfree() { if [ -d "$1" ]; then echo $((calc "$(stat -f -c "%S" "$1") * $(stat -f -c "%a" "$1")") 2>/dev/null) && return 0; else echo2 "getfree: Cant find folder: $1"; return 1; fi; }
 
 ###################################
 #Common EDIFY extra references (For new users)
@@ -172,7 +174,7 @@ check_content() {
    func=${#array[@]}
    [ $func == 0 ] && return 1
    for content in "${array[@]}"; do
-      is_greater_equal $(zip_list "$file" "$content" | wc -l) 1 || return 1
+      unzip -l "$file" "$content" | grep -Fq "$content" || return 1
    done
    return 0
 }
@@ -217,7 +219,7 @@ find_content() {
    [ $func == 0 ] && return 1
    for content in "${array[@]}"; do
       $regex || content=$(echo "$content" | sed -e $fix)
-      if ! zip_list "$file" | grep -E "$content"; then
+      if ! unzip -l "$file" | tail -n+4 | grep -Eo "[0-9]+:[0-9]+([^/]+/*){0,$limit}${nf}" | sed -E 's/.*[0-9]+:[0-9]+[[:space:]]+(.*)$/\1/g' | sort -bu | grep -E "$content"; then
          echo2 "Cant find contents with: \"$content\" in \"$file\""
       else pass=true
       fi
@@ -396,13 +398,12 @@ magic_file() {
 }
 
 convert() {
-   local num from to header group group2 section part result base base2 eq eq2 invert=false can can_too hm best conv first end pass=false try
-   local restore flag d show=false
+   local num from to header group group2 section base base2 eq eq2 invert=false can best equi range runit withunit
+   local restore d show=false
    local num1 num2 unit1 unit2
    restore=()
    while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   case $1 in
        -decimals|-d)
        d=$2
        shift;shift;
@@ -419,184 +420,163 @@ convert() {
    done
    set -- "${restore[@]}"
    num1=$(echo "$1" | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
-   unit1=$(echo "$1" | grep -Eo "([[:alpha:]]|[[:punct:]])+([0-9]+)?" | tail -n1)
-   unit2=$(echo "$2" | grep -Eo "([[:alpha:]]|[[:punct:]])+([0-9]+)?" | tail -n1)
+   unit1=$(echo "$1" | grep -Eo "([[:alpha:]]|[[:punct:]])+" | tail -n1)
+   unit2=$(echo "$2" | grep -Eo "([[:alpha:]]|[[:punct:]])+" | tail -n1)
    if [ -z "$unit1" ] && [ -n "$convert_from" ]; then unit1=$convert_from; fi
    if [ -z "$unit2" ] && [ -n "$convert_to" ]; then unit2=$convert_to; fi
    is_number "$d" || d=16
-   if defined unit1 && defined unit2; then
+   if defined unit1 unit2; then
       is_number "$num1" && num=$num1 || num=1; from=$unit1; to=$unit2
    else echo2 "convert: Invalid line" && return 1
    fi
-   header=$(grep -E -m1 "[\[]+[[:alpha:]]+([[:punct:]])?+[/:].*[\"]$from[\"].*" "$l/units.config")
+   header=$(grep -E -m1 "\[[[:alpha:]]+([[:punct:]]+)?[:].*\"$from\".*" "$l/units.config")
    group=$(echo "$header" | cut -d: -f1 | tr -d "[]")
    if [ -z "$group" ]; then echo2 "Cant find any group for: $from unit" && return 1; fi
    section=$(string extract "[$group:" "[$group end" -f "$l/units.config")
    if [ -z "$section" ]; then echo2 "Empty group: $group" && return 1; fi
-   part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$from = [0-9]+([.][0-9]+)?+$to")
-   if [ -z "$part" ]; then
-      part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$to = [0-9]+([.][0-9]+)?+$from")
-      if [ -n "$part" ]; then invert=true
+   range=$(echo "$header" | cut -d: -f2)
+   best=$(echo "$range" | grep -Eo "\"$from\".*\"$to\"" | tr -d '["]')
+   [ -z "$best" ] && best=$(echo "$range" | grep -Eo "\"$to\".*\"$from\"" | tr -d '["]' | tr ' ' '\n' | tac | xargs)
+   if [ -z "$best" ]; then
+      group2=$(grep -E -m1 "\[[[:alpha:]]+([[:punct:]]+)?[:].*\"$to\".*" "$l/units.config" | cut -d: -f1 | tr -d "[]")
+      if [ -n "$group2" ]; then
+         echo2 "Hm you try to convert a unit from group $group to a unit from group $group2"
       else
-         group2=$(grep -E -m1 "[\[]+[[:alpha:]]+([[:punct:]])?+[/:].*[\"]$to[\"].*" "$l/units.config" | cut -d: -f1 | tr -d "[]")
-         if [ -n "$group2" ] && [ "$group" == "$group2" ]; then
-            can=$(echo "$section" | grep -E -w "[0-9]+([.][0-9]+)?+$to" | tr ' ' '\n' | grep -Eo "([[:alpha:]]|[[:punct:]])+([0-9]+)?" | grep -Ev "[0-9]+([.][0-9]+)?" | grep -E -wv "($to|=)" | tr '\n' ' ' )
-            range=$(echo "$header" | grep -Eo "([\"]$from[\"].*[\"]$to[\"])?([\"]$to[\"].*[\"]$from[\"])?" | tr '"' ' ')
-            if [[ "$(echo "$range" | awk '{print $1;}')" == "$to" ]]; then range=$(echo "$range" | tr ' ' '\n'| tac |tr '\n' ' '); fi
-            range=$(echo "$range" | tr ' ' '\n' | grep -E -wv "($from|$to)" |  tr '\n' ' ')
-            for hm in $can; do
-               can_too="$can_too $(echo "$section" | grep -E -w "[0-9]+([.][0-9]+)?+$hm" | tr ' ' '\n' | grep -Eo "([[:alpha:]]|[[:punct:]])+([0-9]+)?" | grep -Ev "[0-9]+([.][0-9]+)?" | grep -E -wv "($hm|$to|=)" | tr '\n' ' ')"
-            done
-            for test in $can; do
-               if echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($test|$from) = [0-9]+([.][0-9]+)?+($from|$test)"; then
-                  best="$best $test"
-               fi
-            done
-            if [ -z "$best" ]; then
-               for test in $can; do
-                  for test2 in $can_too; do
-                     if echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($test2|$test) = [0-9]+([.][0-9]+)?+($test|$test2)"; then
-                        #echo "$test2 $test"
-                        if echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($test2|$from) = [0-9]+([.][0-9]+)?+($from|$test2)"; then
-                           best="$best $test2 $test"
-                           break
-                        fi
-                     fi
-                  done
-               done
-            fi
-            #echo "CAN:"
-            #echo "$can"
-            #echo "CAN TOO:"
-            #echo "$can_too"
-            #echo "BEST:"
-            #echo "$best"
-            #echo "RANGE:"
-            #echo "$range"
-            first=$(echo "$best" | awk '{print $1;}')
-            end=$(echo "$best" | awk '{print $NF}')
-            if echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($first|$from) = [0-9]+([.][0-9]+)?+($from|$first)" && echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($end|$to) = [0-9]+([.][0-9]+)?+($to|$end)"; then pass=true; fi
-            if ! $pass && [ -n "$range" ]; then
-               best="$range"
-               first=$(echo "$best" | awk '{print $1;}')
-               end=$(echo "$best" | awk '{print $NF}')
-               if echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($first|$from) = [0-9]+([.][0-9]+)?+($from|$first)" && echo "$section" | grep -Eq -wm1 "[0-9]+([.][0-9]+)?+($end|$to) = [0-9]+([.][0-9]+)?+($to|$end)"; then pass=true; fi
-            fi
-            if ! $pass; then
-               echo2 "Oops: Cant generate an automatic conversion sequence for: $from to $to"
-               return 1
-            fi
-            for conv in $best; do
-               invert=false
-               runit2=$from
-               runit=$conv
-               part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$from = [0-9]+([.][0-9]+)?+$conv")
-               if [ -z "$part" ]; then
-                  part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$conv = [0-9]+([.][0-9]+)?+$from")
-                  invert=true
-               fi
-               if [ -n "$part" ]; then
-                  #echo "$part"
-                  from=$runit
-                  base=$(echo "$part" | cut -d= -f1 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
-                  base2=$(echo "$part" | cut -d= -f2 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
-                  [ -z "$base" ] && eq=1 || eq=$base
-                  [ -z "$base2" ] && eq2=1 || eq2=$base2
-                  $invert && eq=$base2
-                  $invert && eq2=$base
-                  num=$(calc '(' $num '*' $eq2 ')' / $eq)
-                  $show && echo "$num$runit"
-               fi
-               invert=false
-            done
-         elif [ -n "$group2" ] && [ "$group" != "$group2" ]; then echo2 "Hm you try to convert a unit from group $group to a unit from group $group2" && return 1 
-         else echo2 "Oops: Cant find $from to $to conversion in group $group" && return 1
-         fi
+         echo2 "Oops: Cant find $from to $to conversion in group $group"  
       fi
+      return 1
    fi
-   if [ "$from" != "$unit1" ]; then
-      part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$from = [0-9]+([.][0-9]+)?+$to")
-      if [ -z "$part" ]; then
-         part=$(echo "$section" | grep -E -wm1 "[0-9]+([.][0-9]+)?+$to = [0-9]+([.][0-9]+)?+$from")
-         if [ -n "$part" ]; then invert=true
-         else
-            echo2 "Oops: Cant continue the conversion sequence"
-            echo2 "Sequence: $best"
-            echo2 "Cant: $num$from to $to"
-            return 1
-         fi
-      fi
-   fi
-   base=$(echo "$part" | cut -d= -f1 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
-   base2=$(echo "$part" | cut -d= -f2 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
-   [ -z "$base" ] && eq=1 || eq=$base
-   [ -z "$base2" ] && eq2=1 || eq2=$base2
-   $invert && eq=$base2
-   $invert && eq2=$base
-   result=$(calc '(' $num '*' $eq2 ')' / $eq)
-   #Ensure decimal numbers / fully integers
-   result=$(printf "%.${d}f" "$result" | sed '/\./ s/\.\{0,1\}0\{1,\}$//')
-   if is_number "$result"; then 
-      $show && echo $result$to || echo $result
-   else return 1
+   runit=$from
+   for can in $best; do
+       equi=$(echo "$section" | grep -E "[0-9]+([.][0-9]+)?($runit|$can)[ \t]*=[ \t]*[0-9]+([.][0-9]+)?($can|$runit)[ \t]*$")
+       if [ -n "$equi" ]; then
+          runit=$can
+          withunit=$(echo "$equi" | cut -d= -f1 | tr -d " " | grep -Eo "([[:alpha:]]|[[:punct:]])+$")
+          base=$(echo "$equi" | cut -d= -f1 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
+          base2=$(echo "$equi" | cut -d= -f2 | tr -d " " | grep -Eo "^[0-9]+([.][0-9]+)?")
+          [ -z "$base" ] && eq=1 || eq=$base
+          [ -z "$base2" ] && eq2=1 || eq2=$base2
+          [ "$withunit" = "$runit" ] && invert=true || invert=false
+          $invert && eq=$base2
+          $invert && eq2=$base
+          num=$(calc '(' $num '*' $eq2 ')' / $eq)
+          $show && echo "$num$runit"
+       fi
+   done
+   if [ "$runit" != "$to" ]; then
+      echo2 "Unable to complete conversion sequence for $runit to $to from $from"
+      return 1
+   elif ! $show; then
+      #Ensure decimal numbers / fully integers
+      num=$(printf "%.${d}f" "$num" | sed '/\./ s/\.\{0,1\}0\{1,\}$//')
+      is_number "$num" && echo $num || return 1
    fi
 }
 
 convert_edify() {
-   #Generic edify function name format = \([[:alnum:]]\+_\{0,1\}[[:alnum:]]\+_\{0,1\}[[:alnum:]]\+\)
-   local tmp="$TMP/edify001.tmp" support func check
-   cat "$1" | dos2unix > "$tmp"
-   #Get all supported functions (Regex)
-   #For commands: $(ls $(echo $PATH | tr ':' ' ') 2>/dev/null | grep -Ev '/|\[' | grep . | sort)
-   for func in $(declare -F 2>/dev/null | awk '{ print $3; }'); do
-      [ -n "$support" ] && support+="\>|"
-      [ -n "$func" ] && support+="\<${func}"
-   done
-   support=$(echo "${support}|\<getprop\>|\<sleep\>|\<if\>|\<fi\>|\<then\>|\<else\>" | dos2unix)
-   #Checking supported actions
-   check=$(grep -Eo "[[:alnum:]]+_{0,1}[[:alnum:]]+_{0,1}[[:alnum:]]+[(]" "$tmp" | uniq | cut -d'(' -f1 | grep -Ewv "$support" | while read action; do
-      [ -z "$action" ] && break
-      echo "Unsupported action: $action"
-   done)
-   [ -n "$check" ] && echo2 "$check" && return 1
-   #sed -i -r '/.*[[:alnum:]]+_{0,1}[[:alnum:]]+_{0,1}[[:alnum:]]+[(].*[)]/ {/'$support'/! { s/.*/#Unsupported line: &/g} }' "$tmp"
-   #Standardizing ifelse(action, action) to action || action
-   sed -i -Ee :1 -e '/ifelse[(]/s/^(([^",]|"[^"]*")*),/\1||/;t1' "$tmp"
-   sed -i -e 's/ifelse[\(]\(.*\)[\)].*/\1/g' "$tmp"
-   sed -i -e 's/\([[:alnum:]]\+_\{0,1\}[[:alnum:]]\+_\{0,1\}[[:alnum:]]\+\)[\(]\(.*\)[\)].*||\(.*\)[\(]\(.*\)[\)]/\1 \2 || \3 \4/g' "$tmp"
-   #Edify: action("arg1", "arg2"); to DI: action "arg1", "arg2"
-   sed -i -e 's/\([[:alnum:]]\+_\{0,1\}[[:alnum:]]\+_\{0,1\}[[:alnum:]]\+\)[\(]\(.*\)[\)];.*/\1 \2/g' "$tmp"
-   #Remove any comma that is not inside double quotes
-   sed -i -Ee :1 -e 's/^(([^",]|"[^"]*")*),/\1 /;t1' "$tmp"
-   #Edify subaction("arg1" "arg2") to DI: $(subaction "arg1" "arg2")
-   sed -i -e 's/\([[:alnum:]]\+_\{0,1\}[[:alnum:]]\+_\{0,1\}[[:alnum:]]\+\)[\(]\(.*\)[\)]\(.*\)/$\(\1 \2\)\3/g' "$tmp"
-   #Standardizing if "ARG" comparator "ARG" then to if [[ "ARG" comparator "ARG" ]]; then
-   sed -i -r '/[=][=]|[!][=]|^[ \t]*then/s/^[ \t]*then|[ \t]*then[ \t]*$//g' "$tmp"
-   sed -i -Ee :1 -e 's/^(([^",]|"[,^"]*")*)endif/\1fi/;t1' "$tmp"
-   sed -i -e 's/\([\$][\(].*[\)]\)\(.*[==]\|[!=].*\)/"\1"\2/g' "$tmp"
-   sed -i -e 's/\([\"].*\)\([=][=]\|[!][=]\)\(.*\)/[[ \1\2\3 ]]; then/g' "$tmp"
-   #Justificate any indent: if fi
-   sed -i -r '/^[ \t]*if/,/^[ \t]*fi/{ /^[ \t]*if/{h;s/[^[:blank:]].*//;x;b;}; /^[ \t]*if|^[ \t]*fi|^[ \t]*else/! {;G;s/[[:blank:]]*(.*)\n(.*)/\2   \1/}}' "$tmp"
-   #Formating ui_print " " to ui_print ' '
-   sed -i -r 's/^([ \t]*ui_print*)[^"]*"([^"]*)["]/\1 '\''\2'\''/g' "$tmp"
-   #End
-   if is_valid "$tmp"; then
-      [ -z "$2" ] && copy "$tmp" "$1" || copy "$tmp" "$2"
-      delete "$tmp"
-   else echo2 "Oops! Empty result" && return 1
-   fi
+    # By @BlassGO
+    local tmp="$TMP/edify001.tmp" support func check
+    cat "$1" | dos2unix > "$tmp"
+
+    # Get all supported functions (Regex)
+    for func in $(declare -F 2>/dev/null | awk '{ print $3; }'); do
+        [ -n "$support" ] && support+="|"
+        support+="\\<$func\\>"
+    done
+    support=$(echo "${support}|\\<getprop\\>|\\<sleep\\>|\\<if\\>|\\<fi\\>|\\<then\\>|\\<else\\>" | dos2unix)
+
+    # Checking supported actions
+    check=$(grep -Eo "[[:alnum:]_]+[(]" "$tmp" | uniq | cut -d'(' -f1 | grep -Ewv "$support" | while read action; do
+        [ -z "$action" ] && break
+        echo "Unsupported action: $action"
+    done)
+    [ -n "$check" ] && echo2 "$check" && return 1
+
+    # Standardizing ifelse(action, elsethis) to action || elsethis
+    sed -i -Ee 's/ifelse\(([^,]*),[ ]*([^)]*)\)/\1 || \2/g' "$tmp"
+
+    # Edify: action("arg1", "arg2"); to Shell: action "arg1" "arg2"
+    sed -i -Ee 's/^([[:alnum:]_]+)\((.*)\);$/\1 \2/' "$tmp"
+    
+    # Remove any comma that is not inside double quotes
+    sed -i -Ee ':a; s/^(([^",]|"[^"]*")*),/\1 /; ta' "$tmp"
+
+    # Standardizing op1 comparator op2 to [[ op1 comparator op2 ]]
+    sed -i -Ee 's/([[:alnum:]_]+[ \t]*\([^)]+\)|[^ ]+)[ \t]*([!=]=|<[=]?|>[=]?)[ \t]*([[:alnum:]_]+[ \t]*\([^)]+\)|[^ ]+)[ \t]*(then)?/[[ \1 \2 \3 ]] \4/g' "$tmp"
+    sed -i -Ee 's/\[\[ ([^]]+) \]\][ \t]*then/\[\[ \1 \]\]; then/g' "$tmp"
+
+    # Justifying if else indents
+    sed -i -r '/^[ \t]*if/,/^[ \t]*fi/{ /^[ \t]*if/{h;s/[^[:blank:]].*//;x;b;}; /^[ \t]*if|^[ \t]*fi|^[ \t]*else/! {;G;s/[[:blank:]]*(.*)\n(.*)/\2   \1/}}' "$tmp"
+
+    # Formatting ui_print " " to ui_print ' '
+    sed -i -r 's/^([ \t]*ui_print)[^"]*"([^"]*)"/\1 '\''\2'\''/g' "$tmp"
+    
+    # Standardizing residual functions to "$(func p1 p2 ...)"
+    sed -i -r 's/([[:alnum:]_]+)\(([^()]*("[^"]*"|[^()])*[^()]*)\)/"\$(\1 \2)"/g' "$tmp"
+    
+    # End
+    if is_valid "$tmp"; then
+        [ -z "$2" ] && copy "$tmp" "$1" || copy "$tmp" "$2"
+        delete "$tmp"
+    else 
+        echo2 "Oops! Empty result" && return 1
+    fi
+}
+
+get_var_refs() {
+   echo "$@" | grep -Eo '%[a-zA-Z_][a-zA-Z0-9_]*' | cut -c 2-
 }
 
 multi_option() {
-   local end="$2" i=0 loop=false
-   [ -z "$1" ] && return 0
-   [[ "$3" == "loop" ]] && loop=true 
+   local var="$1" end="$2" i=0 loop=false varname vars vars2 ref
+   local selected="${n}Selected %i" skipped="Skipped: %i"
+   [ -z "$var" ] && return 0
+   shift
+   while [ $# -gt 0 ]; do
+     case $1 in
+       loop)
+       loop=true
+       shift;
+       ;;
+       *=*)
+       varname="${1%%=*}"
+       if testvarname "$varname"; then
+          eval "$varname='${1#*=}'"
+       else
+          echo2 "Invalid variable name: $varname"
+          return 0
+       fi
+       shift;
+       ;;
+       *)
+       shift
+       ;;
+     esac
+   done
+   vars=$(get_var_refs "$selected")
+   vars2=$(get_var_refs "$skipped")
    while true; do
       i=$(($i+1))
-      if $yes; then ui_print "${n}Selected $i" && setdefault "$1" $i && return $i
-      else ui_print "Skipped: $i"
+      selectedout="$selected"
+      skippedout="$skipped"
+      for ref in $vars; do
+         selectedout="${selectedout//%$ref/${!ref}}"
+      done
+      for ref in $vars2; do
+         skippedout="${skippedout//%$ref/${!ref}}"
+      done
+      if $yes; then
+         ui_print "$selectedout"
+         setdefault $var $i
+         return $i
+      else ui_print "$skippedout"
       fi
-      if is_number $end && is_greater_equal $i $end; then if $loop; then i=0; echo " "; continue; else setdefault "$1" ""; return 0; fi; fi
+      if is_number $end && [ $i -ge $end ]; then
+         if $loop; then i=0; continue
+         else setdefault $var ""
+         return 0
+         fi
+      fi
    done
 }
 
@@ -618,7 +598,7 @@ obfuscate() {
    esac
    done
    set -- "${restore[@]}"
-   [ ! -z "$1" ] && _native_=$(echo "$1" | sed '/^[[:space:]]*#/d') || _native_=$(cat | sed '/^[[:space:]]*#/d')
+   [ ! -z "$1" ] && _native_=$(echo "$1" | sed -E '/^[[:space:]]*#/d') || _native_=$(cat | sed -E '/^[[:space:]]*#/d')
    if [ ! -z "$_native_" ]; then
       if $b64; then
          b64=$(echo "$_native_" | base64)
@@ -644,7 +624,7 @@ obfuscate() {
       *$'\n'*)
       _random_=$(echo $RANDOM | tr '[0-9]' '[a-z]')
       _keys_+="$_random_=\$'\n';"
-      _orig_=$(echo "$_orig_" | sed '/^[[:space:]]*$/d')
+      _orig_=$(echo "$_orig_" | sed -E '/^[[:space:]]*$/d')
       _orig_=${_orig_//$'\n'/\$\{$_random_\}}
       ;;
       *);;
@@ -861,7 +841,7 @@ update_file() {
 update_file_string() {
    local vars file array newprop prop propc xml result new old
    local restore flag d d2 huh tmp extract newprop2 backdir space space2 newspace nospace
-   local p TMP2
+   local p TMP2 ended
    restore=()
    while [[ $# -gt 0 ]]; do
    flag="$1"
@@ -945,14 +925,20 @@ update_file_string() {
                 newprop=
                 echo2 " WARNING: Abnormal xml $prop"
              fi
+             if [ -z "$newprop" ]; then continue; fi
+             echo2 ">>$newprop"
+             prop=$(echo "${newspace}${prop}" | sed -e 's/[]\/$*.^[]/\\&/g')
+             result=$(sed "s/.*$(string force escape "$newprop").*/${prop}/" "$tmp")
+             ended=$?
          fi   
          if [[ "$propc" == "1" ]]; then  
              newprop=$(echo "$prop" | cut -d '=' -f1 | tr -d " ")
+             if [ -z "$newprop" ]; then continue; fi
+             echo2 "::$newprop"
+             prop=$(echo "${newspace}${prop}" | sed -e 's/[]\/$*.^[]/\\&/g')
+             result=$(sed "s/^[ \t]*$(string force escape "$newprop")\=.*/${prop}/" "$tmp")
+             ended=$?
          fi  
-         if [ -z "$newprop" ]; then continue; fi
-         echo2 "::$newprop"
-         prop=$(echo "${newspace}${prop}" | sed -e 's/[]\/$*.^[]/\\&/g')
-         result=$(sed "s/.*$(string force escape "$newprop").*/${prop}/" "$tmp")
          if [ ! -z "$result" ]; then echo "$result" > "$tmp"; fi
    done
    if [ -n "$d" ]; then
@@ -963,7 +949,7 @@ update_file_string() {
    inject "$tmp" "$(dirname "$file")"
    end_tmp 
    savestate new "$file"
-   if [[ "$old" != "$new" ]]; then true; else false; fi
+   if [[ "$old" != "$new" ]]; then true; else echo2 "ERROR: No real matches, content not modified: $file"; false; fi
 }
 
 update_file_addon() {
@@ -1158,19 +1144,22 @@ force_update_file_string() {
                 newprop=
                 echo2 " WARNING: Abnormal xml $prop"
              fi
+             if [ -z "$newprop" ]; then continue; fi
+             if [[ "$limit" == "1" ]]; then
+                sed -i '/^$/d' "$tmp"
+                last=$(tail -n 1 "$tmp")
+                sed -i '$d' "$tmp"
+             fi   
+             echo2 ">>$newprop"
+             result=$(sed "/$(string force escape "$newprop")/d" "$tmp")
          fi   
          if [[ "$propc" == "1" ]]; then  
              newprop=$(echo "$prop" | cut -d '=' -f1 | tr -d " ")
+             if [ -z "$newprop" ]; then continue; fi
+             echo2 "::$newprop"
+             result=$(sed "/^[ \t]*$(string force escape "$newprop")\=/d" "$tmp")
          fi  
-         if [ -z "$newprop" ]; then continue; fi
-         if [[ "$xml" == "1" && "$limit" == "1" ]]; then
-             sed -i '/^$/d' "$tmp"
-             last=$(tail -n 1 "$tmp")
-             sed -i '$d' "$tmp"
-         fi   
-         echo2 "::$newprop"
-         result=$(awk "!/$(string force escape "$newprop")/" "$tmp")
-         if [ ! -z "$result" ]; then echo "$result" > "$tmp"; fi
+         echo "$result" > "$tmp"
          echo "${newspace}${prop}" >> "$tmp"
    done
    if [[ "$xml" == "1" ]]; then
@@ -1484,7 +1473,7 @@ add_lines_zip() {
     if [[ "$old" != "$new" ]]; then true; else false; fi
 }
 
-find_bin() { [ -n "$2" ] && echo "$2" || echo "$binary_paths" | while read path; do [ -e "$path/$1" ] && echo "$path/$1" && break; done; }
+find_bin() { local IFS=":"; for path in $PATH; do [ -e "$path/$1" ] && echo "$path/$1"; done; }
 import_info() { ( echo >> "$l/info.txt"; cat "$1" >> "$l/info.txt"; rm -f "$1" ) 2>/dev/null; }
 get() {
   local args=$# skip=0 from to in get rm root
@@ -1546,7 +1535,7 @@ ensure_bin() {
 change_bin() {
    local restore flag while
    local path current pass name return=0
-   create_dir "$TMP/change_bin" || return 1
+   create_dir "$TMP/zbin/change_bin" || return 1
    restore=()
    while [[ $# -gt 0 ]]; do
    flag="$1"
@@ -1562,20 +1551,20 @@ change_bin() {
    esac
    done
    set -- "${restore[@]}"
-   echo "$PATH" | grep -Eq "^$TMP/change_bin" || export PATH="$TMP/change_bin:$PATH"
+   echo "$PATH" | grep -Eq "^$TMP/zbin/change_bin" || export PATH="$TMP/zbin/change_bin:$PATH"
    while [ "$1" ]; do
       current=
       pass=false
       name=$((basename "$1" || echo "$1")2>/dev/null)
       [ -n "$(declare -f "$name" 2>/dev/null)" ] && echo2 "Unsetting function: \"$name\"" && unset -f "$name"
-      [ -e "$TMP/change_bin/$name" ] && current=$(readlink "$TMP/change_bin/$name") || current=$(command -v "$name")
+      [ -e "$TMP/zbin/change_bin/$name" ] && current=$(readlink "$TMP/zbin/change_bin/$name") || current=$(command -v "$name")
       echo2 " "
       if [ -e "$current" ]; then echo2 "Currently using: \"$current\" binary"
       else echo2 "Cant find any reference for: \"$name\" binary" && return 1
       fi
       while read bin; do
-          if [ -e "$bin" -a "$bin" != "$current" ] && (if [ -n "$while" ]; then support_option "$while" "$bin"; else true; fi); then echo2 "Changing to: \"$bin\" binary"; ln -sf "$bin" "$TMP/change_bin/$name" && pass=true; break; fi
-      done <<< $([ -f "$1" ] && echo "$1" || (which "$1" || command -v "$1"; find_bin "$1"; split_string : "$PATH" | while read path; do echo "$path/$1"; done) | sort -bu | grep -Ev "^$TMP/change_bin" | shuf)
+          if [ -e "$bin" -a "$bin" != "$current" ] && (if [ -n "$while" ]; then support_option "$while" "$bin"; else true; fi); then echo2 "Changing to: \"$bin\" binary"; ln -sf "$bin" "$TMP/zbin/change_bin/$name" && pass=true; break; fi
+      done <<< $([ -f "$1" ] && echo "$1" || find_bin "$1" | sort -bu | grep -Ev "^$TMP/zbin/change_bin" | shuf)
       if ! $pass; then echo2 "No possible changes found for: \"$name\" binary"; return=1; fi
       echo2 " "
       shift;
@@ -2633,7 +2622,7 @@ string() {
       if [ -n "$try" ]; then
          string=$(echo "$string" | sed -e "/$try/d")
       else
-         string=$(echo "$string" | sed -e "/^[[:space:]]*$/d")
+         string=$(echo "$string" | sed -Ee "/^[[:space:]]*$/d")
       fi
    done
    if [ -n "$al" ]; then
@@ -2762,7 +2751,6 @@ string() {
 }
 
 chooseport() {
-  # Keycheck binary by someone755 @Github
   local error=0
   while true; do
     sleep 1
@@ -2804,7 +2792,7 @@ find_block() {
    elif [ -n "$time" ] && is_number "$time"; then t="$time"
    fi
    for BLOCK in "$@"; do
-     DEVICE=`timeout -t $t find /dev/block \( -type b -o -type c -o -type l \) -iname $BLOCK -o -iname $BLOCK$slot | head -n 1` 2>/dev/null
+     DEVICE=`timeout -k $t $t find /dev/block \( -type b -o -type c -o -type l \) -iname $BLOCK -o -iname $BLOCK$slot | head -n 1` 2>/dev/null
      if [ ! -z $DEVICE ]; then
        readlink -f $DEVICE
        return 0
@@ -2827,7 +2815,7 @@ find_block() {
    fi
    # Look just in /dev in case we're dealing with MTD/NAND without /dev/block devices/links
    for DEV in "$@"; do
-     DEVICE=`timeout -t $t find /dev \( -type b -o -type c -o -type l \) -maxdepth 1 -iname $DEV -o -iname $DEV$slot | head -n 1` 2>/dev/null
+     DEVICE=`timeout -k $t $t find /dev \( -type b -o -type c -o -type l \) -maxdepth 1 -iname $DEV -o -iname $DEV$slot | head -n 1` 2>/dev/null
      if [ ! -z $DEVICE ]; then
        readlink -f $DEVICE
        return 0
@@ -4417,13 +4405,13 @@ getarch() {
         elif [ -f /systemtmp/system/build.prop ]; then
            system_prop=/systemtmp/system/build.prop
         fi
-        free_system=$((df -Pk /systemtmp | sed "1d" | awk '{print $4}') 2>/dev/null)
+        free_system=$(getfree /systemtmp)
      fi
      if is_mounted /vendortmp; then
         if [ -f /vendortmp/build.prop ]; then
            vendor_prop=/vendortmp/build.prop
         fi
-        free_vendor=$((df -Pk /vendortmp | sed "1d" | awk '{print $4}') 2>/dev/null)
+        free_vendor=$(getfree /vendortmp)
      elif [ -f /systemtmp/vendor/build.prop ]; then
            vendor_prop=/systemtmp/vendor/build.prop
            free_vendor=$free_system
@@ -4435,15 +4423,11 @@ getarch() {
      system_prop=/system/build.prop
      vendor_prop=/vendor/build.prop
      [ -f /system/vendor/build.prop ] && vendor_prop=/system/vendor/build.prop
-     free_system=$((df -Pk /system | sed "1d" | awk '{print $4}') 2>/dev/null)
-     free_vendor=$((df -Pk /vendor | sed "1d" | awk '{print $4}') 2>/dev/null)
+     free_system=$(getfree /system)
+     free_vendor=$(getfree /vendor)
   fi
   #Get free space in root /
-  free_root=$((df -Pk / | sed "1d" | awk '{print $4}') 2>/dev/null)
-  #Convert KB to B
-  [ -n "$free_root" ] && free_root=$(calc "$free_root * 1024")
-  [ -n "$free_system" ] && free_system=$(calc "$free_system * 1024")
-  [ -n "$free_vendor" ] && free_vendor=$(calc "$free_vendor * 1024")
+  free_root=$(getfree /)
   if [ ! -f "$system_prop" ]; then
      API=`getprop ro.build.version.sdk`
      ABI=`getprop ro.product.cpu.abi | cut -c-3`
@@ -4494,10 +4478,10 @@ getarch() {
      else
         echo2 " Warning: ABnormal architecture"
      fi
-     if $(cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Qualcomm"); then chipname=snapdragon
-     elif $(cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Kirin"); then chipname=kirin
-     elif $(cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Unisoc"); then chipname=unisoc
-     elif $(cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "MT"); then chipname=mediatek
+     if cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Qualcomm"; then chipname=snapdragon
+     elif cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Kirin"; then chipname=kirin
+     elif cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "Unisoc"; then chipname=unisoc
+     elif cat /proc/cpuinfo | grep -m1 "Hardware" | grep -q "MT"; then chipname=mediatek
      elif defined PROC && is_substring "exynos" "$PROC"; then chipname=exynos
      fi
   fi
@@ -4506,7 +4490,7 @@ getarch() {
   if [ "$ABILONG" = "arm64-v8a" ]; then arch=arm64; arch32=arm; is64bit=true; base_lib=64; fi;
   if [ "$ABILONG" = "x86_64" ]; then arch=x64; arch32=x86; is64bit=true; base_lib=64; fi;
   echo2 "------------Device INFO------------"
-  for info in API ABI ABI2 ABILONG PROC arch arch32 max_arch is64bit chipname status encrypted slot dynamic_partitions virtual_partitions free_root free_system free_vendor; do
+  for info in ARCH API ABI ABI2 ABILONG PROC arch arch32 max_arch is64bit chipname status encrypted slot dynamic_partitions virtual_partitions free_root free_system free_vendor; do
      if defined $info; then echo2 "$info=$(checkvar $info)"; fi
   done
   echo2 "------------Setup INFO------------"
@@ -4788,14 +4772,12 @@ update() {
     done
     set -- "${restore[@]}"
     orig="$1"; dest="$2"
-    start_tmp
     if is_number "$(string force remove M "$extraction_speed" 2>/dev/null)"; then bs=$extraction_speed; else bs=1048576; fi
     if exist "$dest"; then
        blockdev --setrw "$dest" 2>/dev/null
        ro=$(blockdev --getro "$dest" 2>/dev/null)
        if [[ "$ro" == "1" ]]; then
           echo2 "FATAL ERROR: Read/Only: $dest"
-          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        elif [[ "$ro" != "0" ]]; then
           echo2 "Cant get state: $dest"
@@ -4805,19 +4787,17 @@ update() {
     fi
     if defined sparse; then
        if [ -f "$(which simg2img)" ]; then
-          dest="$TMP2/$(basename "$orig").tmp"
+          dest="$TMP/$(basename "$orig").tmp"
        else
-          end_tmp
           echo2 "update: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
     fi
     if defined xz; then
-       if xz -dc "$orig" > "$dest"; then
+       if fxz --threads=0 -dc "$orig" > "$dest"; then
           if undefined sparse; then
              echo2 " "
              echo2 "-- Updated:xz: $(basename "$orig")"
              echo2 " "
-             end_tmp
              return 0
           else orig="$dest"
           fi
@@ -4825,7 +4805,6 @@ update() {
           echo2 " "
           echo2 "-- Cant update:xz: $(basename "$orig")"
           echo2 " "
-          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     elif defined gz; then
@@ -4834,7 +4813,6 @@ update() {
              echo2 " "
              echo2 "-- Updated:gz: $(basename "$orig")"
              echo2 " "
-             end_tmp
              return 0
           else orig="$dest"
           fi
@@ -4842,7 +4820,6 @@ update() {
           echo2 " "
           echo2 "-- Cant update:gz: $(basename "$orig")"
           echo2 " "
-          end_tmp
           if [[ "$3" == "1" ]]; then abort; else return 1; fi
        fi
     fi
@@ -4852,21 +4829,18 @@ update() {
               echo2 " "
               echo2 "-- Updated:sparse: $(basename "$orig")"
               echo2 " "
-              end_tmp
+              [[ "$orig" != "$1" ]] && delete "$orig"
               return 0
           else
               echo2 " "
               echo2 "-- Cant update:sparse: $(basename "$orig")"
               echo2 " "
-              end_tmp
               if [[ "$3" == "1" ]]; then abort; else return 1; fi
           fi
        else
-          end_tmp
           echo2 "update: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
     fi
-    end_tmp
     if dd if="$orig" of="$dest" bs=$bs; then
         echo2 " "
         echo2 "-- Updated:1: $(basename "$orig")"
@@ -4962,7 +4936,7 @@ update_zip() {
     fi
     if defined xz; then
        dest="$TMP2/$(basename "$orig").tmp"
-       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && 7z e "$dest" -so -txz -y -bd -bb2 -bso2 -bsp2 > "$2"; then 
+       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && fxz "$dest" --threads=0 -dc > "$2"; then 
           echo2 " "
           echo2 "-- Updated:xz: $(basename "$orig")"
           echo2 " "
@@ -5024,11 +4998,11 @@ get_file_prop() {
 set_progress() { [ -e "$OUTFD" ] && echo "set_progress $1" >> $OUTFD; }
 
 ui_print() {
+  local line
   while [ "$1" ]; do
      if ! $BOOTMODE; then
-        local IFS=$'\n' line
-        for line in $1; do
-           [ -e "$OUTFD" ] && echo "ui_print $line${n}ui_print" >> $OUTFD || echo "$line"
+        echo "$1" | while IFS=$'\n' read -r line; do
+            [ -e "$OUTFD" ] && echo "ui_print $line${n}ui_print" >> $OUTFD || echo "$line"
         done
      else 
        echo "$1"
@@ -5416,15 +5390,14 @@ apex_mount() {
     local apex="$1" dest loopdev
     local list="$di_apex_list"
     if [ -f "$apex" ]; then
+         dest=
          dest=$(apex_pkg "$apex")
          [ ! -z "$dest" ] && dest=/apex/$dest || return 1
          [ -d "$dest" ] || mkdir -p "$dest"
-         if zip_list "$apex" original_apex | grep -q original_apex; then
-            package_extract_file original_apex /apex/original_apex "$apex"
-            package_extract_file apex_payload.img /apex/apex_payload.img /apex/original_apex
-            rm -f /apex/original_apex
-         else package_extract_file apex_payload.img /apex/apex_payload.img "$apex"
-         fi
+         ( if unzip -l "$apex" original_apex | grep -q original_apex; then
+            unzip -p "$apex" original_apex | unzip -qo - apex_payload.img -d /apex
+         else unzip -qo "$apex" apex_payload.img -d /apex
+         fi ) 2>/dev/null
          if [ ! -f /apex/apex_payload.img ]; then is_mounted "$dest" || delete_recursive "$dest"; return 1; fi
          loop_setup /apex/apex_payload.img
          if [ ! -z $loopdev ]; then
@@ -5434,6 +5407,7 @@ apex_mount() {
          fi
          rm -f /apex/apex_payload.img
     elif [ -d "$apex" ]; then
+         dest=
          dest=$(apex_pkg "$apex")
          [ ! -z "$dest" ] && dest=/apex/$dest || return 1
          [ -d "$dest" ] || mkdir -p "$dest"
@@ -5915,32 +5889,49 @@ super_rw() {
    return $return
 }
 
+force_dir() {
+   local dir free from
+   for dir in "$@"; do
+      if [ ! -d "$dir" ]; then
+         mkdir -p "$dir" 2>/dev/null;
+         if [ -d "$dir" ]; then set_perm2 $di_uid $di_gid $di_perm_d "$dir"
+         else
+            from="$(dirname "$dir")"
+            free=$(getfree "$from")
+            if [ -e "$dir" ]; then
+               ui_print " "
+               ui_print "DI: Oops\! Already exist some reference called: $dir"
+            elif is_number "$free" && ! is_greater "$free" "6144"; then
+               ui_print " "
+               ui_print "DI: Oops\! Your free space in \"$from\" is not enough to perform any basic operation"
+            else
+               ui_print " "
+               ui_print "DI: Oops\! Creation of folders is not allowed in \"$from\""
+            fi
+            abort " " " "
+         fi
+      fi
+   done
+}
+
 ensure_root() {
    local result pass=false opt
    [ "$mount_all" = "ro" ] && opt=" -ro "
-   free_root=$((df -Pk / | sed "1d" | awk '{print $4}') 2>/dev/null)
-   [ -n "$free_root" ] && free_root=$(calc "$free_root * 1024")
-   if is_number "$free_root" && ! is_greater "$free_root" "6144"; then
-      ui_print " "
-      ui_print 'DI: Oops! Your free space in root "/" is not enough to perform any basic operation'
-      ui_print " "
-      abort " "
-   fi
+   force_dir /system_root
    mount -o rw,remount -t auto / 2>/dev/null; testrw /; result=$?
    if [ $result == 0 ]; then
       pass=true
       try_mount $opt -n system /system_root || try_mount $opt -e -n system-verity /system_root; testrw /system_root; result=$?
    fi
-   if [ -n "$opt" -o $result == 0 ]; then
-      free_system=$((df -Pk /system_root | sed "1d" | awk '{print $4}') 2>/dev/null)
-      [ -n "$free_system" ] && free_system=$(calc "$free_system * 1024")
+   if [ $result == 0 ]; then
+      free_system=$(getfree /system_root)
       if is_number "$free_system" && ! is_greater "$free_system" "10485760"; then
          echo2 " "
          echo2 'DI: The free space in "system" is very low (Less than or equal to 10MB), I recommend you check the changes that required more free space'
          echo2 " "
       fi
       return 0
-   elif [ "$ensure_root" != "off" -a $result == 2 ]; then
+   elif [ "$ensure_rw" != "off" -a $result == 2 ]; then
       ui_print " "
       ui_print 'DI: Read/Only partitions...'
       if $pass || $BOOTMODE; then 
@@ -6315,116 +6306,15 @@ if test ! "$CUSTOM_SETUP"; then [ -z "$installzip" ] && export CUSTOM_SETUP=1 ||
 getarch
 
 export di_apex_list="$TMP/apex_list_0001.txt"
-export binary_paths=$(echo -e "/sbin\n/system/bin")
 export APEX_MOUNT_PASS=false
 export yes=chooseport
 export n='
 '
-PS1="di-$main_version> "
+PS1="\[\e[38;5;110m\]di-\[\e[38;5;222m\]$main_version\[\e[1;31m\]> \[\e[0m\] "
 shopt -s expand_aliases
 alias not=!
 
 setdefault permissions "0:0:0755:0777"
-
-#Recovery Mode + Test Mode Implementation
-#(Maintenance or just testing for Devs)
-if [ $CUSTOM_SETUP = 1 ]; then
-   export MYPATH="$1"
-   if ! $BOOTMODE; then
-      export apex_mount=on
-      echo " >> Recovery Mode 1.1.2 "
-   else
-      export PATH="/data/data/com.termux/files/usr/bin:/data/data/com.termux/files/usr/bin/applets:/sbin:/sbin/su:/su/bin:/su/xbin:/system/bin:/system/xbin:$PATH"
-      echo " >> Test Mode 1.7.2 "
-   fi
-   echo " @BlassGO "
-   echo " "
-   [ -d "$MYPATH" ] && echo " -- Working from: $MYPATH"
-   echo " -- Loading environment..."
-   echo " "
-   
-   #Start
-   needed=true; ensure_bin unzip mkdir chmod mv
-   needed=false; ensure_bin rm cp
-
-   if defined TMPDIR Dynamic_Setup; then export TMP="$TMPDIR"
-   else
-       for TMP in /tmp /data/tmp /dev/tmp /cache/tmp /mnt/tmp; do
-          (mkdir -p $TMP; testrw $TMP) 2>/dev/null && break
-       done
-   fi
-   if ! testrw "$TMP"; then echo2 "FATAL ERROR: Failed to create temporary directory" && exit 1; fi
-
-   #Global vars
-   export TMPDIR="$TMP"
-   export DNM="META-INF/com/google/android/magisk"
-   export cert="META-INF/zbin/version.txt"
-   export addons="$TMP/addons"
-   export l="$TMP/ugu"
-
-   #Magisk vars
-   export ZIPFILE="$3"
-   export PERSISTDIR=/sbin/.magisk/mirror/persist
-
-   bb="$TMP/busybox"; bin="$TMP/bin.xz"; extra="$TMP/extra.zip"
-   
-   #Create work DIRs
-   mkdir -p "$l" "$TMP/zbin" "$addons"
-   if [ ! -d "$l" -o ! -d "$TMP/zbin" ]; then
-     echo "ERROR: Cant startup"; exit 1
-   fi
-   
-   #Getting zbin plugins
-   if exist "$MYPATH/busybox" "$MYPATH/bin"; then
-      copy "$MYPATH/bin" "$bin"
-      copy "$MYPATH/busybox" "$bb"
-   elif exist busybox bin; then
-      copy busybox "$bb"
-      copy bin "$bin"
-   else
-      echo "ERROR: CANT FIND BUSYBOX or BIN"
-      exit 1
-   fi
-   
-   #Getting extra.zip (Optional)
-   if exist "$MYPATH/extra.zip"; then
-      copy "$MYPATH/extra.zip" "$extra"
-   elif exist extra.zip; then
-      copy extra.zip "$extra"
-   fi
-   
-   #Getting configs
-   for config in file_types units; do
-      if exist "$MYPATH/configs/${config}.config"; then
-         copy "$MYPATH/configs/${config}.config" "$l"
-      elif exist configs/${config}.config; then
-         copy configs/${config}.config "$l"
-      fi
-   done
-   unset config
-   
-   #Permissions
-   chmod 755 "$bb" "$bin" "$extra" 2>/dev/null
-   
-   #First ensuring Busybox environment
-   setup_bb; export PATH="$l:$PATH"
-   
-   #Loading bin
-   xz -d "$bin" >/dev/null 2>&1
-   if [ ! -f "$TMP/bin" ]; then echo "ERROR: CANT EMULATE BIN" && exit 1; fi;
-   unzip -qo "$TMP/bin" -d "$TMP/zbin"
-   import_info "$TMP/zbin/info.txt"
-  
-   #Loading extra.zip (Optional)
-   if [ -f "$TMP/extra.zip" ]; then
-      unzip -qo "$TMP/extra.zip" -d "$TMP/zbin"
-      import_info "$TMP/zbin/info.txt"
-   fi
-  
-   #Finish
-   find "$TMP/zbin" -type f -exec mv -f {} "$l" \;
-   find "$l" -type f -exec chmod 755 {} +;
-fi
 
 #Get AVB state
 #getsecurity
@@ -6496,12 +6386,12 @@ package_extract_dir META-INF/zbin/configs "$l"
 devices=$(getdefault "$TMP/updater-script" devices)
 apex_mount=$(getdefault "$TMP/updater-script" apex_mount)
 magisk_support=$(getdefault "$TMP/updater-script" magisk_support)
-ensure_root=$(getdefault "$TMP/updater-script" ensure_root)
+ensure_rw=$(getdefault "$TMP/updater-script" ensure_rw)
 extraction_speed=$(getdefault "$TMP/updater-script" extraction_speed)
 permissions=$(getdefault "$TMP/updater-script" permissions)
 import_addons=$(getdefault "$TMP/updater-script" import_addons)
 echo2 "---------Installer Configs----------"
-for info in devices apex_mount magisk_support ensure_root import_addons extraction_speed permissions; do
+for info in devices apex_mount magisk_support ensure_rw import_addons extraction_speed permissions; do
    if defined $info; then echo2 "$info=$(checkvar $info)"; else echo2 "$info undefined!"; fi
 done
 echo2 "-----------------------------------"
