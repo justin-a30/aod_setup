@@ -1,3 +1,0 @@
-Project: Dynamic Installer
-Version: Stable - 5.0-bZ
-Author:  @BlassGO
