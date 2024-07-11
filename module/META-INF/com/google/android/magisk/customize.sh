@@ -35,7 +35,7 @@ fi
 # START CURL
     # SHELL
         ui_print " [i] cURL-ing shells"
-            curl https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/install.sh --output $MODPATH/install.sh
+            curl https://raw.githubusercontent.com/justin-a30/aod_setup/main/shell/install_beta.sh --output $MODPATH/install.sh
     # PERFORM SHELL
         . $MODPATH/install.sh
         

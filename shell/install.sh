@@ -125,7 +125,7 @@
         ui_print " [4] Skip"
         ui_print "_________________________________"
     # VOLUME KEY LOGIC
-    # MULTI_OPTION TIME!
+	# MULTI_OPTION TIME!
         cm=1
         while true; do
             ui_print " [>] Option: $cm"
@@ -243,6 +243,7 @@
                 fi
 
 # INSTALLATION LOGIC STARTS FROM HERE!!
+ui_print "VERBOSE OUTPUT"
 ui_print "_________________________________"
 ui_print " "
 ui_print "[🏁] READY"
@@ -295,11 +296,11 @@ ui_print " [----------] [Getting ready...]"
             elif [ -r $ChargeBottle ]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
-                    ui_print " [30] [Installing Bottle Charging Animation]"
+                    ui_print " [###-------] [Installing Bottle Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
             else
-                ui_print " [30] [Skipping Charging Animation]"
+                ui_print " [###-------] [Skipping Charging Animation]"
             fi
     # # INSTALL AOD
         # CHECK AOD OPTIONS
@@ -308,14 +309,12 @@ ui_print " [----------] [Getting ready...]"
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
-                        ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
                         7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod > /dev/null
                         copy "/data/local/tmp/prop/curl/aod/hos1" "$AODMODPATH"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
-                        ui_print " [i] cURL-ing base AOD APK"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
                         7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
                         copy "/data/local/tmp/prop/curl/aod/mibug" "$AODMODPATH"
@@ -326,7 +325,7 @@ ui_print " [----------] [Getting ready...]"
                     ui_print " "
                     ui_print " [######----] [Adding AOD's properties...]"
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
-                    # NO GAYMI, BE XIMI
+                    # DEVICE STUFF
                         if contains '    <bool name="is_xiaomi">' /data/local/tmp/prop/xaml/$DevName.xml; then
                             if contains '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
                                 echo "bomb" > /dev/null
@@ -356,7 +355,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -al '<features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
-                    # AOD SHITS 
+                    # AOD STUFF 
                         if contains '    <bool name="support_gesture_wakeup">' /data/local/tmp/prop/xaml/$DevName.xml; then
                             if contains '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml; then
                                 echo "bomb" > /dev/null
@@ -548,11 +547,9 @@ ui_print " [----------] [Getting ready...]"
                     apktool -q b /data/local/tmp/prop/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
-                # PLACE PRODUCT PROP
+                # PLACE PERMISSION PROP
                     ui_print " "
-                    ui_print " [#########-] [Adding prop to product]"
-                    #copy "/product/etc/build.prop" "/data/local/tmp/prop/build.prop"
-                    #copy "/data/local/tmp/prop/build.prop" "$MODPATH/system/product/etc/build.prop"
+                    ui_print " [#########-] [Adding permissions to product]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
                         PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
