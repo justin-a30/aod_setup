@@ -4,7 +4,7 @@ ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
 ui_print " [i] Checking if cURL is working..." 
 # Define the URL of the version file
-VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/main/version"
+VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/developer/version"
 
 # Download the version file
 curl -sSL "$VERSION_URL" -o "$MODPATH/version"
