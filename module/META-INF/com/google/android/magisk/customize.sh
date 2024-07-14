@@ -15,7 +15,7 @@ if [ $? -eq 0 ]; then
   version=$(cat "$MODPATH/version")
 
   # Update the prop file with version and versionCode
-    update_file_string 'version=$version' 'versionCode=$version' $MODPATH/module.prop
+    update_file_string 'version="$version"' 'versionCode="$version"' $MODPATH/module.prop
 
   ui_print " [i] cURL works! the version is $version."
 else
