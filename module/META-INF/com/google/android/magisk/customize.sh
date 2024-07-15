@@ -1,4 +1,4 @@
-off_readonly multi_option
+import_bin $addons/aapt
 # Download files first
 ui_print " [!] Connection to the internet is required.
      Make sure you're connected to the internet."
