@@ -5,9 +5,8 @@
 # Ideas+Clues: LLions
 # Thanks to 30+ testers!
 
-#### CUSTOM MO BINARY
-# CUSTOM MULTI OPTION BINARY
-# BY: BlassGO
+#### Add a download checker
+DLCHECK () { if [ $? -eq 0 ]; then ui_print " [ info     ] DL Done!"; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
@@ -36,7 +35,7 @@
     fi
 # CHECKING ANDROID VERSION
     if [[ "$Android" -lt 9 ]]; then
-        abort " [!!!!!!!] Error: Android $Android not supported."
+        end " [!!!!!!!] Error: Android $Android not supported."
     elif [ -r "$RMOV" ]; then
         ui_print " [#] Note"
         ui_print "     YOU DIDN'T REBOOT?"
@@ -52,10 +51,10 @@
         ui_print "     Found version: "$ModVerInstalled"."
         ui_print "     Clean installation is required."
         ui_print "      "
-        end "    Use the following step to upgrade this module:
-     1. Remove the module and Reboot
-     2. Install again
-     *This module always requires clean installation."
+        ui_print "    Use the following step to upgrade this module:"
+        ui_print "     1. Remove the module and Reboot"
+        ui_print "     2. Install again"
+             end "     • This module always requires clean installation."
         fi
     else
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
@@ -243,7 +242,6 @@
                 fi
 
 # INSTALLATION LOGIC STARTS FROM HERE!!
-ui_print "VERBOSE OUTPUT"
 ui_print "_________________________________"
 ui_print " "
 ui_print "[🏁] READY"
@@ -284,20 +282,26 @@ ui_print " [----------] [Getting ready...]"
             if [ -r $ChargeGlow ]; then
                 # PLACE CHARGE GLOW     
                     ui_print " "
-                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    ui_print " [###-------] [Downloading Glow Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
                     ui_print " "
-                    ui_print " [###-------] [Installing Mini Charging Animation]"
+                    ui_print " [###-------] [Downloading Mini Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Mini Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
             elif [ -r $ChargeBottle ]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
-                    ui_print " [###-------] [Installing Bottle Charging Animation]"
+                    ui_print " [###-------] [Downloading Bottle Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
             else
                 ui_print " [###-------] [Skipping Charging Animation]"
@@ -308,14 +312,18 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE AOD          
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
-                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
+                        ui_print " [#####-----] [Downloading AOD app for HyperOS $OS...]"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
+                        DLCHECK
+                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
                         7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod > /dev/null
                         copy "/data/local/tmp/prop/curl/aod/hos1" "$AODMODPATH"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
-                        ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
+                        ui_print " [#####-----] [Downloaing AOD app for MIUI $MOS...]"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
+                        DLCHECK
+                        ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
                         7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
                         copy "/data/local/tmp/prop/curl/aod/mibug" "$AODMODPATH"
                     fi
@@ -426,7 +434,6 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
-                    add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1,c:3,g:3"' $MODPATH/post-fs-data.sh
                 # UNPACK APK
                     ui_print " "
                     ui_print " [#######---] [Unpacking overlay to enable AOD...]"
@@ -445,6 +452,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: AOD Doze mode]"
                     #
                         if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -455,6 +463,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]"
                     #
                         if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -465,6 +474,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]"
                     #
                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -475,6 +485,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]"
                     #
                         if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -485,6 +496,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]"
                     #
                         if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -495,6 +507,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]"
                     #
                         if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -505,6 +518,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
+                    ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]"
                     #
                         if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -515,7 +529,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-
+                    ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]"
                     # INTEGER
                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
@@ -527,6 +541,7 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml
                         fi
+                    ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]"
                     # STRINGS
                         if contains '    <string name="config_dozeComponent">' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
                             if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
@@ -541,61 +556,63 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml
                         fi
+                    ui_print " [ Verbose  ] [Updated string value: SystemUI Doze service]"
                 # REPACK APK
                     ui_print " "
                     ui_print " [########--] [Repacking overlay to system...]"
                     apktool -q b /data/local/tmp/prop/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
+                    ui_print " [ Verbose  ] [Signing compiled...]"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
-                # PLACE PERMISSION PROP
-                    ui_print " "
-                    ui_print " [#########-] [Adding permissions to product]"
-                    # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
-                    if [[ "$Android" -le 12 ]]; then
-                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
-                    else
-                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
-                    fi
-                    # COPY
-                    copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
-                    # DOING THE WORK
-                        if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
-                            xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/prop/permxaml.xml > /data/local/tmp/prop/temp.xml
-                            if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
-                            fi
-                        # NO PERMISSIONS?
-                        else
-                            add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
-                          <permission name="android.permission.BIND_WALLPAPER" />
-                          <permission name="android.permission.INTERACT_ACROSS_USERS" />
-                          <permission name="android.permission.READ_DREAM_STATE" />
-                          <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
-                       </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
-                        fi
-                    copy "/data/local/tmp/prop/permxaml.xml"  "$FINALPERMDEST"
+                # # PLACE PERMISSION PROP
+                    # ui_print " "
+                    # ui_print " [#########-] [Adding permissions to product]"
+                    # # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
+                    # if [[ "$Android" -le 12 ]]; then
+                        # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+                        # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
+                    # else
+                        # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                    # fi
+                    # # COPY
+                    # copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
+                    # # DOING THE WORK
+                        # if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
+                            # xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/prop/permxaml.xml > /data/local/tmp/prop/temp.xml
+                            # if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/temp.xml; then
+                                # echo "bomb" > /dev/null
+                            # else
+                                # add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/prop/permxaml.xml
+                            # fi
+                        # #
+                            # if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/temp.xml; then
+                                # echo "bomb" > /dev/null
+                            # else
+                                # add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/prop/permxaml.xml
+                            # fi
+                        # #
+                            # if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/temp.xml; then
+                                # echo "bomb" > /dev/null
+                            # else
+                                # add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/prop/permxaml.xml
+                            # fi
+                        # #
+                            # if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/temp.xml; then
+                                # echo "bomb" > /dev/null
+                            # else
+                                # add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/prop/permxaml.xml
+                            # fi
+                        # # NO PERMISSIONS?
+                        # else
+                            # add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
+                          # <permission name="android.permission.BIND_WALLPAPER" />
+                          # <permission name="android.permission.INTERACT_ACROSS_USERS" />
+                          # <permission name="android.permission.READ_DREAM_STATE" />
+                          # <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+                       # </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
+                        # fi
+                    # copy "/data/local/tmp/prop/permxaml.xml"  "$FINALPERMDEST"
             else
                 ui_print " [########--] [Skipping AOD]"        
             fi

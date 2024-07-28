@@ -18,7 +18,7 @@ if [ $? -eq 0 ]; then
 
   ui_print " [i] cURL works! the version is $version."
 else
-  ui_print " [E] Failed to cURL, maybe you're on bad internet? Or you're on VPN?"
+  abort " [E] Failed to cURL, maybe you're on bad internet? Or you're on VPN?"
 fi
 # NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
