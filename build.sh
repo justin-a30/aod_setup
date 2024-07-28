@@ -1,6 +1,7 @@
 #!/bin/bash
 LOCATION=$(find $HOME -name 'aod_setup')
 VER=$(cat "$LOCATION/version")
+RAND=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 7; echo)
 echo "Current folder location: $LOCATION"
 echo "Current module version: $VER"
 echo "Checking if p7zip (7z) executable exist"
@@ -11,7 +12,7 @@ else
 exit 1
 fi
    echo "Zipping folder by p7zip (7z)"
-   7z a ModdedXGoodies-version"$VER".zip $LOCATION/module/*
+   7z a ModdedXGoodies-version"$RAND"-"$VER".zip $LOCATION/module/*
 ZIP=$(find $LOCATION -name 'ModdedXGoodies*.zip')
 CL=$(cat "$LOCATION/changelog.md")
 BOT_TOKEN="7332398652:AAFEDgp3wrQFD-_X7vzAKiTgzy16CRUB5jU"
