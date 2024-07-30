@@ -2,12 +2,12 @@
 *Version 27 try3*
 
 *Changelog*
-• Nuked permission placer, it probably works without modifications, I hope so.
-• Optimized shell script
-• Added DLCheck, check if download is success before place, else abort.
-• Added verboses output
-• Deleted modified aapt
-• Use old ApkTool
+- Nuked permission placer, it probably works without modifications, I hope so.
+- Optimized shell script
+- Added DLCheck, check if download is success before place, else abort.
+- Added verboses output
+- Deleted modified aapt
+- Use old ApkTool
 
 *Test list*
 - Functionality of module
