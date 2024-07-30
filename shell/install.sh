@@ -640,7 +640,7 @@ ui_print " [----------] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [•] Adding final touches"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
 
