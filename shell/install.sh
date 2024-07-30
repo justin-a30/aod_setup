@@ -6,13 +6,14 @@
 # Thanks to 30+ testers!
 
 #### Add a download checker
-DLCHECK () { if [ $? -eq 0 ]; then ui_print " [ info     ] DL Done!"; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
+DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Done!"; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
         Android=$(getprop ro.build.version.release)
         ModVerInstalled=$(awk -F '=' '/versionCode/{print $2}' "/data/adb/modules/moddedxgoodies/module.prop")
         RMOV="/data/adb/modules/moddedxgoodies/remove"
+        RMSYS="/system/.rebcheck"
         ModVer=$(awk -F '=' '/versionCode/{print $2}' "$MODPATH/module.prop")
         DevName=$(getprop ro.product.odm.device)
         MOS=$(getprop ro.build.version.incremental | grep -Eo '[1-8]{2,3}')
@@ -35,8 +36,17 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " [ info     ] DL Done!"; else end "
     fi
 # CHECKING ANDROID VERSION
     if [[ "$Android" -lt 9 ]]; then
-        end " [!!!!!!!] Error: Android $Android not supported."
+        end " [ !     ] Error: Android $Android not supported."
     elif [ -r "$RMOV" ]; then
+        ui_print " [#] Note"
+        ui_print "     YOU DIDN'T REBOOT?"
+        sleep 0.5
+        ui_print "     CLEAN INSTALLATION IS REQUIRED."
+        sleep 0.5
+        ui_print "     I REPEAT"
+        sleep 0.2
+        end "     CLEAN INSTALLATION IS REQUIRED."
+    elif [ -r "$RMSYS" ]; then
         ui_print " [#] Note"
         ui_print "     YOU DIDN'T REBOOT?"
         sleep 0.5
@@ -72,6 +82,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " [ info     ] DL Done!"; else end "
                     else
                     ui_print " "
                     ui_print " [i] Installation begin."
+                    touch "$MODPATH/system/.rebcheck"
                     fi
     fi
 # HIGH END PROP
@@ -629,7 +640,7 @@ ui_print " [----------] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [•] Adding final touches"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'find $MODDIR/../* -maxdepth 0 -type d -exec touch '{}/disable' \;reboot' 'fi' $MODPATH/service.sh
+		add_lines_string '#!/system/bin/sh' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
 

@@ -1,7 +1,6 @@
 # Download files first
-ui_print " [!] Connection to the internet is required.
-     Make sure you're connected to the internet."
-ui_print " [i] Checking if cURL is working..." 
+ui_print " [!] Connection to the internet is required."
+ui_print "     Make sure you're connected to the internet."
 # Define the URL of the version file
 VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/developer/version"
 
@@ -14,9 +13,9 @@ if [ $? -eq 0 ]; then
   version=$(cat "$MODPATH/version")
 
   # Update the prop file with version and versionCode
-    update_file_string 'version="$version"' 'versionCode="$version"' $MODPATH/module.prop
+    update_file_string "version=$version" "versionCode=$version" $MODPATH/module.prop
 
-  ui_print " [i] cURL works! the version is $version."
+  ui_print " [i] The latest is $version."
 else
   abort " [E] Failed to cURL, maybe you're on bad internet? Or you're on VPN?"
 fi
@@ -27,13 +26,8 @@ fi
         mkdir /data/local/tmp/prop/curl
         mkdir /data/local/tmp/prop/curl/aod
         mkdir /data/local/tmp/prop/curl/cm
-# NOTIFY CURL START
-    ui_print " [i] cURL start."
-        sleep 1
-        
-# START CURL
+# GET FILE
     # SHELL
-        ui_print " [i] cURL-ing shells"
             curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
     # PERFORM SHELL
         . $MODPATH/install.sh
