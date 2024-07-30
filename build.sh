@@ -15,8 +15,8 @@ fi
    7z a ModdedXGoodies-version"$RAND"-"$VER".zip $LOCATION/module/*
 ZIP=$(find $LOCATION -name 'ModdedXGoodies*.zip')
 CL=$(cat "$LOCATION/changelog.md")
-BOT_TOKEN="7332398652:AAFEDgp3wrQFD-_X7vzAKiTgzy16CRUB5jU"
-CHAT_ID="-1002059105712"
+BOT_TOKEN=$(cat TGBOT.ID)
+CHAT_ID=$(cat TGPOST.ID)
 FILE_TO_SEND="$ZIP"
 TEXT_TO_SEND="$CL"
 
