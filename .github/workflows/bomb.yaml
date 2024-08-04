@@ -24,6 +24,6 @@ jobs:
           curl -4 -s -S -L -w"\n" -o- \
               -F document=@"$(find ModdedXGoodies*.zip -maxdepth 1)" \
               -F parse_mode='Markdown' \
-              -F caption="$(cat changelog.md")" \
+              -F caption="$(cat changelog.md)" \
               -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendDocument \
               -F chat_id="${CHAT_ID}"
