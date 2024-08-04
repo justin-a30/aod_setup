@@ -1,9 +1,11 @@
 #!/bin/bash
-LOCATION=$(find $HOME -name 'aod_setup')
+LOCATION=$(find $HOME -maxdepth 1 -name 'aod_setup')
 VER=$(cat "$LOCATION/version")
 RAND=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 7; echo)
+DATE=$(date +"%H%M-%d%m%Y")
 echo "Current folder location: $LOCATION"
 echo "Current module version: $VER"
+echo "Time and Date right now (H:M D-M-Y): $DATE"
 echo "Checking if p7zip (7z) executable exist"
 if command -v 7z >/dev/null 2>&1; then
    echo "7z found in $(command -v 7z)"
@@ -12,7 +14,7 @@ else
 exit 1
 fi
    echo "Zipping folder by p7zip (7z)"
-   7z a ModdedXGoodies-version"$RAND"-"$VER".zip $LOCATION/module/*
+   7z a ModdedXGoodies-v"$VER"-"$DATE".zip $LOCATION/module/*
 ZIP=$(find $LOCATION -name 'ModdedXGoodies*.zip')
 CL=$(cat "$LOCATION/changelog.md")
 BOT_TOKEN=$(cat TGBOT.ID)
