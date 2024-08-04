@@ -9,32 +9,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      LOCATION: $(find $HOME -maxdepth 1 -name 'aod_setup')
-      VER: $(cat "$LOCATION/version")
-      RAND: $(tr -dc A-Za-z0-9 </dev/urandom | head -c 7; echo)
-      DATE: $(date +"%H%M-%d%m%Y")
     steps:
       - uses: actions/checkout@v4
       - name: Prepare p7zip
         run: sudo apt install p7zip
       - name: Echo out some stuff
         run: |
-          echo "Current folder location: $LOCATION"
-          echo "Current module version: $VER"
-          echo "Time and Date right now (H:M D-M-Y): $DATE"
+          echo "Current folder location: $(find $HOME -maxdepth 1 -name 'aod_setup')"
+          echo "Current module version: $(cat "$(find $HOME -maxdepth 1 -name 'aod_setup')/version")"
+          echo "Time and Date right now (H:M D-M-Y): $(date +"%H%M-%d%m%Y")"
       - name: Zip file
-        run: 7z a ModdedXGoodies-v"$VER"-"$DATE".zip $LOCATION/module/*
+        run: 7z a ModdedXGoodies-v"$(cat "$(find $HOME -maxdepth 1 -name 'aod_setup')/version")"-"$(date +"%H%M-%d%m%Y")".zip $(find $HOME -maxdepth 1 -name 'aod_setup')/module/*
       - name: Upload file to Telegram
         env: 
-          FILE_TO_SEND: $(find $LOCATION -name 'ModdedXGoodies*.zip')
-          TEXT_TO_SEND: $(cat "$LOCATION/changelog.md")
+          FILE_TO_SEND: $(find $(find $HOME -maxdepth 1 -name 'aod_setup') -name 'ModdedXGoodies*.zip')
+          TEXT_TO_SEND: $(cat "$(find $HOME -maxdepth 1 -name 'aod_setup')/changelog.md")
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: |
           curl -4 -s -S -L -w"\n" -o- \
-              -F document=@"${FILE_TO_SEND}" \
+              -F document=@"$(find $(find $HOME -maxdepth 1 -name 'aod_setup') -name 'ModdedXGoodies*.zip')" \
               -F parse_mode='Markdown' \
-              -F caption="${TEXT_TO_SEND}" \
+              -F caption="$(cat "$(find $HOME -maxdepth 1 -name 'aod_setup')/changelog.md")" \
               -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendDocument \
               -F chat_id="${CHAT_ID}"
