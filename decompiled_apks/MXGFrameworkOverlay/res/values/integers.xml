@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="config_minimumScreenOffTimeout">10000</integer>
+    <integer name="config_screenBrightnessDoze">10</integer>
+    <integer name="config_dozeWakeLockScreenDebounce">300</integer>
+    <integer name="doze_pickup_vibration_threshold">2000</integer>
+    <integer name="doze_pulse_duration_in">130</integer>
+    <integer name="doze_pulse_duration_out">600</integer>
+    <integer name="doze_pulse_duration_visible">6000</integer>
+    <integer name="doze_small_icon_alpha">222</integer>
+</resources>

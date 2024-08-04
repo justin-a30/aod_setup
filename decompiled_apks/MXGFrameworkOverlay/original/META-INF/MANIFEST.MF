@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: Signflinger
+Created-By: Android Gradle 8.0.2
+
+Name: AndroidManifest.xml
+SHA-256-Digest: tn+f5AzgW36fNSnSIdIJNnjkknAJO833HqYav2FRziw=
+
+Name: resources.arsc
+SHA-256-Digest: LfeqgHP361EFk6Syzf4jOkd23pqms4Iy/jQoo98yD34=
+
