@@ -294,7 +294,7 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE CHARGE GLOW     
                     ui_print " "
                     ui_print " [###-------] [Downloading Glow Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
                     DLCHECK
                     ui_print " [###-------] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
@@ -302,7 +302,7 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE CHARGE MINI     
                     ui_print " "
                     ui_print " [###-------] [Downloading Mini Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
                     DLCHECK
                     ui_print " [###-------] [Installing Mini Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
@@ -310,7 +310,7 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
                     ui_print " [###-------] [Downloading Bottle Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
                     DLCHECK
                     ui_print " [###-------] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
@@ -324,7 +324,7 @@ ui_print " [----------] [Getting ready...]"
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Downloading AOD app for HyperOS $OS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
                         DLCHECK
                         ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
                         7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod > /dev/null
@@ -332,7 +332,7 @@ ui_print " [----------] [Getting ready...]"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Downloaing AOD app for MIUI $MOS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/main/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
                         DLCHECK
                         ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
                         7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
@@ -575,18 +575,24 @@ ui_print " [----------] [Getting ready...]"
                     ui_print " [ Verbose  ] [Signing compiled...]"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
-                # # PLACE PERMISSION PROP
-                    # ui_print " "
-                    # ui_print " [#########-] [Adding permissions to product]"
-                    # # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
-                    # if [[ "$Android" -le 12 ]]; then
-                        # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
-                    # else
-                        # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
-                    # fi
-                    # # COPY
+                # PLACE PERMISSION PROP
+                    ui_print " "
+                    ui_print " [#########-] [Getting permission file]"
+                    # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
+                    if [[ "$Android" -le 12 ]]; then
+                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
+                    else
+                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                    fi
+                    # GET PERMISSION FILE
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
+                        DLCHECK
+                        ui_print " "
+                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
+                        copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
+                    # COPY
                     # copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # # DOING THE WORK
                         # if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then

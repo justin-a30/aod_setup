@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+   <privapp-permissions package="com.miui.aod">
+      <permission name="android.permission.ACCESS_NETWORK_STATE" />
+      <permission name="android.permission.BIND_ATTENTION_SERVICE" />
+      <permission name="android.permission.BIND_JOB_SERVICE" />
+      <permission name="android.permission.BIND_WALLPAPER" />
+      <permission name="android.permission.BROADCAST_PACKAGE_REMOVED" />
+      <permission name="android.permission.DUMP" />
+      <permission name="android.permission.INTERACT_ACROSS_PROFILES" />
+      <permission name="android.permission.INTERACT_ACROSS_USERS" />
+      <permission name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+      <permission name="android.permission.KILL_BACKGROUND_PROCESSES" />
+      <permission name="android.permission.READ_DREAM_STATE" />
+      <permission name="android.permission.SET_WALLPAPER" />
+      <permission name="android.permission.USE_FINGERPRINT" />
+      <permission name="android.permission.VIBRATE" />
+      <permission name="android.permission.WAKE_LOCK" />
+   </privapp-permissions>
+</permissions>
