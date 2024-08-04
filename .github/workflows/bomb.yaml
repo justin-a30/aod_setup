@@ -1,5 +1,4 @@
 name: bomb
-# Controls when the workflow will run
 on:
   push:
     branches: [ "developer" ]
@@ -12,4 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Echo out some stuff
-        run: ls
+        run: |
+          echo "Current module version: $(cat version)"
+          echo "Time and Date right now (H:M D-M-Y): $(date +"%H%M-%d%m%Y")"
+      - name: Zip file
+        run: 7z a ModdedXGoodies-v"$(cat version)"-"$(date +"%H%M-%d%m%Y")".zip ./module/*
+      - name: Upload file to Telegram
+        env: 
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: |
+          curl -4 -s -S -L -w"\n" -o- \
+              -F document=@"$(find ModdedXGoodies*.zip -maxdepth 1)" \
+              -F parse_mode='Markdown' \
+              -F caption="$(cat changelog.md")" \
+              -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendDocument \
+              -F chat_id="${CHAT_ID}"
