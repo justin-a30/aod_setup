@@ -1,12 +1,8 @@
 *Test Release!*
-*Version 27 try4*
+*Version 27 try999999*
 
 *Changelog*
-- Add back overlay
-- Changed the way it checks for remove status
+- fix permissions
 
 *Test list*
 - Final check with overlay/charging
-
-*Great news*
-- anti bootloop is finally working!
