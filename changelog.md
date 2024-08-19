@@ -2,8 +2,11 @@
 *Version 27 try4*
 
 *Changelog*
-- Will post bootloop notification and disable module itself
+- Add back overlay
+- Changed the way it checks for remove status
 
 *Test list*
-- no need to.
+- Final check with overlay/charging
 
+*Great news*
+- anti bootloop is finally working!
