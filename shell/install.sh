@@ -597,11 +597,11 @@ ui_print " [----------] [Getting ready...]"
                     ui_print " [#########-] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
-                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-miui.xml"
+                        # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
                     else
-                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                        # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
                     # GET PERMISSION FILE
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
@@ -662,9 +662,8 @@ ui_print " [----------] [Getting ready...]"
         set_context /system "$MODPATH/system"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [•] Adding final touches"
-        notify="su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo "$notify"' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo "su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh" >> /data/adb/service.d/notify.sh' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
 touch $RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
