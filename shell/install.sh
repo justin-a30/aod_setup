@@ -297,6 +297,12 @@ ui_print " [----------] [Getting ready...]"
                     DLCHECK
                     ui_print " [###-------] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
+                    ui_print " "
+                    ui_print " [###-------] [Downloading overlay for charging]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
                     ui_print " "
@@ -305,6 +311,12 @@ ui_print " [----------] [Getting ready...]"
                     DLCHECK
                     ui_print " [###-------] [Installing Mini Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
+                    ui_print " "
+                    ui_print " [###-------] [Downloading overlay for charging]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             elif [ -r $ChargeBottle ]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
@@ -313,6 +325,12 @@ ui_print " [----------] [Getting ready...]"
                     DLCHECK
                     ui_print " [###-------] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
+                    ui_print " "
+                    ui_print " [###-------] [Downloading overlay for charging]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
+                    DLCHECK
+                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             else
                 ui_print " [###-------] [Skipping Charging Animation]"
             fi
