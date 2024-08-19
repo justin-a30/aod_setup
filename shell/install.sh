@@ -13,7 +13,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
         Android=$(getprop ro.build.version.release)
         ModVerInstalled=$(awk -F '=' '/versionCode/{print $2}' "/data/adb/modules/moddedxgoodies/module.prop")
         RMOV="/data/adb/modules/moddedxgoodies/remove"
-        RMSYS="/system/.rebcheck"
+        RMSYS="/data/adb/rm.pending"
         ModVer=$(awk -F '=' '/versionCode/{print $2}' "$MODPATH/module.prop")
         DevName=$(getprop ro.product.odm.device)
         MOS=$(getprop ro.build.version.incremental | grep -Eo '[1-8]{2,3}')
@@ -82,7 +82,6 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
                     else
                     ui_print " "
                     ui_print " [i] Installation begin."
-                    touch "$MODPATH/system/.rebcheck"
                     fi
     fi
 # HIGH END PROP
@@ -280,7 +279,7 @@ ui_print " [----------] [Getting ready...]"
                             ui_print " [#---------] [Placing High End props...]"
                             touch $MODPATH/system.prop
                             add_lines_string "ro.config.low_ram=false" "ro.config.low_ram.threshold_gb=0" "ro.miui.backdrop_sampling_enabled=true" "ro.miui.has_real_blur=1" "ro.miui.has_blur=1"  "ro.miui.has_handy_mode_sf=1"  "ro.launcher.blur.appLaunch=1" "ro.surface_flinger.supports_background_blur=1" "ro.sf.blurs_are_expensive=1" "persist.sys.sf.disable_blurs=false" "enable_blurs_on_windows=1" "ro.sf.blurs_are_caro=0" "persist.sys.background_blur_supported=true" "vendor.perf.framepacing.enable=false" "persist.sys.power.default.powermode=1" "ro.vendor.sf.detect.aod.enable=true" $MODPATH/system.prop
-                            settings put system deviceLevelList "v:1,c:3,g:3"
+                            settings put system deviceLevelList "v:1,c:2,g:2"
                             touch $MODPATH/post-fs-data.sh
                             add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1,c:2,g:2"' $MODPATH/post-fs-data.sh
                     else
@@ -647,7 +646,8 @@ ui_print " [----------] [Getting ready...]"
         ui_print " [•] Adding final touches"
         notify="su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo $notify' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo "$notify"' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+touch $RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
 
