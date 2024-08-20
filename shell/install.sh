@@ -593,22 +593,22 @@ ui_print " [----------] [Getting ready...]"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                 # PLACE PERMISSION PROP
-                    ui_print " "
-                    ui_print " [#########-] [Getting permission file]"
+                    # ui_print " "
+                    # ui_print " [#########-] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
-                    if [[ "$Android" -le 12 ]]; then
+                    # if [[ "$Android" -le 12 ]]; then
                         # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
-                    else
+                        # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
+                    # else
                         # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
-                    fi
+                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
+                    # fi
                     # GET PERMISSION FILE
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
-                        DLCHECK
-                        ui_print " "
-                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
-                        copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
+                        # curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
+                        # DLCHECK
+                        # ui_print " "
+                        # ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
+                        # copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
                     # COPY
                     # copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # # DOING THE WORK
