@@ -6,7 +6,7 @@
 # Thanks to 30+ testers!
 
 #### Add a download checker
-DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Done!"; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
+DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
@@ -596,20 +596,22 @@ ui_print " [----------] [Getting ready...]"
                     # ui_print " "
                     # ui_print " [#########-] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
-                    # if [[ "$Android" -le 12 ]]; then
+                    if [[ "$Android" -le 12 ]]; then
                         # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
-                    # else
+                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-miui.xml"
+                        FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
+                    else
                         # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
-                    # fi
-                    # GET PERMISSION FILE
-                        # curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
-                        # DLCHECK
-                        # ui_print " "
-                        # ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
-                        # copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
-                    # COPY
+                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
+                    fi
+                    GET PERMISSION FILE
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
+                        DLCHECK
+                        ui_print " "
+                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
+                        copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
+                    COPY
                     # copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # # DOING THE WORK
                         # if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/prop/permxaml.xml; then
