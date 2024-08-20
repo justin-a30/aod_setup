@@ -685,7 +685,7 @@ replace_name() {
 abort() {
    ui_print "$@"
    umount_all
-   [ -n "$MODPATH" ] && delete_recursive "$MODPATH && delete_recursive /data/local/tmp/prop"
+   [ -n "$MODPATH" ] && delete_recursive "$MODPATH"
    remove_tmp
    restore_env
    exit 130
