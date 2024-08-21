@@ -671,7 +671,7 @@ ui_print " [----------] [Getting ready...]"
         ui_print " [•] Adding final touches"
 		touch $MODPATH/service.sh
 		notify="su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh"
-		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 90' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo '$notify' > /data/adb/service.d/notify.sh' 'chmod +x /data/adb/service.d/notify.sh' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 90' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo "'$notify'" > /data/adb/service.d/notify.sh' 'chmod +x /data/adb/service.d/notify.sh' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
 touch $MODPATH$RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
