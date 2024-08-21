@@ -597,11 +597,11 @@ ui_print " [----------] [Getting ready...]"
                     # ui_print " [#########-] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
-                        # PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
+                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
                         FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-miui.xml"
                         # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
                     else
-                        # PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
+                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
                         FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
