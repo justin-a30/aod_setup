@@ -2,7 +2,7 @@
 *Version 27 try25*
 
 *Changelog*
-- Optimize shell file, again
+- Fix bootloop script
 
 *Warning*
 - Will be rebooted while using (anti bootloop script)
