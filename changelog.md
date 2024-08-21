@@ -2,8 +2,8 @@
 *Version 27 try25*
 
 *Changelog*
-- Used old way to modify permission
+- Optimize shell file
+- Optimize bootloop script
 
 *Warning*
-- Bootloop
-- Format data might required (i hate miui)
+- Will be rebooted while using (anti bootloop script)

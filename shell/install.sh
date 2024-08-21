@@ -301,7 +301,7 @@ ui_print " [----------] [Getting ready...]"
                     ui_print " [###-------] [Downloading overlay for charging]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
                     DLCHECK
-                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    ui_print " [###-------] [Installing overlay]"
                     copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
@@ -470,6 +470,7 @@ ui_print " [----------] [Getting ready...]"
                 # EDIT APK
                     ui_print " "
                     ui_print " [########--] [Editing overlay files]"
+                    ui_print " "
                     # BOOLEANS
                         if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -481,6 +482,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: AOD Doze mode]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -492,6 +494,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -503,6 +506,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -514,6 +518,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -525,6 +530,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -536,6 +542,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -547,6 +554,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]"
+                    ui_print " "
                     #
                         if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -558,6 +566,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
                     ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]"
+                    ui_print " "
                     # INTEGER
                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
@@ -570,6 +579,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml
                         fi
                     ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]"
+                    ui_print " "
                     # STRINGS
                         if contains '    <string name="config_dozeComponent">' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
                             if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
@@ -589,12 +599,13 @@ ui_print " [----------] [Getting ready...]"
                     ui_print " "
                     ui_print " [########--] [Repacking overlay to system...]"
                     apktool -q b /data/local/tmp/prop/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
+                    ui_print " "
                     ui_print " [ Verbose  ] [Signing compiled...]"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                 # PLACE PERMISSION PROP
-                    # ui_print " "
-                    # ui_print " [#########-] [Getting permission file]"
+                    ui_print " "
+                    ui_print " [#########-] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
                         PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
@@ -605,12 +616,6 @@ ui_print " [----------] [Getting ready...]"
                         FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
-                    # # GET PERMISSION FILE
-                        # curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml
-                        # DLCHECK
-                        # ui_print " "
-                        # ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
-                        # copy "/data/local/tmp/prop/curl/aod/privapp-permissions-aod.xml" "$FINALPERMDEST"
                     # COPY
                     copy "$PERMDEST" /data/local/tmp/prop/permxaml.xml
                     # DOING THE WORK
@@ -665,7 +670,8 @@ ui_print " [----------] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [•] Adding final touches"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo "su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh" >> /data/adb/service.d/notify.sh' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
+		notify="su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh"
+		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 90' 'if [[ "$BOOT" != "1" ]]; then' 'rm -rf /data/system/package_cache' 'touch /data/adb/service.d/notify.sh' 'echo '$notify' > /data/adb/service.d/notify.sh' 'chmod +x /data/adb/service.d/notify.sh' 'touch "$MODDIR/disable"' 'reboot' 'fi' $MODPATH/service.sh
 touch $MODPATH$RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
