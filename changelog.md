@@ -1,8 +1,8 @@
 *Test Release!*
-*Version 27 try25*
+*Version 27 try28*
 
 *Changelog*
-- Fix bootloop script
+- Fixed Simple charging animation (60fps only)
 
 *Warning*
-- Will be rebooted while using (anti bootloop script)
+- Your systemUi may crash if you plug in (or no)
