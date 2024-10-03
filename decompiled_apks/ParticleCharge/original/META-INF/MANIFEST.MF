@@ -1,0 +1,355 @@
+Manifest-Version: 1.0
+Built-By: Signflinger
+Created-By: Android Gradle 8.0.2
+
+Name: AndroidManifest.xml
+SHA1-Digest: PUP/3pBKVUyfqYSnuFkUakhtJu0=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_1.webp
+SHA1-Digest: cEz5rh3N1JQJi/lsEKk8QrGxdoA=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_10.webp
+SHA1-Digest: t7AxOzBZypdr6oVQU7bQn1Ozfd8=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_11.webp
+SHA1-Digest: cR4HRIli3kjDhi/yCO3IOSE7SXs=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_12.webp
+SHA1-Digest: ICzbIioojGCO87b5Z3zuAY+wgTQ=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_13.webp
+SHA1-Digest: uzpfRsYc6WkOtuvfFE0HMu2f5Qg=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_14.webp
+SHA1-Digest: WxrBm0BI41J9BHDvJm9+BvJfsqE=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_15.webp
+SHA1-Digest: 6K4gMGsmdvtHJxoqlvJ+8DnfW2Q=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_16.webp
+SHA1-Digest: MLxpwbRaU3J/QTclATbxUOptEXw=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_17.webp
+SHA1-Digest: 6OnUNHHmsjLolldv6/xcqb6BbTE=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_18.webp
+SHA1-Digest: RFLJ56IcjqpjPAg57exv+uS+G5I=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_19.webp
+SHA1-Digest: VWf84UV/6ziiJF7us2ZiTIslgUk=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_2.webp
+SHA1-Digest: +BCy0G5taw31uwYovCtT+9c+YdU=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_20.webp
+SHA1-Digest: iNZHAbUkbeOn4XD0aiOrkwaVOZE=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_21.webp
+SHA1-Digest: 5aIV6/FFi+H2x14h35Jg0iTgeN4=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_22.webp
+SHA1-Digest: rN3ZDEiKda9ksJJzlMQL9TBOzvQ=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_23.webp
+SHA1-Digest: 3bDMZF0YBxFg20Rb/JgqUBfBEMw=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_24.webp
+SHA1-Digest: xPqDlb2p8PRkr0DV84of2nqafSc=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_3.webp
+SHA1-Digest: mq4zZIaDDwcycbyRxJi8ilo+Q5s=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_4.webp
+SHA1-Digest: 5hya6IzJAErK3/mrvxUov7Yw6po=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_5.webp
+SHA1-Digest: 0Dnw8BXNMnnTpf/BVeTVLX1vD6A=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_6.webp
+SHA1-Digest: 4+MHcOiyyg+AGzh73QGIV/HUIAI=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_7.webp
+SHA1-Digest: GkBtiOXWCu00saEU6p77G2DUAWM=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_8.webp
+SHA1-Digest: Dr4HeAqGHTIAFzIYgR3aJmUIRKk=
+
+Name: res/drawable-440dpi/gxzw_aurora_recognizing_anim_9.webp
+SHA1-Digest: NMP5r9OLJzBRw4iv6KCtiQL/sbg=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_1.webp
+SHA1-Digest: liHLCQYLrXzrt+ChA7pPCkisAHc=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_10.webp
+SHA1-Digest: q5HhWPFIEDOlALX4xTG1VFIAEJI=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_11.webp
+SHA1-Digest: QNteZzVW7LtqxvWdKf3K6h6nf7w=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_12.webp
+SHA1-Digest: 2fRDlD7rbLyvHmYfLRIEAukz1jU=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_13.webp
+SHA1-Digest: +mPYIPGfpNFDzLNECP5o68Bq9hg=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_14.webp
+SHA1-Digest: gJQaGQGypdQikxo6D2WNpSuyaGY=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_15.webp
+SHA1-Digest: Uuy+A1sBOGx76fJ52tjDx2jsfWo=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_16.webp
+SHA1-Digest: wB0Aexpxp3LsGrFM4nGAdmDo+Ow=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_17.webp
+SHA1-Digest: 3ISletOCKsFxNYfxa9dOd1a7IeQ=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_18.webp
+SHA1-Digest: LLYXGheFQAwinZZ6uZDWyW2pFkg=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_19.webp
+SHA1-Digest: 3Jhm9ehT6IgDbWEN2wVCF15A3qM=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_2.webp
+SHA1-Digest: 0VMUwazfvwuCoVzi4bM0DHJi/rg=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_20.webp
+SHA1-Digest: ttDSBiMpoloaTcNEyQPaQs7hyGs=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_21.webp
+SHA1-Digest: juyPLqS6yQ15S2d1yZzlLL/5HbQ=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_22.webp
+SHA1-Digest: Y8k9sNFXV/PX8/xDorO5pEsNjSM=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_23.webp
+SHA1-Digest: LGsJrRNPPTroPbUYpJ8FKg9NIuE=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_24.webp
+SHA1-Digest: nrIHsGk1odlOfL4O2m+fzh18leQ=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_3.webp
+SHA1-Digest: 6L6dADHOB1rYJEOPsEFj66LnK64=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_4.webp
+SHA1-Digest: PsG29S1quHasRXa8+0lQMSWDee8=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_5.webp
+SHA1-Digest: eqKLIs7VGqoJ0qHeGxdiq1wpkSE=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_6.webp
+SHA1-Digest: qn5yVCg9V0acrJdcUFtBAsT+7N4=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_7.webp
+SHA1-Digest: Emr7BZ7Qcn4lLz6Ac641Uw8xzhE=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_8.webp
+SHA1-Digest: QHTk3PJfKk5ZYP6MEQ5i+7UDFbA=
+
+Name: res/drawable-440dpi/gxzw_light_recognizing_anim_9.webp
+SHA1-Digest: YAB933Tzk9O1AIJ7ytal+75dl/M=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_1.webp
+SHA1-Digest: RRkBBP/nLiCwYLSCqLJQxAU7lis=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_10.webp
+SHA1-Digest: i2wxUrsFYsKghxyjpkTgrT6DamA=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_11.webp
+SHA1-Digest: EFvRfBqIO40lRlkscBqbIdx00fg=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_12.webp
+SHA1-Digest: PTg9qBfU4Vs8IJRQg/QkLrHmZQc=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_13.webp
+SHA1-Digest: 0hABuhBoXucZpaJBmCijP8LTnAY=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_14.webp
+SHA1-Digest: FPn+pO0iKU70EYIGSipBU98HqsU=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_15.webp
+SHA1-Digest: I+vu3UQeYUc7gkXa+qe59rkJEmY=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_16.webp
+SHA1-Digest: ihfE3XrRA5tVcnJuYH9En73FjZ4=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_17.webp
+SHA1-Digest: YZ9g6+NB5h+TXShz6V/bhoqrEC0=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_18.webp
+SHA1-Digest: UMWTFUHt8VXluQ7ALR6kLqSO+o4=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_19.webp
+SHA1-Digest: X5glPWlCeVLSngScws8fYVucFtw=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_2.webp
+SHA1-Digest: RhqmW5L7jrqStrvqokUQhoWzKSc=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_20.webp
+SHA1-Digest: yxMQdhIQ3BVdc3iU7bVVFIUxrdM=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_21.webp
+SHA1-Digest: 8Bao+x37mUjbemoeGNDCWsMMVEw=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_22.webp
+SHA1-Digest: CIsfS5u9OElbesme2mBlJarlEuQ=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_23.webp
+SHA1-Digest: CIsfS5u9OElbesme2mBlJarlEuQ=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_24.webp
+SHA1-Digest: CIsfS5u9OElbesme2mBlJarlEuQ=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_3.webp
+SHA1-Digest: ILxN0bPckNt/xPFMsFt2iFfkllA=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_4.webp
+SHA1-Digest: et+gWVmXf1+3N0tfj3r2Q7yDSkU=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_5.webp
+SHA1-Digest: SHNArOU0GTiz2FsKZkDV+ZAFlq4=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_6.webp
+SHA1-Digest: fEqNxBMNWMpECb5fVriPnWkH/sA=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_7.webp
+SHA1-Digest: rtpls/Q6U0LFuXaqoTZG+3VbQTM=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_8.webp
+SHA1-Digest: p/eNlxAesWvIP43TcTppGEsHSwI=
+
+Name: res/drawable-440dpi/gxzw_pulse_recognizing_anim_9.webp
+SHA1-Digest: WkiDu/WoJq35njTGVKFd8DrGfPw=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_1.webp
+SHA1-Digest: 2cl3WTZWMc3S838rGd/V05xcL+w=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_10.webp
+SHA1-Digest: Ngw1vvg4x1qSlxGQic6MaOjQFow=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_11.webp
+SHA1-Digest: Jf60lV+cupXdonbMdzMgryz1OvE=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_12.webp
+SHA1-Digest: vMBIkcnG6Rd0tZRmGU2A/eYu9qM=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_13.webp
+SHA1-Digest: T8NdFBKla31JQvDW0yrf9ZMJWzs=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_14.webp
+SHA1-Digest: PS08qHW0MIzesa4g/ZnvgoX4X0k=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_15.webp
+SHA1-Digest: SNG4jtSa5pvakyENTa1hld39deg=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_16.webp
+SHA1-Digest: TYbGBJs2BD4uLA1U2m4i7UaEYHs=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_17.webp
+SHA1-Digest: 0QQMvYybmyUG0nJ3ary47zecAmg=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_18.webp
+SHA1-Digest: YsF+rW0Jm0ASXXIHnVuUjOuyViQ=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_19.webp
+SHA1-Digest: JLXcJQQ9tJcOOjFMDDcVbmvZiEo=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_2.webp
+SHA1-Digest: 6cbsvGKJl0LwQ8e38iFwPoDSN48=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_20.webp
+SHA1-Digest: 2K75F0gRTrzRXlHG3E3U7naKWrY=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_21.webp
+SHA1-Digest: u1fCQoAbgS8aLp6mRxm0/5G2XQs=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_22.webp
+SHA1-Digest: 4gu2uIF8DHMTIEOJ11SNmFeTMxw=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_23.webp
+SHA1-Digest: yQt6f7Pzrrn9uPg+Dm5v5T3a7Ls=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_24.webp
+SHA1-Digest: 1o+4+QUhxAvvbckpTtIrVj7Ln5s=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_3.webp
+SHA1-Digest: 2kx7pXKF1U9sV754Aj+wCipuR9I=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_4.webp
+SHA1-Digest: miaZViPvUL8EEKCxSZVpDcI6z/8=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_5.webp
+SHA1-Digest: jXtbN5DgV1xJZIDC8RIV9Z8ZvRQ=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_6.webp
+SHA1-Digest: TDP51Y6eL1IaUfbn3GOrWDdvH7c=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_7.webp
+SHA1-Digest: SY/EhiCNs25xmBqB4b2RKFtCGqQ=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_8.webp
+SHA1-Digest: SJ/R+W2xADlNODYou7tV96jTaxQ=
+
+Name: res/drawable-440dpi/gxzw_star_recognizing_anim_9.webp
+SHA1-Digest: hF0cwu9HzjtvGrstVCV1ctx9oxY=
+
+Name: res/drawable-nodpi-v4/charge_animation_charge_icon.png
+SHA1-Digest: Y5nBsuy6JHYuSeAhutbgMGKt4Mk=
+
+Name: res/drawable-nodpi-v4/charge_animation_particle_circle_icon.webp
+SHA1-Digest: 6Z0Davu7wlfElyLze0b+U0d9VBI=
+
+Name: res/drawable-nodpi-v4/charge_animation_super_rapid_charge_icon.p
+ ng
+SHA1-Digest: 5p8X2xpDyptc+1KR7/QeUgZUCoQ=
+
+Name: res/drawable-nodpi-v4/charge_animation_turbo_icon.png
+SHA1-Digest: OhERV4TTWe1syzDcS/w3DgEAN4E=
+
+Name: res/drawable-nodpi-v4/charge_animation_turbo_tail_icon.png
+SHA1-Digest: JoinpZ0yvN3hp7qisT/iUmkpgL8=
+
+Name: res/drawable-nodpi-v4/charge_animation_wired_rotate_circle_icon.
+ webp
+SHA1-Digest: 7zs6NgTVKoyPCFYLauCLnTE75+k=
+
+Name: res/drawable-nodpi/wired_charge_video_bg_img.webp
+SHA1-Digest: xqvYCG9zb24IQwjmpGvSYmieZN4=
+
+Name: res/drawable-nodpi/wired_strong_super_charge_video_bg_img.webp
+SHA1-Digest: BAzOCC3kafmxb7fYEvK7FV59D/c=
+
+Name: res/drawable-nodpi/wired_super_charge_video_bg_img.webp
+SHA1-Digest: BAzOCC3kafmxb7fYEvK7FV59D/c=
+
+Name: res/drawable-nodpi/wireless_charge_video_bg_img.webp
+SHA1-Digest: dt/U3bEFrYXn2eM4l+FArRgng0Y=
+
+Name: res/drawable-nodpi/wireless_strong_super_charge_video_bg_img.web
+ p
+SHA1-Digest: dt/U3bEFrYXn2eM4l+FArRgng0Y=
+
+Name: res/drawable-nodpi/wireless_super_charge_video_bg_img.webp
+SHA1-Digest: dt/U3bEFrYXn2eM4l+FArRgng0Y=
+
+Name: res/raw/wired_charge_video.mp4
+SHA1-Digest: SmRnEctEZi/2Qv1Yax0s8mI7i4Y=
+
+Name: res/raw/wired_quick_charge_video.mp4
+SHA1-Digest: mOvcQwBdqBKjz2yBd3G24b4T6Fo=
+
+Name: res/raw/wired_strong.mp4
+SHA1-Digest: mOvcQwBdqBKjz2yBd3G24b4T6Fo=
+
+Name: res/raw/wireless_charge_video.mp4
+SHA1-Digest: 1RcJrETkrq/o58oKawiqVVfR5oc=
+
+Name: res/raw/wireless_quick_charge_video.mp4
+SHA1-Digest: 1RcJrETkrq/o58oKawiqVVfR5oc=
+
+Name: res/raw/wireless_strong.mp4
+SHA1-Digest: 1RcJrETkrq/o58oKawiqVVfR5oc=
+
+Name: resources.arsc
+SHA1-Digest: /u8o+NtPYmZijFPBRX4IcEP/P9I=
+
