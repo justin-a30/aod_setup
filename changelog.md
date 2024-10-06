@@ -1,8 +1,6 @@
 *Test Release!*
-*Version 27 try28*
+*Version 28*
 
 *Changelog*
-- Fixed Simple charging animation (60fps only)
+- Update Simple Charge to Particle Charge (need LSPosed Module if your phone doesn't support at first.)
 
-*Warning*
-- Your systemUi may crash if you plug in (or no)
