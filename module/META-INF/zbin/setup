@@ -36,19 +36,21 @@ bbForArch() {
    [ ! -f "$bb" ] && abort "ERROR: Unsupported device architecture!"
 }
 ensure_bin() {
-   local path bin
+   local path bin result=1
    [ -z "$bb" ] && bb=$(find_bin busybox)
    while [ "$1" ]; do
-      bin=
-      if [ ! -e "$(command -v "$1")" ]; then
+      if [ -z "$(command -v "$1")" ]; then
          bin=$(find_bin $1); [ -n "$bin" ] && bin="\"$bin\""
          if [ -z "$bin" -a -n "$bb" ] && "$bb" --list | "$bb" grep -Eq "^$1$"; then bin="\"$bb\" $1"; fi
-         if [ -n "$bin" ]; then eval "$1() { $bin \"\$@\"; }"; return 0
+         if [ -n "$bin" ]; then eval "$1() { $bin \"\$@\"; }"; result=0
          else $needed && abort "ERROR: Could not define \"$1\" binary" || return 1
          fi
+      else
+         result=0
       fi
       shift;
    done
+   return $result
 }
 setup_bb() {
    #Try to ensure /system/bin/sh
@@ -93,8 +95,39 @@ for TMP in /data/tmp /dev/tmp /cache/tmp /mnt/tmp /tmp; do
 done
 [ -n "$TMP" ] && export TMP || abort "ERROR: Failed to create temporary directory"
 
+#ARGS
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -i|-install)
+           [ -n "$2" ] && MYDIR="$2" || MYDIR="/data/data/com.termux/files/usr/bin"
+           [ -d "$MYDIR" ] || abort "setup: Cant find dir: $MYDIR"
+           if [ -f core -a -f static ]; then
+              WORK="$MYDIR/DI"
+              ensure_dir "$WORK"
+              cp -rf * "$WORK"
+              echo "su -c '. \"$WORK/setup\" \"$WORK\"'" > "$MYDIR/di"
+              chmod 755 "$MYDIR/di"
+              if [ -x "$MYDIR/di" ]; then
+                 echo -e "\nInstalled: \033[32mSuccess\033[0m\n\nCommand: \033[33mdi\n"
+                 exit
+              else
+                 echo -e "\nInstalled: \033[31mFailed\033[0m\n"
+                 abort
+              fi
+           else
+              abort "setup: CANNOT FIND A VALID ENVIRONMENT " 
+           fi
+           shift;shift
+        ;;
+        *)
+          MYPATH="$1"
+          shift
+        ;;
+    esac
+done
+
 #Global vars
-export MYPATH="$1" \
+export MYPATH \
 TMPDIR="$TMP" \
 DNM="META-INF/com/google/android/magisk" \
 cert="META-INF/zbin/version.txt" \

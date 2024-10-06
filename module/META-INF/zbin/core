@@ -1,7 +1,7 @@
 #!/sbin/sh
 #Dynamic Installer by @BlassGO --- Also uses code from @osm0sis and @topjohnwu
 
-unmount() { ( umount "$1" || umount -l "$1";) 2>/dev/null; is_mounted "$1" && return 1 || return 0; }
+unmount() { ( umount "$1" || umount -l "$1";) 2>/dev/null; is_mounted "$1"; }
 
 write_raw_image() { local bs; if is_number "$(string force remove M "$extraction_speed")"; then bs=$extraction_speed; else bs=1048576; fi; dd if="$1" of="$2" bs=$bs; }
 
@@ -57,7 +57,9 @@ repeat() { local this=$((printf %${1}s) 2>/dev/null); [ -n "$this" ] && printf "
 
 calc() { awk "BEGIN{print $*}"; }
 
-compare() { eval 'awk "BEGIN{if (!('$@')) exit 1}"'; }
+compare() { awk "BEGIN{exit ($@)?0:1}"; }
+
+substr() { [ -n "$3" ] && echo "${1: $(($2-1)): $3}" || echo "${1: $(($2-1))}"; }
 
 echo2() { >&2 echo "$@"; }
 
@@ -73,7 +75,7 @@ create_dir() { local dir return=0; for dir; do if [ ! -d "$dir" ]; then mkdir -p
 
 create_file() { local file return=0; for file; do create_dir "$(dirname "$file")" || return 1; delete "$file"; touch "$file" 2>/dev/null; if [ -f "$file" ]; then set_perm2 $di_uid $di_gid $di_perm_f "$file" ; elif [ -e "$file" ]; then echo2 "Already exist some reference called: $file" && return=1; else echo2 "Cant create file: $file" && return=1; fi; done; return $return;  }
 
-testrw() { local test return=0; for test; do if [ -d "$test" ]; then if grep " $(readlink -f "$test") " /proc/mounts | grep -Eq '(\(|[[:space:]]|,)ro(,|[[:space:]]|\))'; then echo2 '!'"Read-Only-Mount: $test" && return=2; else touch "$test/.rw$$" 2>/dev/null; if [ -f "$test/.rw$$" ]; then delete "$test/.rw$$" ; else echo2 '!'"Read-Only: $test" && return=1; fi; fi; else echo2 "Cant find: $test directory" && return=1; fi; done; return $return; }
+testrw() { local test return=0; for test; do if [ -d "$test" ]; then touch "$test/.rw$$" 2>/dev/null; if [ -f "$test/.rw$$" ]; then delete "$test/.rw$$" ; else echo2 '!'"Read-Only: $test" && return=2; fi; else echo2 "Cant find: $test directory" && return=1; fi; done; return $return; }
 
 testvarname() { echo "$@" | grep -Eq '^[a-zA-Z_][a-zA-Z_0-9]*$'; }
 
@@ -85,9 +87,9 @@ run_b64() { local try0109191_=$(echo "$@" | base64 -d 2>/dev/null); is_text "$tr
 
 int() { awk "BEGIN{print int($*)}"; }
 
-float() { is_number "$float_length" || local float_length=9; [ $# == 0 ] && set -- 0; awk 'BEGIN{printf("%.'$float_length'f\n", '$*')}'; }
+float() { is_number "$float_length" || local float_length=9; [ $# == 0 ] && set -- 0; awk "BEGIN{printf(\"%.${float_length}f\\n\", $*)}"; }
 
-round() { [ $# == 0 ] && set -- 0; awk 'BEGIN{printf("%.0f\n", '$*')}'; }
+round() { [ $# == 0 ] && set -- 0; awk "BEGIN{printf(\"%.0f\\n\", $*)}"; }
 
 is_static() { local file="$1" result; [ -n "$file" -a ! -e "$file" ] && file=$(which "$1"); [ ! -e "$file" ] && echo2 "is_static: Cant find: $1" && return 1; result=$(strings "$file" | grep -E "^/(bin|etc|system|system_ext|vendor|product|odm|apex)(/[^/]+)*/bin/[^/]+" | while read need; do echo "$file needs \"$need\""; done); [ -n "$result" ] && echo2 "$result" && return 1 || return 0; }
 
@@ -106,7 +108,7 @@ ifelse() { eval "( $1 ) || ( $2 )"; }
 
 read_file() { cat "$@"; }
 
-run_program() { local program=$(fullpath "$1"); if [ ! -f "$program" ]; then echo2 "CANT FIND: $1" && return 1; fi ; shift; chmod 777 "$program"; "$program" "$@"; }
+run_program() { local program=$(fullpath "$1"); if [ ! -e "$program" ]; then echo2 "CANT FIND: $1" && return 1; fi ; shift; chmod 777 "$program"; "$program" "$@"; }
 
 greater_than_int() { is_greater "$@"; }
 
@@ -116,37 +118,33 @@ stdout() { "$@" 2>&1; }
 
 stderr() { "$@" 1>&2; }
 
-stdprint() { "$@" | while read print; do ui_print "$print"; done; } 
+stdprint() { "$@" | while read print; do ui_print "$print"; done; }
 
-#concat() { local con; for c; do con="${con}$($1 2>/dev/null || echo "$1")"; shift; done; [ -n "$con" ] && echo "$con" || return 1; }
-
-concat() { local con; for c; do con="${con}$1"; shift; done; [ -n "$con" ] && echo "$con" || return 1; }
-
+concat() { printf "%s" "$@"; }
 
 ###################################
 #Specific POSIX functions
 
 grep_o() (
-    #POSIX grep -o matching find by @BlassGO
-    if [ -z "$2" ]; then
-        grep=$(cat)
-    else
-        grep=$(cat "$2")
-    fi  
-    echo "$grep" | awk '
+    # POSIX grep -o matching find by @BlassGO
+    awk '
     function start(str) {
-        matches="" 
+        matches=""
         return receiver(str)
     }
     function receiver(str2) {
-        find=match(str2, /'$1'/)
-        if(find!=0) {
-            matches=(matches substr(str2, RSTART, RLENGTH) "\n")
-            receiver(substr(str2, RSTART+RLENGTH, length(str2)))
-        }    
+        find=match(str2,/'$1'/)
+        if (find!=0) {
+            if (matches!="") matches=matches "\n"
+            matches=matches substr(str2,RSTART,RLENGTH)
+            receiver(substr(str2,RSTART+RLENGTH,length(str2)))
+        }
         return matches
     }
-    {print start($0)}' | grep -Ev "^$"
+    { 
+        result=start($0)
+        if (result!="") print result 
+    }' "${2:--}"
 )
 
 ###################################
@@ -181,7 +179,7 @@ check_content() {
 
 find_content() {
    local restore flag regex=false nf="[^/]$" limit pass=false
-   local array file content func fix='s/[]()\/$*.^[]/\\&/g'
+   local array file content func fix='s/[]\/.^$*+?{}()|[]/\\&/g'
    restore=()
    while [[ $# -gt 0 ]]; do
    flag="$1"
@@ -239,7 +237,7 @@ is_valid() {
 defined() {
    [ $# == 0 ] && return 1
    while [ $# != 0 ]; do
-      [ -z "$(checkvar "$1")" ] && return 1
+      eval "[ -z \"\${${1}}\" ]" && return 1
       shift;
    done
    return 0
@@ -248,7 +246,7 @@ defined() {
 undefined() {
    [ $# == 0 ] && return 1
    while [ $# != 0 ]; do
-      [ -n "$(checkvar "$1")" ] && return 1
+      eval "[ -n \"\${${1}}\" ]" && return 1
       shift;
    done
    return 0
@@ -281,6 +279,29 @@ fullpath() {
    [ -e "$path" ] && echo "$path" || return 1
 }
 
+regex_or() {
+   local regex fix='s/[]\/.^$*+?{}()|[]/\\&/g'
+   regex=$(printf "%s\001" "$@" | sed -e $fix)
+   regex=${regex:0:-1}
+   echo "${regex//$'\001'/|}"
+}
+
+str_join() {
+   local str c="$1"
+   shift
+   str=$(printf "%s$c" "$@")
+   [ -n "$c" ] && echo "${str:0:-${#c}}" || echo "$str"
+}
+
+contains_one() {
+   local array file
+   array=( "$@" )
+   file=${array[${#array[@]} - 1]}
+   if [ ! -e "$file" ]; then echo "CANT FIND: $file" && return 1; fi
+   unset "array[${#array[@]}-1]"
+   grep -Eq "$(regex_or "${array[@]}")" "$file"
+}
+
 contains() {
    local array file content func
    [ -z "$1" ] && return 1
@@ -290,9 +311,9 @@ contains() {
    unset "array[${#array[@]}-1]"
    func=${#array[@]}
    [ $func == 0 ] && return 1
-   file=$(cat "$file")
+   file=$(<"$file")
    for content in "${array[@]}"; do
-      is_substring "$content" "$file" || return 1
+      [[ "$file" == *"$content"* ]] || return 1
    done
    return 0
 }
@@ -300,12 +321,11 @@ contains() {
 magic_file() {
    #Extra method:
    #od -An -v -w $bytes -t x1 -j $offset "$file" | tr -d " "
-   local restore flag offset type line show showline bytes
+   local restore offset type line show showline bytes
    local magic file pass result get options return=0
    restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   while [ $# -gt 0 ]; do
+   case $1 in
        -offset|-o)
        offset=$2
        shift;shift;
@@ -361,7 +381,7 @@ magic_file() {
       file="$2"
    fi
    if [ -z "$magic" ]; then echo2 "magic_file: Null magic" && return 1; fi
-   if [ ! -f "$file" ]; then echo2 "CANT FIND: $file" && return 1; fi
+   if [ ! -e "$file" ]; then echo2 "CANT FIND: $file" && return 1; fi
    if [ -n "$offset" ] && ! is_number "$offset"; then echo2 "magic_file: Invalid offset: $offset" && return 1; fi
    if [ -n "$line" ] && ! is_number "$line"; then echo2 "magic_file: Invalid line: $line" && return 1; fi
    if [ -n "$bytes" ] && ! is_number "$bytes"; then echo2 "magic_file: Invalid bytes: $bytes" && return 1; fi
@@ -639,7 +659,7 @@ obfuscate() {
 replace_name() {
    #regex="([^//]*/)*(${1}[^//]*)$"
    local restore flag dir=false file=false find any name newname r regex
-   local fix='s/[]()\/$*.^[]/\\&/g'
+   local fix='s/[]\/.^$*+?{}()|[]/\\&/g'
    restore=()
    while [[ $# -gt 0 ]]; do
    flag="$1"
@@ -685,7 +705,7 @@ replace_name() {
 abort() {
    ui_print "$@"
    umount_all
-   [ -n "$MODPATH" ] && delete_recursive "$MODPATH && delete_recursive /data/local/tmp/prop"
+   [ -n "$MODPATH" ] && delete_recursive "$MODPATH"
    remove_tmp
    restore_env
    exit 130
@@ -1518,19 +1538,22 @@ get() {
   done
 }
 ensure_bin() {
-   local path bin
+   local path bin result=1
    [ -z "$needed" ] && local needed=false
    [ -z "$bb" ] && bb=$(find_bin busybox)
    while [ "$1" ]; do
-      bin=
-      if [ ! -e "$(command -v "$1")" ]; then
+      if [ -z "$(command -v "$1")" ]; then
          bin=$(find_bin $1); [ -n "$bin" ] && bin="\"$bin\""
          if [ -z "$bin" -a -n "$bb" ] && "$bb" --list | "$bb" grep -Eq "^$1$"; then bin="\"$bb\" $1"; fi
-         [ -n "$bin" ] && eval "$1() { $bin \"\$@\"; }"
-         ($needed && [ -z "$bin" ]) && abort "ERROR: Could not define \"$1\" binary"
+         if [ -n "$bin" ]; then eval "$1() { $bin \"\$@\"; }"; result=0
+         else $needed && abort "ERROR: Could not define \"$1\" binary" || return 1
+         fi
+      else
+         result=0
       fi
       shift;
    done
+   return $result
 }
 change_bin() {
    local restore flag while
@@ -1674,35 +1697,83 @@ eval_all_perm() { echo "$(eval_user "$1") $(eval_group "$1") $(eval_perm "$1")";
 
 patch_fstab() {
    #patch_fstab userdata "fileencryption" "encryptable" "FILE"
-   local huh fstab result stock new
-   if exist "$4"; then savestate stock "$4"; else echo2 "patch_fstab: Cant find $4" && return 1; fi
-   fstab=$(grep -Em1 "^[[:space:]]*[^#].*$(string escape "$1")" "$4")
-   if undefined fstab; then echo2 "patch_fstab: Cant get \"$1\" line in $4" && return 1; fi
-   huh=$(split_string ',' "$fstab" | grep -m1 "$2")
-   if defined huh; then
-      result=$(string replace "$huh" "$3" "$fstab")
-      if undefined result; then echo2 "patch_fstab: Nothing to do: \"$huh\"" && return 0; fi
-      echo2 "patch_fstab: $huh to $3"
-      replace "$fstab" "$result" "$4" || return 1
-      savestate new "$4"
-      if [[ "$stock" != "$new" ]]; then echo2 "patch_fstab: Patched $4" && return 0; else return 1; fi
-   else
-      echo2 "patch_fstab: Cant find \"$2\" property in \"$fstab\"" && return 1
-   fi
+   local in path attr orig part fstab match return=1
+   local header restore fix='s/[]\/.^$*+?{}()|[]/\\&/g' count total
+   restore=()
+   while [ $# -gt 0 ]; do
+   case $1 in
+       -h|-header)
+       header=true
+       shift
+       ;;
+       *)   
+       restore+=("$1")
+       shift
+       ;;
+   esac
+   done
+   in=${restore[0]}
+   unset "restore[0]"
+   restore=("${restore[@]}")
+   path=${restore[${#restore[@]} - 1]}
+   unset "restore[${#restore[@]}-1]"
+   total=${#restore[@]}
+   if [ ! -e "$path" ]; then echo2 "patch_fstab: Cant find $path" && return 1; fi
+   while IFS=$'\n' read -r fstab; do
+      if [ -z "$fstab" ]; then echo2 "patch_fstab: Cant get \"$in\" line in $path" && return 1; fi
+      attr=$(echo "$fstab" | grep -Eo '[^ ]*([,].*|$)')
+      part=${fstab/"$attr"/}
+      if [ -n "$header" ]; then
+         part=${part//" "/$'\n'}
+         orig="$part"
+         count=0
+         while [ $count -lt $total ]; do
+            while IFS=$'\n' read -r match; do
+               [ -z "$match" ] && break
+               echo2 "patch_fstab: \"$match\" to \"${restore[$count+1]}\""
+               part=${part/"$match"/"${restore[$count+1]}"}
+            done <<< $(echo "$part" | grep -F "${restore[$count]}")
+            count=$((count+2))
+         done
+         if [ "$orig" != "$part" ]; then
+            part=$(echo "$part" | grep "." | tr '\n' ' ' | sed -r 's/[ ]+$//')
+            if replace "$fstab" "$part $attr" "$path"; then
+               return=0
+            else return 1
+            fi
+         fi
+      elif [ -n "$attr" ]; then
+         attr=${attr//","/$'\n'}
+         orig="$attr"
+         count=0
+         while [ $count -lt $total ]; do
+            while IFS=$'\n' read -r match; do
+               [ -z "$match" ] && break
+               echo2 "patch_fstab: \"$match\" to \"${restore[$count+1]}\""
+               attr=${attr/"$match"/"${restore[$count+1]}"}
+            done <<< $(echo "$attr" | grep -F "${restore[$count]}")
+            count=$((count+2))
+         done
+         if [ "$orig" != "$attr" ]; then
+            attr=$(echo "$attr" | grep "." | tr '\n' ',' | sed 's/,$//')
+            if replace "$fstab" "$part$attr" "$path"; then
+               return=0
+            else return 1
+            fi
+         fi
+      else
+         echo2 "patch_fstab: No attributes found: $path"
+      fi
+   done <<< $(grep -E "^[ \t]*[^#].*$(echo "$in" | sed -e $fix)" "$path")
+   [ $return = 0 ] && echo2 "patch_fstab: Patched $path"
+   return $return
 }
 
 import_config() {
-    local ugu propc return=0
-    while IFS='' read -r ugu || [[ -n "$ugu" ]]; do
-          propc=
-          test "${ugu#*=}" != "$ugu" && propc=1
-          if [[ "$propc" == "1" ]]; then 
-              if testvarname "$(split_extract = 1 "$ugu" | tr -d ' ')"; then setdefault "$(split_extract = 1 "$ugu" | tr -d ' ')" "$(split_extract = 2 "$ugu")"
-              else echo2 "import_config: $(split_extract = 1 "$ugu" | tr -d ' ') cannot be converted to variable" && return=1
-              fi
-          fi   
-    done < "$1"
-    return $return
+    local kak3heu71uahs__
+    while IFS='' read -r kak3heu71uahs__; do
+      IFS=$'\n' read -r -d '' "$(echo ${kak3heu71uahs__%%=*})" <<< "${kak3heu71uahs__#*=}"
+    done <<< $(grep -E '^[ \t]*[a-zA-Z_][a-zA-Z_0-9]*[ \t]*\=' "$1")
 }
 
 import_config_addon() {
@@ -1808,38 +1879,35 @@ assert() {
 }
 
 split_string() {
-    local split delim
-    local IFS=$'\n'
-    split="$2"
-    split=${split//"$1"/$'\n'}
-    for delim in $split; do
-        echo "$delim"
-    done
+    echo "${2//"$1"/$'\n'}"
 }
 
 split_cut() {
-    local split count delim
-    local IFS=$'\n'
-    split="$3"
-    split=${split//"$1"/$'\n'}
-    count=0
-    for delim in $split; do
-        count=$(($count + 1))
-        echo "$delim"
-        if [[ "$count" == "$2" ]]; then return; fi;
-    done
+    echo "$3" | awk -v delim="$1" -v max="$2" 'BEGIN { count = 0 } 
+    {
+        while (match($0, delim)) {
+            print substr($0, 1, RSTART - 1)
+            count++
+            if (count == max) exit
+            $0 = substr($0, RSTART + RLENGTH)
+        }
+        if (count < max) print $0
+    }'
 }
 
 split_extract() {
-    local split count delim
-    local IFS=$'\n'
-    split="$3"
-    split=${split//"$1"/$'\n'}
-    count=0
-    for delim in $split; do
-        count=$(($count + 1))
-        if [[ "$count" == "$2" ]]; then echo "$delim" && return; fi;
-    done
+    echo "$3" | awk -v delim="$1" -v target="$2" 'BEGIN { count = 0 }
+    {
+        while (match($0, delim)) {
+            count++
+            if (count == target) {
+                print substr($0, 1, RSTART - 1)
+                exit
+            }
+            $0 = substr($0, RSTART + RLENGTH)
+        }
+        if (count + 1 == target) print $0
+    }'
 }
 
 checkvar() {
@@ -1882,21 +1950,17 @@ import_bin_zip() {
 
 setdefault() {
     [ -z "$1" ] && return 1
-    read -r -d '' "$1" <<< "$2"
-    if defined "$1"; then
-       if [ "$1" == "permissions" ]; then
-          export di_uid=$(echo "$permissions" | cut -d: -f1 | tr -d " ")
-          export di_gid=$(echo "$permissions" | cut -d: -f2 | tr -d " ")
-          export di_perm_d=$(echo "$permissions" | cut -d: -f3 | tr -d " ")
-          export di_perm_f=$(echo "$permissions" | cut -d: -f4 | tr -d " ")
-          if ! is_number "$di_uid"; then export di_uid=0; fi
-          if ! is_number "$di_gid"; then export di_gid=0; fi
-          if ! is_number "$di_perm_d"; then export di_perm_d=0755; fi
-          if ! is_number "$di_perm_f"; then export di_perm_f=0644; fi
-       fi
-       return 0
-    else return 1
+    if [ "$1" = "permissions" ]; then
+       export di_uid=$(echo "$2" | cut -d: -f1 | tr -d " ") \
+       di_gid=$(echo "$2" | cut -d: -f2 | tr -d " ") \
+       di_perm_d=$(echo "$2" | cut -d: -f3 | tr -d " ") \
+       di_perm_f=$(echo "$2" | cut -d: -f4 | tr -d " ")
+       is_number "$di_uid" || export di_uid=0
+       is_number "$di_gid" || export di_gid=0
+       is_number "$di_perm_d" || export di_perm_d=0755
+       is_number "$di_perm_f" || export di_perm_f=0644
     fi
+    IFS=$'\n' read -r -d '' "$1" <<< "$2"
 }
 
 can_run() {
@@ -2060,14 +2124,13 @@ make_zip() {
 }
 
 dynamic_install_apk() {
-   local userlist package f try inst_dir package2 
-   local temp_dir temp_dest temp_pack check_split check_package restore flag out nr na
-   local ro ra include i file check_overlay
+   local userlist package f try inst_dir package2 count=0
+   local temp_dir temp_dest temp_pack check_split check_package restore flag out nr na path1 path2
+   local ro ra include i file check_overlay params
    if ! aapt version >/dev/null; then echo " CANT LOAD AAPT: U cant use dynamic_install_apk " && return 1; fi
    restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   while [ $# -gt 0 ]; do
+   case $1 in
        -o|-output)
        out="$2"
        shift;shift;
@@ -2078,6 +2141,10 @@ dynamic_install_apk() {
        ;;
        -na|-no-add)
        na=true
+       shift
+       ;;
+       -fs|-follow-symlinks)
+       params=-L
        shift
        ;;
        -ro|-remove-oat)
@@ -2097,43 +2164,44 @@ dynamic_install_apk() {
    set -- "${restore[@]}"
    delete "$TMP/userlist.txt"
    delete "$TMP/packages.txt"
-   if undefined out; then testrw "$2" || return 1; fi
+   path1="$1"
+   path2="$2"
+   [ -L "$path1" ] && path1=$(readlink -f "$path1")
+   [ -L "$path2" ] && path2=$(readlink -f "$path2")
+   if undefined out; then testrw "$path2" || return 1; fi
    while read userlist; do
-       if undefined userlist; then echo2 "dynamic_install_apk: Cant find any apk in $2 " && break; fi
-       check_overlay=
-       package=
+       if [ -z "$userlist" ]; then echo2 "dynamic_install_apk: Cant find any apk in $path2 " && break; fi
        package=$(apk_package "$userlist")
        check_overlay=$(aapt dump xmlstrings "$userlist" AndroidManifest.xml | grep -w " overlay")
-       if undefined check_overlay; then
-          echo "$userlist" >> "$TMP/userlist.txt"
-          echo "$(basename "$userlist")=$package" >> "$TMP/packages.txt"
+       if [ -z "$check_overlay" -a -n "$package" ]; then
+          count=$((count+1))
+          echo "$count=$userlist" >> "$TMP/userlist.txt"
+          echo "$count=$package" >> "$TMP/packages.txt"
        fi
-   done <<< $(find -L "$2" -type f -name "*.apk" 2>/dev/null)
+   done <<< $(find $params "$path2" -type f -name "*.apk" 2>/dev/null)
    if ! exist "$TMP/packages.txt" "$TMP/userlist.txt"; then
      #Make false files
      echo > "$TMP/packages.txt" 
      echo > "$TMP/userlist.txt"
    fi
    while read f; do
-     if undefined f; then echo2 "dynamic_install_apk: Cant find any apk in $1 " && break; fi
-     check_split=
+     if [ -z "$f" ]; then echo2 "dynamic_install_apk: Cant find any apk in $path1 " && break; fi
      check_package=
      check_split=$(aapt dump badging "$f" | sed -n "s/.* split='\([^']*\).*$/\1/p")
-     if [[ -n "$temp_pack" && -n "$temp_dir" && "$temp_dir" == "$(dirname "$f")" ]]; then
+     if [ -n "$temp_pack" -a -n "$temp_dir" -a "$temp_dir" = "$(dirname "$f")" ]; then
         check_package=$(apk_package "$f")
-        if [[ -n "$check_split" && "$check_package" == "$temp_pack" ]]; then
+        if [ -n "$check_split" -a "$check_package" = "$temp_pack" ]; then
            echo2 "add:split: $(basename "$f") in $temp_dest"
            inject "$f" "$temp_dest" && continue
         fi
      fi
-     try=
-     inst_dir=$(dirname "$f")
-     inst_dir=${inst_dir#$1}
+     inst_dir="$(dirname "$f")"
+     inst_dir="${inst_dir#$path1}"
      package=$(apk_package "$f")
      try=$(grep -m1 "$package" "$TMP/packages.txt" | cut -d '=' -f1)
      package2=$(get_file_prop "$TMP/packages.txt" "$try")
-     if [[ "$package" == "$package2" ]]; then try=$(grep -m1 "$try" "$TMP/userlist.txt"); fi;
-     if [[ -n "$try" && -f "$try" && -z "$check_split" ]]; then
+     if [ "$package" = "$package2" ]; then try=$(get_file_prop "$TMP/userlist.txt" "$try"); fi;
+     if [ -n "$try" -a -f "$try" -a -z "$check_split" ]; then
         if [ -n "$nr" ]; then continue; fi
         if [ -n "$out" ]; then try="$out$try"; fi
         temp_pack="$package"
@@ -2145,7 +2213,7 @@ dynamic_install_apk() {
         cp -pf "$f" "$try"
         if [ -d "$temp_dir/lib" ]; then cp -pfr "$temp_dir/lib" "$temp_dest"; fi
         for i in "${!include[@]}"; do
-          if exist "$temp_dir/${include[i]}"; then 
+          if [ -e "$temp_dir/${include[i]}" ]; then 
              echo2 "add:extra: ${include[i]}"
              cp -pfr "$temp_dir/${include[i]}" "$temp_dest"
           fi
@@ -2155,108 +2223,85 @@ dynamic_install_apk() {
         if [ -n "$na" ]; then continue; fi
         temp_pack="$package"
         temp_dir=$(dirname "$f")
-        temp_dest="$2${inst_dir}"
+        temp_dest="$path2${inst_dir}"
         if [ -n "$out" ]; then temp_dest="$out$temp_dest"; fi
         if [ -n "$ro" ]; then rm -rf "$temp_dest/oat" 2>/dev/null; fi
         echo2 "add: $package in $temp_dest"
         inject "$f" "$temp_dest"
         if [ -d "$temp_dir/lib" ]; then cp -pfr "$temp_dir/lib" "$temp_dest"; fi
         for i in "${!include[@]}"; do
-          if exist "$temp_dir/${include[i]}"; then 
+          if [ -e "$temp_dir/${include[i]}" ]; then 
              echo2 "add:extra: ${include[i]}"
              cp -pfr "$temp_dir/${include[i]}" "$temp_dest"
           fi
         done
         set_perm_recursive2 $di_uid $di_gid $di_perm_d $di_perm_f "$temp_dest"
      fi
-   done <<< $(find -L "$1" -mindepth 1 -type f -name "*.apk")
+   done <<< $(find $params "$path1" -mindepth 1 -type f -name "*.apk")
+}
+
+find_xxd() {
+    local xxd
+    if command -v xxd >/dev/null 2>&1; then
+        echo "xxd"
+    elif /system/bin/xxd --help >/dev/null 2>&1; then
+        echo "/system/bin/xxd"
+    elif /system/bin/toybox xxd --help >/dev/null 2>&1; then
+        echo "/system/bin/toybox xxd"
+    else
+        ensure_bin xxd && echo "xxd" || return 1
+    fi
 }
 
 hex_patch() {
-    local xxd 
-    if xxd --help >/dev/null 2>&1; then
-       xxd=xxd
-    elif /system/bin/xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/xxd"
-    elif /system/bin/toybox xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/toybox xxd"
-    elif [ ! -e "/data/adb/magisk/magiskboot" ]; then
-       echo "CANT LOAD: xxd or magiskboot" && return 1
-    fi
-    if ! exist "$3"; then echo "CANT FIND: $3" && return 1; fi
+    local xxd magiskboot=$(find_bin magiskboot)
+    xxd=$(find_xxd) || { echo "CANT LOAD: xxd or magiskboot" && return 1; }
+    [ ! -f "$3" ] && { echo "CANT FIND: $3" && return 1; }
     testrw "$(dirname "$3")" || return 1
-    if $(( $xxd -p "$3" | tr -d \\n | tr -d " " | sed "s/$1/$2/" | $xxd -r -p > "$3.tmp" ) 2>/dev/null ); then
-      if hex_check "$2" "$3.tmp"; then
-         move "$3.tmp" "$3"
-         true
-      elif [ -e "/data/adb/magisk/magiskboot" ]; then
-         if $(/data/adb/magisk/magiskboot hexpatch "$3" "$1" "$2"); then
-           if hex_check "$2" "$3"; then true; else false; fi
-         else
-           false
-         fi   
-      else
-         false
-      fi
-    elif [ -e "/data/adb/magisk/magiskboot" ]; then
-        if $(/data/adb/magisk/magiskboot hexpatch "$3" "$1" "$2"); then
-           if hex_check "$2" "$3"; then true; else false; fi
-        else
-           false
-        fi 
-    else
-       false  
+    if [ -n "$magiskboot" ]; then
+        if "$magiskboot" hexpatch "$3" "$1" "$2"; then
+           set_perm2 $di_uid $di_gid $di_perm_f "$3"
+           echo2 "hex_patch: Patched: $3"
+           return 0
+        fi
     fi
+    if $xxd -p "$3" | tr -d '\n ' | sed "s/$1/$2/" | $xxd -r -p > "$3.tmp" 2>/dev/null && is_valid "$3.tmp"; then
+        mv -f "$3.tmp" "$3"
+        set_perm2 $di_uid $di_gid $di_perm_f "$3"
+        echo2 "hex_patch: Patched: $3"
+        return 0
+    elif [ -f "$3.tmp" ]; then
+        delete "$3.tmp"
+    fi
+    echo2 "hex_patch: Failed: $3"
+    return 1
 }
 
 hex_search() {
-    local xxd restore flag
-    local after before
-    if xxd --help >/dev/null 2>&1; then
-       xxd=xxd
-    elif /system/bin/xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/xxd"
-    elif /system/bin/toybox xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/toybox xxd"
-    else
-       echo " CANT LOAD XXD bin" && return
-    fi
-    restore=()
-    while [[ $# -gt 0 ]]; do
-    flag="$1"
-    case $flag in
-        -include)
-        after=$(echo "$2" | grep -Eio "after:[0-9]+" | cut -f2 -d:)
-        before=$(echo "$2" | grep -Eio "before:[0-9]+" | cut -f2 -d:)
-        if [[ -z "$after" && -z "$before" ]]; then ui_print "hex_search: invalid line" && return; fi
-        shift;shift;
-        ;;
-        *)   
-        restore+=("$1")
-        shift
-        ;;
-    esac
+    local xxd after before restore=()
+    xxd=$(find_xxd) || { echo "CANT LOAD: xxd" && return 1; }
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -include)
+                after=$(echo "$2" | grep -Eio "after:[ \t]*[0-9]+" | cut -f2 -d: | tr -d ' \t')
+                before=$(echo "$2" | grep -Eio "before:[ \t]*[0-9]+" | cut -f2 -d: | tr -d ' \t')
+                [ -z "$after" ] && after=0
+                [ -z "$before" ] && before=0
+                shift 2
+                ;;
+            *) restore+=("$1"); shift ;;
+        esac
     done
     set -- "${restore[@]}"
-    if ! exist "$2"; then echo "CANT FIND: $2" && return 1; fi
-    if [ -z "$after" ]; then after=0; fi
-    if [ -z "$before" ]; then before=0; fi
-    ( $xxd -p "$2" | tr -d \\n | tr -d " " | grep -E -o ".{0,${before}}$1.{0,${after}}" ) 2>/dev/null
+    [ ! -f "$2" ] && { echo "CANT FIND: $2" && return 1; }
+    $xxd -p "$2" | tr -d '\n ' | grep -E -o ".{0,${before}}$1.{0,${after}}"
 }
 
 hex_check() {
     local xxd
-    if xxd --help >/dev/null 2>&1; then
-       xxd=xxd
-    elif /system/bin/xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/xxd"
-    elif /system/bin/toybox xxd --help >/dev/null 2>&1; then 
-       xxd="/system/bin/toybox xxd"
-    else
-       echo " CANT LOAD XXD bin" && return
-    fi
-    if ! exist "$2"; then echo "CANT FIND: $2" && return 1; fi
-    if $(( $xxd -p "$2" | tr -d \\n | tr -d " " | grep -q "$1" ) 2>/dev/null ); then true; else false; fi
+    xxd=$(find_xxd) || { echo "CANT LOAD: xxd" && return 1; }
+    [ ! -f "$2" ] && { echo "CANT FIND: $2" && return 1; }
+    $xxd -p "$2" | tr -d '\n ' | grep -q "$1"
 }
 
 getvalue() {
@@ -2317,7 +2362,7 @@ get_custom_value() {
 start_tmp(){
    local random
    random=$(echo "$RANDOM" | tr '[0-9]' '[a-z]')
-   TMP2="$TMP/$random"
+   [ -z "$1" ] && TMP2="$TMP/$random" || TMP2="$1/$random"
    kskwiiuwu+=("$TMP2")
    delete_recursive "$TMP2"
    mkdir -p "$TMP2"
@@ -2334,12 +2379,67 @@ end_tmp() {
    TMP2=
 }
 
+is_readable() {
+    local file="$1"
+    local num_bytes=32 minimum=4
+    local bytes nbytes i=0 t=0
+    [ ! -f "$file" -o ! -r "$file" ] && return 1
+    [ -n "$2" ] && num_bytes=$2
+    [ -n "$3" ] && minimum=$3
+    bytes=$(xxd -p -l "$num_bytes" "$file")
+    nbytes=$((${#bytes} / 2))
+    if [ "$nbytes" -lt "$minimum" ]; then
+        return 0
+    fi
+    #BOM
+    if [[ "$bytes" =~ ^(feff|fffe|efbbbf|0000feff|fffe0000) ]]; then
+        return 0
+    fi
+    byte_array=($(echo "$bytes" | sed 's/../0x& /g'))
+    while [ $i -lt $nbytes ]; do
+        # ASCII
+        if (( byte_array[i] == 0x09 || byte_array[i] == 0x0A || byte_array[i] == 0x0D || (byte_array[i] >= 0x20 && byte_array[i] <= 0x7E) )); then
+            ((i+=1))
+            continue
+        fi
+        # Non-overlong 2-byte
+        if (( (byte_array[i] >= 0xC2 && byte_array[i] <= 0xDF) && (byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0xBF) )); then
+            ((i+=2))
+            continue
+        fi
+        # Straight 3-byte, excluding surrogates
+        if (( (byte_array[i] == 0xE0 && byte_array[i+1] >= 0xA0 && byte_array[i+1] <= 0xBF && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF) || \
+              (byte_array[i] >= 0xE1 && byte_array[i] <= 0xEC && byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0xBF && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF) || \
+              (byte_array[i] == 0xED && byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0x9F && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF) || \
+              (byte_array[i] >= 0xEE && byte_array[i] <= 0xEF && byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0xBF && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF) )); then
+            ((i+=3))
+            continue
+        fi
+        # Planes 1-3, planes 4-15, plane 16
+        if (( (byte_array[i] == 0xF0 && byte_array[i+1] >= 0x90 && byte_array[i+1] <= 0xBF && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF && byte_array[i+3] >= 0x80 && byte_array[i+3] <= 0xBF) || \
+              (byte_array[i] >= 0xF1 && byte_array[i] <= 0xF3 && byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0xBF && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF && byte_array[i+3] >= 0x80 && byte_array[i+3] <= 0xBF) || \
+              (byte_array[i] == 0xF4 && byte_array[i+1] >= 0x80 && byte_array[i+1] <= 0x8F && byte_array[i+2] >= 0x80 && byte_array[i+2] <= 0xBF && byte_array[i+3] >= 0x80 && byte_array[i+3] <= 0xBF) )); then
+            ((i+=4))
+            continue
+        fi
+        t=1
+        break
+    done
+    [ $t = 0 ] && return 0
+    for ((i=0;i<nbytes;i++)); do
+        if (( byte_array[i] < 9 || byte_array[i] > 126 || (byte_array[i] < 32 && byte_array[i] > 13) )); then
+            return 1
+        fi
+    done
+    return 0
+}
+
 replace() {
-   local restore flag r a file try rpl old new load return=0
+   local restore r a file dir load return=1 count=0 total regex params perm
+   local fix='s/[]\/.^$*+?{}()|[]/\\&/g'
    restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   while [ $# -gt 0 ]; do
+   case $1 in
        -r|-recursive)
        r=true
        shift
@@ -2348,65 +2448,79 @@ replace() {
        a=true
        shift
        ;;
+       -fs|-follow-symlinks)
+       params="-L"
+       shift
+       ;;
        *)   
        restore+=("$1")
        shift
        ;;
    esac
    done
-   set -- "${restore[@]}"
-   file="$3"
-   [ -z "$file" ] && return 1
+   file=${restore[${#restore[@]} - 1]}
+   unset "restore[${#restore[@]}-1]"
    if ! exist "$file"; then echo "CANT FIND: $file" && return 1; fi
-   try="$1"
-   rpl="$2"
    if [ -n "$r" ]; then
-       testrw "$file" || return 1
-       while read huh; do
-           undefined huh && return 1
-           dir=$(echo "$huh" | cut -f1 -d:)
+       [ -L "$file" ] && file=$(readlink -f "$file")
+       total=${#restore[@]}
+       while [ $count -lt $total ]; do
+         regex="$regex$(echo "${restore[$count]}" | sed -e $fix)|"
+         count=$((count+2))
+       done
+       regex="${regex:0:-1}"
+       while read dir; do
+           [ -z "$dir" ] && return 1
+           is_readable "$dir" || continue
+           grep -Eq "$regex" "$dir" || continue
            testrw "$(dirname "$dir")" || return 1
-           if [ -n "$a" ]; then
-               load=$(string -f "$dir" replace_line "$try" "$rpl")
-           else
-               load=$(string -r -f "$dir" replace "$try" "$rpl")
-           fi
-           result=$?
-           if [ $result == 0 ]; then
-              if echo "$load" | grep -Fq "$(echo "$rpl" | grep -E "." | head -n1)"; then
-                 echo "$load" > "$dir"
-                 set_perm2 $di_uid $di_gid $di_perm_f "$dir"
-              else echo2 "replace: Cant replace: \"$try\"  \"$rpl\" in $dir" && return=1
-              fi
-           else echo2 "replace: Nothing to do: $(basename "$dir")"
-           fi
-       done <<< $(grep -rn "$file" -e "$try")
+           count=0
+           perm=false
+           while [ $count -lt $total ]; do
+             if [ -n "$a" ]; then
+                 load=$(string -f "$dir" replace_line "${restore[$count]}" "${restore[$count+1]}")
+             else
+                 load=$(string -f "$dir" -r replace "${restore[$count]}" "${restore[$count+1]}")
+             fi
+             if [ $? = 0 ]; then
+                echo "$load" > "$dir"
+                perm=true
+                return=0
+             else echo2 "replace: Nothing to do: $dir"
+             fi
+             count=$((count+2))
+          done
+          $perm && set_perm2 $di_uid $di_gid $di_perm_f "$dir"
+       done <<< $(find $params "$file" -type f)
    else
        testrw "$(dirname "$file")" || return 1
-       if [ -n "$a" ]; then
-           load=$(string -f "$file" replace_line "$try" "$rpl")
-       else
-           load=$(string -r -f "$file" replace "$try" "$rpl")
-       fi
-       result=$?
-       if [ $result == 0 ]; then
-          if echo "$load" | grep -Fq "$(echo "$rpl" | grep -E "." | head -n1)"; then
-             echo "$load" > "$file"
-             set_perm2 $di_uid $di_gid $di_perm_f "$file"
-          else echo2 "replace: Cant replace: \"$try\"  \"$rpl\" in $file" && return=1
+       set -- "${restore[@]}"
+       perm=false
+       while [ $# -ge 2 ]; do
+          if [ -n "$a" ]; then
+              load=$(string -f "$file" replace_line "$1" "$2")
+          else
+              load=$(string -f "$file" -r replace "$1" "$2")
           fi
-       else echo2 "replace: Nothing to do: $(basename "$file")"
-       fi
+          if [ $? = 0 ]; then
+             echo "$load" > "$file"
+             perm=true
+             return=0
+          else echo2 "replace: Nothing to do: $file"
+          fi
+          shift 2
+       done
+       $perm && set_perm2 $di_uid $di_gid $di_perm_f "$file"
    fi
    return $return
 }
 
 remove() {
-   local restore flag r a file try old new load return=0 cont=0 prev
+   local restore r a file dir load return=1 count=0 total regex params perm
+   local fix='s/[]\/.^$*+?{}()|[]/\\&/g'
    restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   while [ $# -gt 0 ]; do
+   case $1 in
        -r|-recursive)
        r=true
        shift
@@ -2415,51 +2529,69 @@ remove() {
        a=true
        shift
        ;;
+       -fs|-follow-symlinks)
+       params="-L"
+       shift
+       ;;
        *)   
        restore+=("$1")
        shift
        ;;
    esac
    done
-   set -- "${restore[@]}"
-   file="$2"
-   [ -z "$file" ] && return 1
+   file=${restore[${#restore[@]} - 1]}
+   unset "restore[${#restore[@]}-1]"
    if ! exist "$file"; then echo "CANT FIND: $file" && return 1; fi
-   try="$1"
    if [ -n "$r" ]; then
-       testrw "$file" || return 1
-       while read huh; do
-           undefined huh && return 1
-           dir=$(echo "$huh" | cut -f1 -d:)
-           if [[ -z "$try" && $cont -ge 1 && "$dir" == "$prev" ]] ; then continue; elif [[ "$dir" != "$prev" ]]; then cont=0; fi 
-           prev="$dir"
+       [ -L "$file" ] && file=$(readlink -f "$file")
+       total=${#restore[@]}
+       while [ $count -lt $total ]; do
+         regex="$regex$(echo "${restore[$count]}" | sed -e $fix)|"
+         count=$((count+1))
+       done
+       regex="${regex:0:-1}"
+       while read dir; do
+           [ -z "$dir" ] && return 1
+           is_readable "$dir" || continue
+           grep -Eq "$regex" "$dir" || continue
            testrw "$(dirname "$dir")" || return 1
-           if [ -n "$a" ]; then
-               load=$(string -f "$dir" remove_line "$try")
-           else
-               load=$(string -r -f "$dir" remove "$try")
-           fi
-           result=$?
-           if [ $result == 0 ]; then
-              cont=$(($cont+1))
-              echo "$load" > "$dir"
-              set_perm2 $di_uid $di_gid $di_perm_f "$dir"
-           else echo2 "remove: Nothing to do: $(basename "$dir")"
-           fi
-       done <<< $(grep -rn "$file" -e "$try")
+           count=0
+           perm=false
+           while [ $count -lt $total ]; do
+             if [ -n "$a" ]; then
+                 load=$(string -f "$dir" remove_line "${restore[$count]}" "${restore[$count+1]}")
+             else
+                 load=$(string -f "$dir" -r remove "${restore[$count]}" "${restore[$count+1]}")
+             fi
+             if [ $? = 0 ]; then
+                echo "$load" > "$dir"
+                perm=true
+                return=0
+             else echo2 "remove: Nothing to do: $dir"
+             fi
+             count=$((count+1))
+          done
+          $perm && set_perm2 $di_uid $di_gid $di_perm_f "$dir"
+       done <<< $(find $params "$file" -type f)
    else
        testrw "$(dirname "$file")" || return 1
-       if [ -n "$a" ]; then
-           load=$(string -f "$file" remove_line "$try")
-       else
-           load=$(string -r -f "$file" remove "$try")
-       fi
-       result=$?
-       if [ $result == 0 ]; then
-          echo "$load" > "$file"
-          set_perm2 $di_uid $di_gid $di_perm_f "$file"
-       else echo2 "remove: Nothing to do: $(basename "$file")"
-       fi
+       set -- "${restore[@]}"
+       perm=false
+       while [ $# -ge 1 ]; do
+          if [ -n "$a" ]; then
+              load=$(string -f "$file" remove_line "$1" "$2")
+          else
+              load=$(string -f "$file" -r remove "$1" "$2")
+          fi
+          if [ $? = 0 ]; then
+             echo "$load" > "$file"
+             perm=true
+             return=0
+          else echo2 "remove: Nothing to do: $file"
+          fi
+          shift
+       done
+       $perm && set_perm2 $di_uid $di_gid $di_perm_f "$file"
    fi
    return $return
 }
@@ -2470,17 +2602,11 @@ getsize() {
 
 string() {
    #Multi-tool for Strings by @BlassGO
-   local restore flag string array result
-   local replace rpl rpl2 rpll rpll2 rm ca c i try try2 huh upper lower et et2 ex ex2 exn exn2 escape
-   local al al_add bl bl_add get aln aln_add bln bln_add 
-   local p1 p2 r p file back return=0
-   local ga gb
-   local force rmm
-   local fix='s/[]\/$*.^[]/\\&/g'
-   restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   local string result replace rpl rpl2 rpll rpll2 rm ca c i try try2 huh upper lower et et2 ex ex2 exn exn2 escape
+   local al al_add bl bl_add get aln aln_add bln bln_add p1 p2 r p file back return=0
+   local ga gb force rmm escapereg fix='s/[]\/$*.^[]/\\&/g' fixreg='s/[]\/.^$*+?{}()|[]/\\&/g' lastp=1
+   while [ $(($#-lastp)) -gt 0 ]; do
+   case $1 in
        replace)
        rpl+=("$2")
        rpl2+=("$3")
@@ -2525,6 +2651,10 @@ string() {
        ;;
        escape)
        escape=true
+       shift
+       ;;
+       escape_regex)
+       escapereg=true
        shift
        ;;
        lower)
@@ -2573,6 +2703,7 @@ string() {
        ;;
        -f|-file)
        file="$2"
+       lastp=0
        shift;shift;
        ;;
        force)
@@ -2580,19 +2711,16 @@ string() {
        shift
        ;;
        *)   
-       restore+=("$1")
-       shift
+       echo2 "string: Invalid argument: $1"
+       return 0
        ;;
    esac
    done
-   set -- "${restore[@]}"
-   array=( "$@" )
    if [ -z "$file" ]; then
-      string=${array[${#array[@]} - 1]}
-      unset "array[${#array[@]}-1]"
+      string=${!#}
       if [ -z "$string" ]; then echo2 "string: Empty string" && return 1; fi
    else
-      if exist file "$file"; then string=$(cat "$file"); else echo2 "string: Cant find $file" && return 1; fi
+      if [ -f "$file" ]; then string=$(cat "$file"); else echo2 "string: Cant find $file" && return 1; fi
    fi
    back="$string"
    for i in "${!rpl[@]}"; do
@@ -2702,7 +2830,7 @@ string() {
       huh=$(echo "$ex2" | sed -e $fix)
       if [ -z "$r" ]; then
          try=$(echo "$string" | sed -n "/$try/,/$huh/{p; /$huh/q}" | sed -e '1d;$d')
-         if defined p && ! echo "$try" | grep -Fq "$p"; then try=; fi
+         if [ -n "$p" ] && ! echo "$try" | grep -Fq "$p"; then try=; fi
       else
          #Recursive analysis
          if [ -z "$p" ]; then
@@ -2720,7 +2848,7 @@ string() {
       huh=$(echo "$exn2" | sed -e $fix)
       if [ -z "$r" ]; then
          try=$(echo "$string" | sed -n "/$try/,/$huh/{p; /$huh/q}")
-         if defined p && ! echo "$try" | grep -Fq "$p"; then try=; fi
+         if [ -n "$p" ] && ! echo "$try" | grep -Fq "$p"; then try=; fi
       else
          #Recursive analysis
          if [ -z "$p" ]; then
@@ -2740,6 +2868,8 @@ string() {
    fi
    if [ -n "$escape" ]; then
       string=$(echo "$string" | sed -e $fix)
+   elif [ -n "$escapereg" ]; then
+      string=$(echo "$string" | sed -e $fixreg)
    fi
    if [[ -z "$force" && -z "$c" && -z "$escape" && -z "$upper" && -z "$lower" && -z "$exn" && "$string" == "$back" ]]; then return 1; fi
    if [ -n "$c" ]; then
@@ -2764,6 +2894,96 @@ chooseport() {
       abort " ERROR: keycheck "
     fi
   done
+}
+
+iterate() {
+   local start end
+   if [ $# -eq 1 ]; then
+      start=0
+      end=$1
+   elif [ $# -eq 2 ]; then
+      start=$(($1-1))
+      end=$2
+   else
+      echo2 "Usage: loop <end> or <start> <end>"
+      return 1
+   fi
+   [ -z "$INDEX" ] && INDEX=$start
+   if [ $INDEX -lt $end ]; then
+      INDEX=$((INDEX+1))
+      return 0
+   else
+      INDEX=
+      return 1
+   fi
+}
+
+iterate_file() {
+    if [ -z "$INDEX" ]; then
+        INDEX=0
+        if [ -f "$1" ]; then
+           exec 3< "$1"
+        elif [ -z "$1" ]; then
+           echo2 "Usage: loop_file <file>"
+           return 1
+        else
+           echo2 "Cant find file: $1"
+           return 1
+        fi
+    fi
+    if read -u 3 LINE; then
+        INDEX=$((INDEX+1))
+        return 0
+    else
+        INDEX=
+        return 1
+    fi
+}
+
+iterate_array() {
+    if [ -z "$INDEX" ]; then
+       if [ -z "$1" ]; then
+          echo2 "Usage: loop_array <array_name>"
+          return 1
+       else
+          ____KEYS____=( $(eval "echo \${!$1[@]}" | tr ' ' $'\n' | sort) )
+          ____MAX____=${#____KEYS____[@]}
+          INDEX=0
+       fi
+    fi
+    if [ $INDEX -lt $____MAX____ ]; then
+        KEY=${____KEYS____[$INDEX]}
+        eval "VALUE=\${$1[$KEY]}"
+        INDEX=$((INDEX+1))
+        return 0
+    else
+        INDEX=
+        ____KEYS____=
+        ____MAX____=
+        return 1
+    fi
+}
+
+iterate_string() {
+    if [ -z "$INDEX" ]; then
+        if [ -z "$1" ]; then
+           ____SECTIONS____=($(echo "$2" | fold -w1))
+        else
+           IFS="$1" read -ra ____SECTIONS____ <<< "$2"
+        fi
+        ____MAX____=${#____SECTIONS____[@]}
+        INDEX=0
+    fi
+    if [ $INDEX -lt $____MAX____ ]; then
+        SECTION=${____SECTIONS____[$INDEX]}
+        INDEX=$((INDEX+1))
+        return 0
+    else
+        INDEX=
+        ____SECTIONS____=
+        ____MAX____=
+        return 1
+    fi
 }
 
 find_block() {
@@ -3615,15 +3835,134 @@ dynamic_apktool() {
    fi
 }
 
+find_installed_apk() {
+    local restore overlays pkg list hasover enabled re=0 params isover debug=false
+    restore=()
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -r|-recursive)
+                re=1
+                shift
+                ;;
+            -no|-no-overlays)
+                overlays=0
+                shift
+                ;;
+            -oo|-only-overlays)
+                overlays=1
+                shift
+                ;;
+            -e|-enabled)
+                params=-e
+                shift
+                ;;
+            -d|-disabled)
+                params=-d
+                shift
+                ;;
+            -eo|-enabled-overlays)
+                enabled=1
+                shift
+                ;;
+            -do|-disabled-overlays)
+                enabled=0
+                shift
+                ;;
+            -debug)
+                debug=true
+                shift
+                ;;
+            -cmd)
+                params="$params $2"
+                shift;shift
+                ;;
+            *)   
+                restore+=("$1")
+                shift
+                ;;
+        esac
+    done
+    if [ ${#restore[@]} = 0 ]; then
+       set -- ".*"
+       re=-1
+    else
+       set -- "${restore[@]}"
+    fi
+    cmd overlay list 2>/dev/null | tee "$TMP/overlays.txt" >/dev/null
+    pm list packages -f $params | tee "$TMP/packages.txt" >/dev/null
+    for pkg in "$@"; do
+        [ -z "$pkg" ] && continue
+        grep "$pkg" "$TMP/packages.txt" | awk -F '=' -v pkg="$pkg" -v re="$re" '
+        {
+            after=$NF
+            before=substr($0,1,length($0)-length(after)-1)
+            if (re==-1) {
+               if (index(before,"package:")==1) {
+                  before=substr(before,9)
+               }
+               print before,after
+            } else if (re==0) {
+                if (after==pkg) {
+                    if (index(before,"package:")==1) {
+                        before=substr(before,9)
+                    }
+                    print before,after
+                }
+            } else {
+                if (index(after,pkg)!=0) {
+                    if (index(before,"package:")==1) {
+                        before=substr(before, 9)
+                    }
+                    print before,after
+                }
+            }
+        }' | while read -r before after; do
+            isover=
+            if [ "$overlays" != "" ]; then
+                isover=$(grep -m1 " ${after}$" "$TMP/overlays.txt")
+                if [ $overlays = 0 ]; then
+                    if [ -n "$isover" ]; then
+                        $debug && echo2 "$after is an overlay, skipping..."
+                        continue
+                    fi
+                elif [ $overlays = 1 ]; then
+                    if [ -z "$isover" ]; then
+                        $debug && echo2 "$after isn't an overlay, skipping..."
+                        continue
+                    fi
+                fi 
+            fi
+            if [ "$overlays" != "0" ]; then
+               if [ "$enabled" != "" ]; then
+                   [ "$overlays" = "" ] && isover=$(grep -m1 " ${after}$" "$TMP/overlays.txt")
+                   if [ -n "$isover" ]; then
+                      if [ $enabled = 1 ]; then
+                         if ! echo "$isover" | grep -q "^\[x\]"; then
+                            $debug && echo2 "$after overlay disabled, skipping..."
+                            continue
+                         fi
+                      elif [ $enabled = 0 ]; then
+                         if echo "$isover" | grep -q "^\[x\]"; then
+                            $debug && echo2 "$after overlay enabled, skipping..."
+                            continue
+                         fi
+                      fi
+                   fi
+               fi             
+            fi
+            echo "$before"
+        done
+    done
+}
+
 find_apk() {
    local userlist package try restore flag re result
    local array path try2 limit count=0 return=1
-   local check_split splits overlays check
+   local check_split splits overlays check params os oo
    if ! aapt version >/dev/null; then echo " CANT LOAD AAPT: U cant use find_apk " && return 1; fi
    restore=()
-   while [[ $# -gt 0 ]]; do
-   flag="$1"
-   case $flag in
+   while [ $# -gt 0 ]; do
+   case $1 in
        -r|-recursive)
        re=true
        shift
@@ -3640,83 +3979,104 @@ find_apk() {
        overlays=true
        shift
        ;;
+       -os|-only-splits)
+       os=true
+       shift
+       ;;
+       -oo|-only-overlays)
+       oo=true
+       shift
+       ;;
+       -fs|-follow-symlinks)
+       params=-L
+       shift
+       ;;
        *)   
        restore+=("$1")
        shift
        ;;
    esac
    done
-   set -- "${restore[@]}"
+   if [ ${#restore[@]} = 1 ]; then
+      set -- ".*" "${restore[@]}"
+      re=-1
+   else
+      set -- "${restore[@]}"
+   fi
    delete "$TMP/userlist.txt"
    delete "$TMP/packages.txt"
    if defined limit && ! is_number $limit; then echo2 " find_apk: Invalid line" && return 1; fi
    array=( "$@" )
    path=${array[${#array[@]} - 1]}
    unset "array[${#array[@]}-1]"
-   find -L "$path" -type f -name "*.apk" | while read userlist; do
-       if undefined userlist; then echo "find_apk: Cant find any apk in $path " && return 1; fi
-       package=
+   [ -L "$path" ] && path=$(readlink -f "$path")
+   if [ ! -d "$path" ]; then echo2 "find_apk: Cant find folder: $path"; return 1; fi
+   while read userlist; do
+       if [ -z "$userlist" ]; then echo "find_apk: Cant find any apk in $path " && return 1; fi
        package=$(apk_package "$userlist")
-       if defined package; then
-          echo "$userlist" >> "$TMP/userlist.txt"
-          echo "$(basename "$userlist")=$package" >> "$TMP/packages.txt"
+       if [ -n "$package" ]; then
+          count=$((count+1))
+          echo "$count=$userlist" >> "$TMP/userlist.txt"
+          echo "$count=$package" >> "$TMP/packages.txt"
        fi
-   done
+   done <<< $(find $params "$path" -type f -name "*.apk")
+   count=0
    for try in "${array[@]}"; do
      while read try2; do
-        undefined try2 && continue
-        package=
+        [ -z "$try2" ] && continue
         package=$(get_file_prop "$TMP/packages.txt" "$try2")
-        check=$(grep -m1 "$try2" "$TMP/userlist.txt")
-        check_split=$(aapt dump badging "$check" | sed -n "s/.* split='\([^']*\).*$/\1/p" 2>/dev/null)
-        check_overlay=$(aapt dump xmlstrings "$check" AndroidManifest.xml | grep -w " overlay" 2>/dev/null)
-        result=$(grep -m1 "$try2" "$TMP/userlist.txt")
-        if [ -z "$re" ] && [ -n "$result" ]; then
-           if [[ -z "$splits" && -z "$overlays" && -z "$check_split" && -z "$check_overlay" && "$package" == "$try" ]]; then
-              echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$splits" && -z "$overlays" && -z "$check_overlay" && "$package" == "$try" ]]; then
-              echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$overlays" && -z "$splits" && -z "$check_split" && "$package" == "$try" ]]; then
-             echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$splits" && -n "$overlays" && "$package" == "$try" ]]; then
-             echo "$result" && return=0 && count=$(( $count + 1 ))
+        result=$(get_file_prop "$TMP/userlist.txt" "$try2")
+        check_split=$(aapt dump badging "$result" | sed -n "s/.* split='\([^']*\).*$/\1/p" 2>/dev/null)
+        check_overlay=$(aapt dump xmlstrings "$result" AndroidManifest.xml | grep -w " overlay" 2>/dev/null)
+        if [ -z "$re" -a -n "$result" ]; then
+           if [ -n "$os" -a -n "$oo" ]; then
+              if [ -n "$check_split" -o -n "$check_overlay" ] && [ "$package" = "$try" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -n "$os" ]; then
+              if [ -n "$check_split" -a "$package" = "$try" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -n "$oo" ]; then
+              if [ -n "$check_overlay" -a "$package" = "$try" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -z "$splits" -a -z "$overlays" -a -z "$check_split" -a -z "$check_overlay" -a "$package" = "$try" ]; then
+              echo "$result";return=0;count=$((count+1))
+           elif [ -n "$splits" -a -z "$overlays" -a -z "$check_overlay" -a "$package" = "$try" ]; then
+              echo "$result";return=0;count=$((count+1))
+           elif [ -n "$overlays" -a -z "$splits" -a -z "$check_split" -a "$package" = "$try" ]; then
+             echo "$result";return=0;count=$((count+1))
+           elif [ -n "$splits" -a -n "$overlays" -a "$package" = "$try" ]; then
+             echo "$result";return=0;count=$((count+1))
            fi
         elif [ -n "$result" ]; then
-           if [[ -z "$splits" && -z "$overlays" && -z "$check_split" && -z "$check_overlay" ]]; then
-              echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$splits" && -z "$overlays" && -z "$check_overlay" ]]; then
-              echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$overlays" && -z "$splits" && -z "$check_split" ]]; then
-             echo "$result" && return=0 && count=$(( $count + 1 ))
-           elif [[ -n "$splits" && -n "$overlays" ]]; then
-             echo "$result" && return=0 && count=$(( $count + 1 ))
+           if [ -n "$os" -a -n "$oo" ]; then
+              if [ -n "$check_split" -o -n "$check_overlay" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -n "$os" ]; then
+              if [ -n "$check_split" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -n "$oo" ]; then
+              if [ -n "$check_overlay" ]; then echo "$result";return=0;count=$((count+1)); fi
+           elif [ -z "$splits" -a -z "$overlays" -a -z "$check_split" -a -z "$check_overlay" ]; then
+             echo "$result";return=0;count=$((count+1))
+           elif [ -n "$splits" -a -z "$overlays" -a -z "$check_overlay" ]; then
+             echo "$result";return=0;count=$((count+1))
+           elif [ -n "$overlays" -a -z "$splits" -a -z "$check_split" ]; then
+             echo "$result";return=0;count=$((count+1))
+           elif [ -n "$splits" -a -n "$overlays" ]; then
+             echo "$result";return=0;count=$((count+1))
            fi
         fi
-        if [[ -n "$limit" && "$limit" == "$count" ]]; then break; fi
+        if [ -n "$limit" -a "$limit" = "$count" ]; then break; fi
      done <<< $(grep "$try" "$TMP/packages.txt" | cut -d '=' -f1)
    done
    return $return
 }
 
 apk_package() {
-   local package
-   if ! aapt version >/dev/null; then echo " CANT LOAD AAPT: U cant use apk_package " && return 1; fi
-   package=$((aapt dump badging "$1" | sed -n "s/.*package: name='\([^']*\).*$/\1/p") 2>/dev/null)
-   if [ -n "$package" ]; then echo "$package"; else return 1; fi
+   (aapt dump badging "$1" | sed -n "s/.*package: name='\([^']*\).*$/\1/p") 2>/dev/null
 }
 
 apk_main() {
-   local main
-   if ! aapt version >/dev/null; then echo " CANT LOAD AAPT: U cant use apk_main " && return 1; fi
-   main=$((aapt dump badging "$1" | sed -n "s/.*launchable-activity: name='\([^']*\).*$/\1/p") 2>/dev/null)
-   if [ -n "$main" ]; then echo "$main"; else return 1; fi
+   (aapt dump badging "$1" | sed -n "s/.*launchable-activity: name='\([^']*\).*$/\1/p") 2>/dev/null
 }
 
 apk_icon() {
-   local icon
-   if ! aapt version >/dev/null; then echo " CANT LOAD AAPT: U cant use apk_package " && return 1; fi
-   icon=$((aapt dump badging "$1" | sed -n "s/.*application:.*icon='\([^']*\).*$/\1/p") 2>/dev/null)
-   if [ -n "$icon" ]; then echo "$icon"; else return 1; fi
+   (aapt dump badging "$1" | sed -n "s/.*application:.*icon='\([^']*\).*$/\1/p") 2>/dev/null
 }
 
 apk_launch() {
@@ -4747,11 +5107,10 @@ fprint_addon() {
 }
 
 update() {
-    local bs restore flag xz gz ro sparse orig dest
+    local bs restore xz gz ro sparse orig dest tmp="$TMP"
     restore=()
-    while [[ $# -gt 0 ]]; do
-      flag="$1"
-      case $flag in
+    while [ $# -gt 0 ]; do
+      case $1 in
           -xz)
           xz=true
           shift;
@@ -4763,6 +5122,11 @@ update() {
           -sparse)
           sparse=true
           shift;
+          ;;
+          -tmp)
+          create_dir "$2" || return 1
+          tmp="$2"
+          shift;shift;
           ;;
           *)   
           restore+=("$1")
@@ -4787,7 +5151,7 @@ update() {
     fi
     if defined sparse; then
        if [ -f "$(which simg2img)" ]; then
-          dest="$TMP/$(basename "$orig").tmp"
+          dest="$tmp/$(basename "$orig").tmp"
        else
           echo2 "update: Please import simg2img to perform Sparse IMG installation" && return 1
        fi
@@ -4845,6 +5209,7 @@ update() {
         echo2 " "
         echo2 "-- Updated:1: $(basename "$orig")"
         echo2 " "
+        return 0
     else
         echo2 " "
         echo2 "-- Cant update: $(basename "$orig")"
@@ -4854,22 +5219,16 @@ update() {
 }
 
 update_addon() {
-    local restore flag xz gz sparse
-    restore=()
-    while [[ $# -gt 0 ]]; do
-      flag="$1"
-      case $flag in
-          -xz)
-          xz="-xz"
+    local restore=() flags=()
+    while [ $# -gt 0 ]; do
+      case $1 in
+          -xz|-gz|-sparse)
+          flags+=("$1")
           shift
           ;;
-          -gz)
-          gz="-gz"
-          shift
-          ;;
-          -sparse)
-          sparse="-sparse"
-          shift;
+          -tmp)
+          flags+=("$1" "$2")
+          shift;shift;
           ;;
           *)   
           restore+=("$1")
@@ -4878,30 +5237,27 @@ update_addon() {
       esac
     done
     set -- "${restore[@]}"
-    update $xz $gz $sparse "$addons/$1" "$2" "$3"
+    update "${flags[@]}" "$addons/$1" "$2" "$3"
 }
 
 update_zip() {
-    local bs restore flag xz gz ro sparse orig dest
-    restore=()
-    while [[ $# -gt 0 ]]; do
-      flag="$1"
-      case $flag in
-          -xz)
-          xz="-xz"
-          shift;
+    local restore=() flags=() orig dest extract=false tmp="$TMP" result
+    while [ $# -gt 0 ]; do
+      case $1 in
+          -xz|-gz|-sparse)
+          flags+=("$1")
+          extract=true
+          shift
           ;;
-          -gz)
-          gz="-gz"
-          shift;
-          ;;
-          -sparse)
-          sparse="-sparse"
-          shift;
+          -tmp)
+          flags+=("$1" "$2")
+          create_dir "$2" || return 1
+          tmp="$2"
+          shift;shift;
           ;;
           *)   
           restore+=("$1")
-          shift;
+          shift
           ;;
       esac
     done
@@ -4909,72 +5265,45 @@ update_zip() {
     orig="$1"; dest="$2"
     check=$(zip_list_file "$installzip" "$1" | wc -l)
     if [ $check != 1 ]; then echo2 "ZIP: Cant find file [$1]" && return 1; fi
-    start_tmp
-    if defined sparse; then
-       if [ -f "$(which simg2img)" ]; then
-          dest="$TMP2/$(basename "$orig").tmp"
-          7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" || return 1
-          if update $xz $gz $sparse "$dest" "$2" "$3"; then end_tmp; return 0; else end_tmp; return 1; fi
-       else
-          end_tmp
-          echo2 "update_zip: Please import simg2img to perform Sparse IMG installation" && return 1
-       fi
-    fi
-    if is_number "$(string force remove M "$extraction_speed" 2>/dev/null)"; then bs=$extraction_speed; else bs=1048576; fi
-    if exist "$dest"; then
-       blockdev --setrw "$dest" 2>/dev/null
-       ro=$(blockdev --getro "$dest" 2>/dev/null)
-       if [[ "$ro" == "1" ]]; then
-          echo2 "FATAL ERROR: Read/Only: $dest"
-          end_tmp
-          if [[ "$3" == "1" ]]; then abort; else return 1; fi
-       elif [[ "$ro" != "0" ]]; then
-          echo2 "Cant get state: $dest"
-          echo2 "Skipping: Writing in: $dest"
-       fi
-    else create_dir "$(dirname "$dest")"
-    fi
-    if defined xz; then
+    if $extract; then
+       start_tmp "$tmp"
        dest="$TMP2/$(basename "$orig").tmp"
-       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && fxz "$dest" --threads=0 -dc > "$2"; then 
-          echo2 " "
-          echo2 "-- Updated:xz: $(basename "$orig")"
-          echo2 " "
-          end_tmp
-          return 0
+       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest"; then
+          update "${flags[@]}" "$dest" "$2" "$3"
+          result=$?
        else
           echo2 " "
-          echo2 "-- Cant update:xz: $(basename "$orig")"
+          echo2 "-- Cant update: $(basename "$orig")"
           echo2 " "
-          end_tmp
-          if [[ "$3" == "1" ]]; then abort; else return 1; fi
+          result=1
        fi
-    elif defined gz; then
-       dest="$TMP2/$(basename "$orig").tmp"
-       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest" && gunzip -c "$dest" > "$2"; then
-          echo2 " "
-          echo2 "-- Updated:gz: $(basename "$orig")"
-          echo2 " "
-          end_tmp
-          return 0
-       else
-          echo2 " "
-          echo2 "-- Cant update:gz: $(basename "$orig")"
-          echo2 " "
-          end_tmp
-          if [[ "$3" == "1" ]]; then abort; else return 1; fi
-       fi
-    fi
-    end_tmp
-    if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest"; then
-        echo2 " "
-        echo2 "-- Updated:1: $(basename "$orig")"
-        echo2 " "
+       end_tmp
+       [[ $result != 0 && "$3" == "1" ]] && abort
+       return $result
     else
-        echo2 " "
-        echo2 "-- Cant update: $(basename "$orig")"
-        echo2 " "
-        if [[ "$3" == "1" ]]; then abort; else return 1; fi
+       if exist "$dest"; then
+          blockdev --setrw "$dest" 2>/dev/null
+          ro=$(blockdev --getro "$dest" 2>/dev/null)
+          if [[ "$ro" == "1" ]]; then
+             echo2 "FATAL ERROR: Read/Only: $dest"
+             if [[ "$3" == "1" ]]; then abort; else return 1; fi
+          elif [[ "$ro" != "0" ]]; then
+             echo2 "Cant get state: $dest"
+             echo2 "Skipping: Writing in: $dest"
+          fi
+       else create_dir "$(dirname "$dest")"
+       fi
+       if 7z e "$installzip" "$orig" -so -y -bd -bb2 -bso2 -bsp2 > "$dest"; then
+           echo2 " "
+           echo2 "-- Updated:1: $(basename "$orig")"
+           echo2 " "
+           return 0
+       else
+           echo2 " "
+           echo2 "-- Cant update: $(basename "$orig")"
+           echo2 " "
+           if [[ "$3" == "1" ]]; then abort; else return 1; fi
+       fi
     fi
 }
 
@@ -4989,8 +5318,7 @@ get_file_prop() {
   shift
   [ -z "$prop" ] && return 1
   for file in "$@"; do
-     try=$(cat "$file" 2>/dev/null | dos2unix | grep -Fm1 "${prop}=" | cut -d= -f2)
-     [ -n "$try" ] && echo "$try" && return 0
+     awk -F= -v prop="$prop" '$1 == prop { print substr($0, length($1) + 2); exit 0 } END { exit 1 }' "$file" 2>/dev/null && return 0
   done
   return 1
 }
@@ -5912,38 +6240,44 @@ force_dir() {
          fi
       fi
    done
+   return 0
 }
 
 ensure_root() {
    local result pass=false opt
    [ "$mount_all" = "ro" ] && opt=" -ro "
+   mount -o rw,remount -t auto / 2>/dev/null
    force_dir /system_root
-   mount -o rw,remount -t auto / 2>/dev/null; testrw /; result=$?
-   if [ $result == 0 ]; then
-      pass=true
-      try_mount $opt -n system /system_root || try_mount $opt -e -n system-verity /system_root; testrw /system_root; result=$?
+   if try_mount $opt -n system /system_root || try_mount $opt -e -n system-verity /system_root; then
+      testrw /system_root; result=$?
+   else
+      ui_print " "
+      ui_print "DI: Failed to mount /system_root"
+      ui_print "DI: Aborting..."
+      ui_print " "
+      abort " "
    fi
    if [ $result == 0 ]; then
       free_system=$(getfree /system_root)
       if is_number "$free_system" && ! is_greater "$free_system" "10485760"; then
          echo2 " "
-         echo2 'DI: The free space in "system" is very low (Less than or equal to 10MB), I recommend you check the changes that required more free space'
+         echo2 'DI: The free space in /system_root is very low (Less than or equal to 10MB), I recommend you check the changes that required more free space'
          echo2 " "
       fi
       return 0
    elif [ "$ensure_rw" != "off" -a $result == 2 ]; then
       ui_print " "
       ui_print 'DI: Read/Only partitions...'
-      if $pass || $BOOTMODE; then 
-         ui_print "DI: Your current SYSTEM.img are locked..."
-         ui_print 'DI: You need to use a ROM/GSI that supports mounting as Read/Write'
-      else
-         ui_print "DI: Your current root \"/\" are locked..."
-      fi
+      ui_print "DI: Your current SYSTEM are locked..."
+      ui_print 'DI: You need to use a ROM/GSI that supports mounting as Read/Write'
       ui_print " "
       abort " "
    else
-      ($pass || $BOOTMODE) && echo2 "DI: ENSURE_ROOT FAILED: /system and /system_root are NOT writable!" || echo2 "DI: ENSURE_ROOT FAILED: root \"/\" are NOT writable!"
+      echo2 " "
+      echo2 'DI: Read/Only partitions...'
+      echo2 "DI: Your current SYSTEM are locked..."
+      echo2 'DI: You need to use a ROM/GSI that supports mounting as Read/Write'
+      echo2 " "
       return 1
    fi
 }
@@ -6294,8 +6628,6 @@ fi
 if [ -z "$di_version" ]; then
    if [ -f "$installzip" ]; then
       di_version=$(package_extract_file META-INF/zbin/version.txt 2>/dev/null | grep_o "[0-9]+[.][0-9]+[-]*[[:alnum:]]*" | head -n1)
-   elif [ -f "$1/version.txt" ]; then
-      di_version=$(grep_o "[0-9]+[.][0-9]+[-]*[[:alnum:]]*" "$1/version.txt" 2>/dev/null | head -n1)
    elif [ -f version.txt ]; then
       di_version=$(grep_o "[0-9]+[.][0-9]+[-]*[[:alnum:]]*" version.txt 2>/dev/null | head -n1)
    fi
@@ -6312,12 +6644,13 @@ export n='
 '
 PS1="\[\e[38;5;110m\]di-\[\e[38;5;222m\]$main_version\[\e[1;31m\]> \[\e[0m\] "
 shopt -s expand_aliases
-alias not=!
+alias not=! \
+loop="while iterate " \
+loop_file="while iterate_file " \
+loop_array="while iterate_array " \
+loop_string="while iterate_string "
 
 setdefault permissions "0:0:0755:0777"
-
-#Get AVB state
-#getsecurity
 
 #Checking TMP2 (For Dual functions operations)
 start_tmp
@@ -6333,37 +6666,34 @@ unset tmp2
 #Checking possible exceptions (Read/Only Functions)
 pattern=off_readonly
 eval "$pattern() { :; }"
-if defined installzip; then
-   while read ole; do
-      undefined ole && break
-      exception+=("$ole")
-   done <<< $(split_string " " "$((string -r remove "$pattern " "$(
-   package_extract_file META-INF/com/google/android/updater-script | grep "^$pattern "
-   package_extract_file META-INF/com/google/android/magisk/customize.sh | grep "^$pattern "
-   package_extract_file META-INF/com/google/android/magisk/install.sh | grep "^$pattern "
-   )"
-   )2>/dev/null)"
+if [ -n "$installzip" ]; then
+   #Ensure updater-script
+   package_extract_file META-INF/com/google/android/updater-script "$TMP/updater-script" || abort "FATAL ERROR: Cant get updater-script"
+   
+   #Exceptions
+   exception=$( {
+       cat "$TMP/updater-script" | grep "^$pattern "
+       package_extract_file META-INF/com/google/android/magisk/customize.sh | grep "^$pattern "
+     } 2>/dev/null | awk 'NF > 0 { $1=""; gsub(/^[[:space:]]+|[[:space:]]+$/, ""); gsub(/[[:space:]]+/, "|"); output = (output ? output "|" $0 : $0) } END { print output }'
    )
+   if [ -n "$exception" ]; then
+      echo2 "ReadOnly:Off: [$exception]"
+      echo2 " "
+      exception="^($exception)$"
+   else
+      exception="^$"
+   fi
 fi
-unset pattern ole
+unset pattern
 
 if [ $CUSTOM_SETUP != 1 ]; then
    #Ensuring Dynamic Installer functions
-   for func in $(declare -F 2>/dev/null | awk '{ print $3; }'); do
-      if contains_array "$func" "${exception[@]}" 2>/dev/null; then echo2 "readonly:off: $func"; else readonly -f $func 2>/dev/null; fi
-   done
-   unset func
-
+   readonly -f $(declare -F 2>/dev/null | awk '{ print $3; }' | grep -Ev "$exception") 2>/dev/null
+   
    #Ensuring Dynamic Installer vars
-   vars="TMP TMPDIR OUTFD DNM addons l n yes di_apex_list"
-   for var in $vars; do
-      if contains_array "$var" "${exception[@]}" 2>/dev/null; then echo2 "readonly:off: $var"; else undefined $var || readonly $var 2>/dev/null; fi
-   done
+   readonly $(echo -e "TMP\nTMPDIR\nOUTFD\nDNM\naddons\nl\nn\nyes\ndi_apex_list" | grep -Ev "$exception") 2>/dev/null
 fi
-unset vars var exception
-
-#Load Virtual points
-#get_virtual_points
+unset exception
 
 #Destroy Recovery env
 $BOOTMODE || destroy_env
@@ -6371,17 +6701,17 @@ $BOOTMODE || destroy_env
 #Importing APEX binaries
 if $BOOTMODE && [ -d /apex ]; then
   for bin in /apex/*/bin/*; do
-     [ ! -e "$bin" ] && continue 
-     [ ! -e "$l/$(basename "$bin")" ] && ln -sf "$bin" "$l/$(basename "$bin")"
+     [ ! -e "$bin" ] && continue
+     name=$(basename "$bin")
+     [ ! -e "$l/$name" ] && ln -sf "$bin" "$l/$name"
   done
 fi
-unset bin
+unset bin name
 
 #Check Custom Mode
 if [ $CUSTOM_SETUP = 1 ]; then setdefault permissions "0:0:0755:0644"; return; fi
 
 #Pre-setup
-package_extract_file META-INF/com/google/android/updater-script "$TMP/updater-script" || abort "FATAL ERROR: Cant get updater-script"
 package_extract_dir META-INF/zbin/configs "$l"
 devices=$(getdefault "$TMP/updater-script" devices)
 apex_mount=$(getdefault "$TMP/updater-script" apex_mount)
@@ -6395,49 +6725,54 @@ for info in devices apex_mount magisk_support ensure_rw import_addons extraction
    if defined $info; then echo2 "$info=$(checkvar $info)"; else echo2 "$info undefined!"; fi
 done
 echo2 "-----------------------------------"
-unset info
+unset info DEVICE
 if [[ -n "$devices" && "$devices" != "off" ]]; then
-    dcount=false
-    may="
-    $(getprop ro.product.device 2>/dev/null) 
-    $(getprop ro.build.product 2>/dev/null) 
-    $(getprop ro.product.vendor.device 2>/dev/null) 
-    $(getprop ro.vendor.product.device 2>/dev/null)
-    $(get_file_prop /default.prop ro.product.device 2>/dev/null)
-    $(getprop ro.product.model 2>/dev/null) 
-    $(grep_cmdline androidboot.em.model 2>/dev/null) 
-    "
+    devices_sorted=$(split_string : "$devices" | sort -bu)
     while read huh; do
-       $dcount && break
-       undefined huh && continue
-       while read ugu; do
-         undefined ugu && continue
-         if [[ "$huh" == "$ugu" ]]; then
-            dcount=true
-            echo2 "Device checking: [$ugu] == [$huh]"
-            break
-         else
-            echo2 "Device checking: [$ugu] != [$huh]"
-         fi
-       done <<< $(split_string : "$devices" | sort -bu)
-    done <<< $(echo "$may" | sort -bu)
-    if ! $dcount; then abort " -- Incompatible device: Its only for $(ugu=false; try=$(split_string : "$devices" | sort -bu | while read huh; do $ugu && echo -n " and "; echo -n "\"$huh\""; ugu=true; done); echo -n "$try"; is_substring " and " "$try" && echo -n " devices" || echo -n " device")"; fi;
+        [ -n "$DEVICE" ] && break
+        [ -z "$huh" ] && continue
+        while read ugu; do
+            [ -z "$ugu" ] && continue
+            if [[ "$huh" == "$ugu" ]]; then
+                DEVICE="$ugu"
+                echo2 "Device checking: [$ugu] == [$huh]"
+                break
+            else
+                echo2 "Device checking: [$ugu] != [$huh]"
+            fi
+        done <<< $(echo "$devices_sorted")
+    done <<< $( {
+      getprop ro.product.device
+      getprop ro.build.product
+      getprop ro.product.vendor.device
+      getprop ro.vendor.product.device
+      get_file_prop /default.prop ro.product.device
+      getprop ro.product.model
+      grep_cmdline androidboot.em.model
+    } 2>/dev/null | sort -bu)
+    if [ -z "$DEVICE" ]; then
+        ui_print "______________________________"
+        ui_print " ! Supported devices:                 "
+        ui_print "$(echo "$devices_sorted" | sed 's/^/   » /')"
+        ui_print "______________________________"
+        ui_print " "
+        abort
+    fi
 fi
-unset may huh ugu dcount
+unset huh ugu devices_sorted
 
 #Extracting addons after the device checking pass
 package_extract_dir META-INF/addons "$addons"
 
 #Ensure/Check new default permissions
-setdefault permissions "$permissions" || setdefault permissions "0:0:0755:0644"
+setdefault permissions "$permissions"
 
 #Importing addons(.sh) if needed
 if [[ "$import_addons" == "on" ]]; then
     while read addon; do
-       if exist "$addon"; then
-          echo2 "- Importing \"$(basename "$addon")\""
-          . "$addon"
-       fi
+       [ -z "$addon" ] && break
+       echo2 "- Importing \"$(basename "$addon")\""
+       . "$addon"
     done <<< $(find "$addons" -mindepth 1 -maxdepth 1 -type f -name "*.sh" | sort)
     unset addon
 fi
@@ -6473,7 +6808,7 @@ fi
 
 magisk_print() {
   ui_print "----------------------------------------"
-  ui_print ' >>> Powered by Magisk '$MAGISK_VER_CODE
+  ui_print " >>> Powered by Magisk $MAGISK_VER_CODE "
   ui_print "----------------------------------------"
   ui_print " "
 }
@@ -6499,11 +6834,25 @@ setup_flashable() {
   recovery_actions
 }
 
+ensure_nvbase() {
+  if [ -z "$NVBASE" ]; then
+     for NVBASE in "$(dirname "$MAGISKBIN")" /data/adb /cache/data_adb; do
+        if [ -d "$NVBASE/magisk" ]; then
+           MAGISKBIN="$NVBASE/magisk"
+           break
+        else NVBASE=
+        fi
+     done
+     [ -z "$NVBASE" ] && abort " - Invalid Magisk environment!"
+  fi
+}
+
 
 install_module() {
   
   cd $TMPDIR
-
+  
+  ensure_nvbase
   setup_flashable
   mount_partitions
   api_level_arch_detect

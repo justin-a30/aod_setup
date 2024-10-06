@@ -1,9 +1,6 @@
 extra.zip: Extra plugins (binarys)
 
 extra.zip is needed for:
-
-32 and 64bit devices:
-   - adb commands
    
 Only 64bit devices:
    - simg2img commands
