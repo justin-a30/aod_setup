@@ -642,9 +642,8 @@ ui_print " [----------] [Getting ready...]"
     # PROMPT
         ui_print " "
         ui_print " [##########] [Clearing temporary files]"
-    # rm -rf pkg cache + prop
+    # rm -rf pkg cache
         rm -rf /data/system/package_cache
-        rm -r /data/local/tmp/prop
     # FIX CONTEXTS
         ui_print " "
         ui_print " [•] Fixing contexts..."
@@ -673,3 +672,4 @@ if [ -r $ChargeMini ]; then
     ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
     ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
 fi
+rm -r /data/local/tmp/prop
