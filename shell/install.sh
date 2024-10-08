@@ -672,3 +672,4 @@ if [ -r $ChargeMini ]; then
     ui_print "     Since you selected Particle Charge animation"
     ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
     ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
+fi
