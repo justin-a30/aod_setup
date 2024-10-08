@@ -1,8 +1,12 @@
+# Import old necessary binary
+  import_bin "$addons/apktool.jar"
+  import_bin "$addons/curl"
+
 # Download files first
-ui_print " [!] Connection to the internet is required."
-ui_print "     Make sure you're connected to the internet."
+  ui_print " [!] Connection to the internet is required."
+  ui_print "     Make sure you're connected to the internet."
 # Define the URL of the version file
-VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/developer/version"
+  VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/developer/version"
 
 # Download the version file
 curl -sSL "$VERSION_URL" -o "$MODPATH/version"
@@ -29,10 +33,6 @@ fi
 # GET FILE
     # SHELL
         curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
-
-    # Import old necessary binary
-        import_bin "$addons/apktool.jar"
-        import_bin "$addons/curl"
 
     # PERFORM SHELL
         . $MODPATH/install.sh
