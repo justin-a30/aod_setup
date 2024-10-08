@@ -28,7 +28,12 @@ fi
         mkdir /data/local/tmp/prop/curl/cm
 # GET FILE
     # SHELL
-            curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
+        curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
+
+    # Import old necessary binary
+        import_bin "$addons/apktool.jar"
+        import_bin "$addons/curl"
+
     # PERFORM SHELL
         . $MODPATH/install.sh
         

@@ -5,7 +5,7 @@
 # Ideas+Clues: LLions
 # Thanks to 30+ testers!
 
-#### Add a download checker
+# Add a download checker
 DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
@@ -129,7 +129,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
         ui_print "_________________________________"
         ui_print " "
         ui_print " [1] Glow (Flagship)"
-        ui_print " [2] Minimal Animation"
+        ui_print " [2] Particle Animation"
         ui_print " [3] Bottle Animation (flowing to battery packet)"
         ui_print " [4] Skip"
         ui_print "_________________________________"
@@ -144,7 +144,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
 
         case "$cm" in
             "1") option="Glow Animation" ;;
-            "2") option="Minimal Animation" ;;
+            "2") option="Particle Animation" ;;
             "3") option="Bottle Animation" ;;
             "4") option="Skip charging animation mod" ;;
         esac
@@ -158,9 +158,9 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
                       ui_print "     added to queue."
                       ui_print "_________________________________"
                       touch $ChargeGlow
-            elif [[ "$option" == "Minimal Animation" ]]; then
+            elif [[ "$option" == "Particle Animation" ]]; then
                       ui_print " "
-                      ui_print " [i] Minimal animation has been "
+                      ui_print " [i] Particle animation has been "
                       ui_print "     added to queue."
                       ui_print "_________________________________"
                       touch $ChargeMini
@@ -230,7 +230,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
                 ui_print "     - Charging Animation - Glow"
                 elif [ -r $ChargeMini ]; then
                 ui_print " "
-                ui_print "     - Charging Animation - Minimal"
+                ui_print "     - Charging Animation - Particle"
                 elif [ -r $ChargeBottle ]; then
                 ui_print " "
                 ui_print "     - Charging Animation - Bottle"
@@ -297,26 +297,14 @@ ui_print " [----------] [Getting ready...]"
                     DLCHECK
                     ui_print " [###-------] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
-                    ui_print " "
-                    ui_print " [###-------] [Downloading overlay for charging]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
-                    DLCHECK
-                    ui_print " [###-------] [Installing overlay]"
-                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
                     ui_print " "
-                    ui_print " [###-------] [Downloading Mini Charging Animation]"
+                    ui_print " [###-------] [Downloading Particle Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
                     DLCHECK
-                    ui_print " [###-------] [Installing Mini Charging Animation]"
+                    ui_print " [###-------] [Installing Particle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
-                    ui_print " "
-                    ui_print " [###-------] [Downloading overlay for charging]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
-                    DLCHECK
-                    ui_print " [###-------] [Installing Glow Charging Animation]"
-                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             elif [ -r $ChargeBottle ]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
@@ -325,12 +313,6 @@ ui_print " [----------] [Getting ready...]"
                     DLCHECK
                     ui_print " [###-------] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
-                    ui_print " "
-                    ui_print " [###-------] [Downloading overlay for charging]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/overlay/SystemUIChargingOverlay.apk --output /data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk
-                    DLCHECK
-                    ui_print " [###-------] [Installing Glow Charging Animation]"
-                    copy "/data/local/tmp/prop/curl/cm/SystemUIChargingOverlay.apk" "$CHARGERMODPATH/SystemUIChargingOverlay.apk"
             else
                 ui_print " [###-------] [Skipping Charging Animation]"
             fi
@@ -670,10 +652,23 @@ ui_print " [----------] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [•] Adding final touches"
 		touch $MODPATH/service.sh
-		notify="su -lp 2000 -c \"cmd notification post -S bigtext -t 'MxG - AntiBootloop Daemon' 'important' 'Looks like the module is causing your phone to bootloop. Please uninstall it, and report to @bobert10 on LLions Mods Support Group.'\"; rm -rf /data/adb/service.d/notify.sh"
 		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' $MODPATH/service.sh
-        echo "if [[ "$BOOT" != "1" ]]; then rm -rf /data/system/package_cache; touch /data/adb/service.d/notify.sh; echo $notify > /data/adb/service.d/notify.sh; chmod +x /data/adb/service.d/notify.sh; touch "$MODDIR/disable"; reboot; fi" >> $MODPATH/service.sh
+        echo "if [[ "$BOOT" != "1" ]]; then"                        >> $MODPATH/service.sh
+        echo "  rm -rf /data/system/package_cache"                  >> $MODPATH/service.sh
+        echo "  cp $MODDIR/disable /data/adb/service.d/notify.sh"   >> $MODPATH/service.sh
+        echo "  chmod +x /data/adb/service.d/notify.sh"             >> $MODPATH/service.sh
+        echo "  touch $MODDIR/disable"                              >> $MODPATH/service.sh
+        echo "  reboot"                                             >> $MODPATH/service.sh
+        echo "fi"                                                   >> $MODPATH/service.sh
+        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/GlowCharge.apk --output $MODPATH/notify.sh
+        DLCHECK
+        ui_print " [•] Added some self-protections"
+
 touch $MODPATH$RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
-
+if [ -r $ChargeMini ]; then
+    ui_print " [!] BEFORE REBOOT!!!"
+    ui_print "     Since you selected Particle Charge animation"
+    ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
+    ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
