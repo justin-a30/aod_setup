@@ -1,15 +1,7 @@
 *Test Release!*
-*Version 28*
-
-*Earlier Changelog*
-- Nuke overlay
-- Reimplemented Bootloop logic
-- Use old APKtool
+*Version 28001*
 
 *Changelog*
-- Fix binary not loading (im dumb)
-
-*Todo*
-- Update AOD for Hyper
-- hmm
-
+- Fixed notify.sh being downloaded as APK (... why am i so f-ing dumb)
+- Add new AOD!
+- New INSTALL.sh __*(REALLY REALLY NEED TEST)*__

@@ -323,11 +323,10 @@ ui_print " [----------] [Getting ready...]"
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Downloading AOD app for HyperOS $OS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hos1.zip --output /data/local/tmp/prop/curl/aod/hos1.zip
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/prop/curl/aod/hyper.apk
                         DLCHECK
                         ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
-                        7z x /data/local/tmp/prop/curl/aod/hos1.zip -o/data/local/tmp/prop/curl/aod > /dev/null
-                        copy "/data/local/tmp/prop/curl/aod/hos1" "$AODMODPATH"
+                        copy "/data/local/tmp/prop/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
                         ui_print " [#####-----] [Downloaing AOD app for MIUI $MOS...]"
@@ -659,7 +658,7 @@ ui_print " [----------] [Getting ready...]"
         echo "  touch $MODDIR/disable"                              >> $MODPATH/service.sh
         echo "  reboot"                                             >> $MODPATH/service.sh
         echo "fi"                                                   >> $MODPATH/service.sh
-        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/GlowCharge.apk --output $MODPATH/notify.sh
+        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/notify.sh --output $MODPATH/notify.sh
         DLCHECK
         ui_print " [•] Added some self-protections"
 
