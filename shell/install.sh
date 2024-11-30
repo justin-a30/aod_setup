@@ -6,7 +6,7 @@
 # Thanks to 30+ testers!
 
 # Add a download checker
-DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
+DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
@@ -25,56 +25,34 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
         ChargeMini="/data/local/tmp/prop/mini.prop"
         ChargeBottle="/data/local/tmp/prop/bottle.prop"
         AodPath="/data/local/tmp/prop/aod.prop"
+
+# PRINT NOTES
+    ui_print " --## NOTES ##--"
+    ui_print " Installation TUI has been improved."
+    ui_print " Keynote: If you see [+], this means Volume Up"
+    ui_print "          If you see [-], this means Volume Down"
+    ui_print " "
 # PRINT INFO
     ui_print " [i] Device info"
-    ui_print "     - Android version: "$Android""
+    ui_print " - Android version: "$Android""
     if [ "$MOS" -gt 14 ]; then
-        ui_print "     - HyperOS version: "$OS""
+        ui_print " - HyperOS version: "$OS""
     else
-        ui_print "     - MIUI version: "$OS""
+        ui_print " - MIUI version: "$OS""
         ui_print " "
     fi
 # CHECKING ANDROID VERSION
     if [[ "$Android" -lt 9 ]]; then
-        end " [ !     ] Error: Android $Android not supported."
-    elif [ -r "$RMOV" ]; then
-        ui_print " [#] Note"
-        ui_print "     YOU DIDN'T REBOOT?"
-        sleep 0.5
-        ui_print "     CLEAN INSTALLATION IS REQUIRED."
-        sleep 0.5
-        ui_print "     I REPEAT"
-        sleep 0.2
-        end "     CLEAN INSTALLATION IS REQUIRED."
-    elif [ -r "$RMSYS" ]; then
-        ui_print " [#] Note"
-        ui_print "     YOU DIDN'T REBOOT?"
-        sleep 0.5
-        ui_print "     CLEAN INSTALLATION IS REQUIRED."
-        sleep 0.5
-        ui_print "     I REPEAT"
-        sleep 0.2
-        end "     CLEAN INSTALLATION IS REQUIRED."
-    elif [ -r "$CurInstVer" ]; then
-    if [[ "$ModVerInstalled" -le "$ModVer" ]]; then
-        ui_print " [#] Note"
-        ui_print "     Found version: "$ModVerInstalled"."
-        ui_print "     Clean installation is required."
-        ui_print "      "
-        ui_print "    Use the following step to upgrade this module:"
-        ui_print "     1. Remove the module and Reboot"
-        ui_print "     2. Install again"
-             end "     • This module always requires clean installation."
-        fi
+        end " [!] Error: Android $Android not supported."
     else
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
             ui_print " [#] Note"
-            ui_print "     Once the installation begins,
-     this can't be stopped. Continue?"
+            ui_print " Once the installation begins,"
+            ui_print " this can't be stopped. Continue?"
             ui_print " "
             sleep 0.5
-            ui_print " [+] Volume Up = Yes!"
-            ui_print " [-] Volume Down = No."
+            ui_print " [+] Yes"
+            ui_print " [-] No"
                 # VOLUME KEY LOGIC
                     if ! $yes; then
                     ui_print " "
@@ -87,57 +65,54 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
 # HIGH END PROP
     # PRINT OUT PROMPT
         ui_print " "
-        ui_print "===================================================="
-        ui_print " [?] Do you want to add High End properties?"
+        ui_print "--------------------"
+        ui_print " High End properties"
         ui_print " "
-        ui_print "     This will add following components:"
-        ui_print "     - Blurs (AOSP + MIUI/HOS BLURS TEXTURE)"
-        ui_print "     - Control Center"
-        ui_print "     - Perf Mode"
-        ui_print "     - Advanced Textures"
+        ui_print " Enable High end props?"
+        ui_print " Following components will be added:"
+        ui_print " - Blurs"
+        ui_print " - Control Center"
+        ui_print " - Performance Mode"
+        ui_print " - Advanced Textures"
         ui_print " "
         sleep 0.5
-        ui_print "_________________________________"
+        ui_print "--------------------"
         ui_print " "
-        ui_print " [+] Volume Up = Yes!"
-        ui_print " [-] Volume Down = No."
-        ui_print "_________________________________"
+        ui_print " [+] Yes!"
+        ui_print " [-] No"
         # VOLUME KEY LOGIC
             if $yes; then
-                ui_print " "
-                ui_print " [i] Installation of High End"
-                ui_print "     Properties has been added"
-                ui_print "     to queue."
-                ui_print "_________________________________"
+                ui_print "--------------------"
+                ui_print " [i] Added to queue."
                 touch $HEPath
             else
-                ui_print " "
-                ui_print " [i] Skipped High End Properties."
-                ui_print "_________________________________"
+                ui_print "--------------------"
+                ui_print " [i] Skipped."
             fi
 # CHARGE MOD
     # PRINT OUT PROMPT
         ui_print " "
-        ui_print "===================================================="
-        ui_print " [?] Select your favourite Charge Animation style"
+        ui_print "--------------------"
+        ui_print " Charging Animation"
         ui_print " "
+        ui_print " Do you want to add Charging animation?"
+        ui_print " Currently available options:"
         sleep 0.5
-        ui_print "_________________________________"
-        ui_print " "
-        ui_print " [+] Volume Up = Change option"
-        ui_print " [-] Volume Down = Select"
-        ui_print "_________________________________"
         ui_print " "
         ui_print " [1] Glow (Flagship)"
         ui_print " [2] Particle Animation"
         ui_print " [3] Bottle Animation (flowing to battery packet)"
         ui_print " [4] Skip"
-        ui_print "_________________________________"
+        ui_print " "
+        ui_print "--------------------"
+        ui_print " "
+        ui_print " [+] Switch option"
+        ui_print " [-] Select"
     # VOLUME KEY LOGIC
 	# MULTI_OPTION TIME!
         cm=1
         while true; do
-            ui_print " [>] Option: $cm"
+            ui_print " [> Option: $cm]"
             "$yes" && cm="$((cm + 1))" || break
             [[ "$cm" -gt "4" ]] && cm=1
         done
@@ -153,27 +128,20 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
             ui_print ""
         # LOGIC WHEN PRESSED
             if [[ "$option" == "Glow Animation" ]]; then
-                      ui_print " "
-                      ui_print " [i] Glow animation has been "
-                      ui_print "     added to queue."
-                      ui_print "_________________________________"
+                      ui_print "--------------------"
+                      ui_print " [i] Added Glow to queue."
                       touch $ChargeGlow
             elif [[ "$option" == "Particle Animation" ]]; then
-                      ui_print " "
-                      ui_print " [i] Particle animation has been "
-                      ui_print "     added to queue."
-                      ui_print "_________________________________"
+                      ui_print "--------------------"
+                      ui_print " [i] Added Particle to queue."
                       touch $ChargeMini
             elif [[ "$option" == "Bottle Animation" ]]; then
-                      ui_print " "
-                      ui_print " [i] Bottle animation has been "
-                      ui_print "     added to queue."
-                      ui_print "_________________________________"
+                      ui_print "--------------------"
+                      ui_print " [i] Added Bottle to queue."
                       touch $ChargeBottle
             elif [[ "$option" == "Skip charging animation mod" ]]; then
-                      ui_print " "
-                      ui_print " [i] Skipped Charging Animation."
-                      ui_print "_________________________________"      
+                      ui_print "--------------------"
+                      ui_print " [i] Skipped." 
             fi         
  # AOD MOD
     # CHECK PACKAGE LOGIC (IMPLEMENT SOON)
@@ -183,87 +151,73 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [ info     ] DL Don
         #else
             # PRINT OUT PROMPT
                 ui_print " "
-                ui_print "===================================================="
-                ui_print " [?] Do you want to install AOD?"
-                ui_print "     This will install AOD (not modded)"
-                ui_print "     on every devices"
+                ui_print "--------------------"
+                ui_print " AOD framework"
                 ui_print " "
-                ui_print "     [!] Notice: AOD might not work well"
-                ui_print "     on some devices."
+                ui_print " Do you want to add AOD framework to"
+                ui_print " unsupported device?"
                 ui_print " "
-                ui_print "     [!] Notice: AMOLED users recommended to skip."
+                ui_print " [!WARN]: If your device supports AOD,"
+                ui_print " this should be skipped to prevent bugs."
                 ui_print " "
                 sleep 0.5
-                ui_print "_________________________________"
+                ui_print "--------------------"
                 ui_print " "
-                ui_print " [+] Volume Up = Yes!"
-                ui_print " [-] Volume Down = No."
-                ui_print "_________________________________"
+                ui_print " [+] Yes!"
+                ui_print " [-] No"
             # VOLUME KEY LOGIC
                 if $yes; then
-                    ui_print " "
-                    ui_print " [i] Installation of AOD"
-                    ui_print "     has been added"
-                    ui_print "_________________________________"
+                    ui_print "--------------------"
+                    ui_print " [i] Added to queue."
                     touch $AodPath
                 else
-                    ui_print " "
-                    ui_print " [i] Skipped AOD."
-                    ui_print "_________________________________"
+                    ui_print "--------------------"
+                    ui_print " [i] Skipped."
                 fi
         #fi
 
 # SUMMARY
     # PRINT OUT PROMPT
-        ui_print "===================================================="
-        ui_print " [#] SUMMARY"
-        ui_print "     Do you want to add selected package(s)?"
-        ui_print "     Selected package(s):"
+        ui_print " "
+        ui_print "--------------------"
+        ui_print " Summarize"
+        ui_print " "
+        ui_print " Do you want to add selected mod(s)?"
+        ui_print " Selected mod(s):"
             # HEPROP CHECK
                 if [ -r $HEPath ]; then
                 ui_print " "
-                ui_print "     - High End properties"
+                ui_print " - High End properties"
                 fi
             # CHARGEPROP CHECK
                 if [ -r $ChargeGlow ]; then
                 ui_print " "
-                ui_print "     - Charging Animation - Glow"
+                ui_print " - Charging Animation - Glow"
                 elif [ -r $ChargeMini ]; then
                 ui_print " "
-                ui_print "     - Charging Animation - Particle"
+                ui_print " - Charging Animation - Particle"
                 elif [ -r $ChargeBottle ]; then
                 ui_print " "
-                ui_print "     - Charging Animation - Bottle"
+                ui_print " - Charging Animation - Bottle"
                 fi
             # HEPROP CHECK
                 if [ -r $AodPath ]; then
                 ui_print " "
-                ui_print "     - AOD for IPS "
+                ui_print " - AOD framework "
                 fi
     # PRINT OUT OPTIONS
-        ui_print "===================================================="
-        ui_print " [+] Volume Up = Yes!"
-        ui_print " [-] Volume Down = No."
-        ui_print "===================================================="
+        ui_print "--------------------"
+        ui_print " "
+        ui_print " [+] Yes!"
+        ui_print " [-] No"
             # VOLUME KEY LOGIC
                 if ! $yes; then
-                end " [i] Installation cancelled by the user.
-     Reinstall module to pick again."
+                end " [i] Canceled by user input."
                 fi
 
 # INSTALLATION LOGIC STARTS FROM HERE!!
-ui_print "_________________________________"
 ui_print " "
-ui_print "[🏁] READY"
-ui_print " "
-sleep 1
-ui_print "[🏁] SET"
-ui_print " "
-sleep 1
-ui_print "[🏁] GO"
-ui_print " "
-ui_print "_________________________________"
-ui_print " [----------] [Getting ready...]"
+ui_print " [000] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
@@ -276,7 +230,7 @@ ui_print " [----------] [Getting ready...]"
                     if [ -r $HEPath ]; then
                         # PLACE HEPROP
                             ui_print " "
-                            ui_print " [#---------] [Placing High End props...]"
+                            ui_print " [005] [Placing High End props...]"
                             touch $MODPATH/system.prop
                             add_lines_string "ro.config.low_ram=false" "ro.config.low_ram.threshold_gb=0" "ro.miui.backdrop_sampling_enabled=true" "ro.miui.has_real_blur=1" "ro.miui.has_blur=1"  "ro.miui.has_handy_mode_sf=1"  "ro.launcher.blur.appLaunch=1" "ro.surface_flinger.supports_background_blur=1" "ro.sf.blurs_are_expensive=1" "persist.sys.sf.disable_blurs=false" "enable_blurs_on_windows=1" "ro.sf.blurs_are_caro=0" "persist.sys.background_blur_supported=true" "vendor.perf.framepacing.enable=false" "persist.sys.power.default.powermode=1" "ro.vendor.sf.detect.aod.enable=true" $MODPATH/system.prop
                             settings put system deviceLevelList "v:1,c:2,g:2"
@@ -284,7 +238,7 @@ ui_print " [----------] [Getting ready...]"
                             add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:1,c:2,g:2"' $MODPATH/post-fs-data.sh
                     else
                         ui_print " "
-                        ui_print " [#---------] [Skipping HighEnd props]"
+                        ui_print " [005] [Skipping HighEnd props]"
                     fi
 
     # INSTALL CHARGE MOD
@@ -292,29 +246,29 @@ ui_print " [----------] [Getting ready...]"
             if [ -r $ChargeGlow ]; then
                 # PLACE CHARGE GLOW     
                     ui_print " "
-                    ui_print " [###-------] [Downloading Glow Charging Animation]"
+                    ui_print " [015] [Downloading Glow Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/GlowCharge.apk --output /data/local/tmp/prop/curl/cm/GlowCharge.apk
                     DLCHECK
-                    ui_print " [###-------] [Installing Glow Charging Animation]"
+                    ui_print " [018] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
             elif [ -r $ChargeMini ]; then
                 # PLACE CHARGE MINI     
                     ui_print " "
-                    ui_print " [###-------] [Downloading Particle Charging Animation]"
+                    ui_print " [015] [Downloading Particle Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/SimpleCharge.apk --output /data/local/tmp/prop/curl/cm/SimpleCharge.apk
                     DLCHECK
-                    ui_print " [###-------] [Installing Particle Charging Animation]"
+                    ui_print " [018] [Installing Particle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
             elif [ -r $ChargeBottle ]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
-                    ui_print " [###-------] [Downloading Bottle Charging Animation]"
+                    ui_print " [015] [Downloading Bottle Charging Animation]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/BottleCharge.apk --output /data/local/tmp/prop/curl/cm/BottleCharge.apk
                     DLCHECK
-                    ui_print " [###-------] [Installing Bottle Charging Animation]"
+                    ui_print " [018] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/prop/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
             else
-                ui_print " [###-------] [Skipping Charging Animation]"
+                ui_print " [030] [Skipping Charging Animation]"
             fi
     # # INSTALL AOD
         # CHECK AOD OPTIONS
@@ -322,17 +276,18 @@ ui_print " [----------] [Getting ready...]"
                 # PLACE AOD          
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
-                        ui_print " [#####-----] [Downloading AOD app for HyperOS $OS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/prop/curl/aod/hyper.apk
+                        ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.zip --output /data/local/tmp/prop/curl/aod/hyper.zip
                         DLCHECK
-                        ui_print " [#####-----] [Placing AOD app for HyperOS $OS...]"
+                        7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
+                        ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                         copy "/data/local/tmp/prop/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                     elif [ "$MOS" -lt 816 ]; then
                         ui_print " "
-                        ui_print " [#####-----] [Downloaing AOD app for MIUI $MOS...]"
+                        ui_print " [032] [Downloaing AOD app for MIUI $MOS...]"
                         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
                         DLCHECK
-                        ui_print " [#####-----] [Placing AOD app for MIUI $MOS...]"
+                        ui_print " [037] [Placing AOD app for MIUI $MOS...]"
                         7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
                         copy "/data/local/tmp/prop/curl/aod/mibug" "$AODMODPATH"
                     fi
@@ -340,7 +295,7 @@ ui_print " [----------] [Getting ready...]"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
                     ui_print " "
-                    ui_print " [######----] [Adding AOD's properties...]"
+                    ui_print " [040] [Adding AOD's properties...]"
                     copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/prop/xaml/$DevName.xml"
                     # DEVICE STUFF
                         if contains '    <bool name="is_xiaomi">' /data/local/tmp/prop/xaml/$DevName.xml; then
@@ -445,12 +400,12 @@ ui_print " [----------] [Getting ready...]"
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # UNPACK APK
                     ui_print " "
-                    ui_print " [#######---] [Unpacking overlay to enable AOD...]"
+                    ui_print " [045] [Unpacking overlay to enable AOD...]"
                     apktool -q if /system/framework/framework-res.apk
                     apktool -qf d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/prop/overlaytmp
                 # EDIT APK
                     ui_print " "
-                    ui_print " [########--] [Editing overlay files]"
+                    ui_print " [052] [Editing overlay files]"
                     ui_print " "
                     # BOOLEANS
                         if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -462,8 +417,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: AOD Doze mode]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: AOD Doze mode]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -474,8 +429,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -486,8 +441,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -498,8 +453,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -510,8 +465,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -522,8 +477,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -534,8 +489,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]"
+                    #ui_print " "
                     #
                         if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
                             if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml; then
@@ -546,8 +501,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/prop/overlaytmp/res/values/bools.xml
                         fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]"
+                    #ui_print " "
                     # INTEGER
                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml; then
@@ -559,8 +514,8 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/prop/overlaytmp/res/values/integers.xml
                         fi
-                    ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]"
-                    ui_print " "
+                    #ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]"
+                    #ui_print " "
                     # STRINGS
                         if contains '    <string name="config_dozeComponent">' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
                             if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml; then
@@ -575,18 +530,18 @@ ui_print " [----------] [Getting ready...]"
                         else
                             add_lines_string -bl '</resources>' '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/prop/overlaytmp/res/values/strings.xml
                         fi
-                    ui_print " [ Verbose  ] [Updated string value: SystemUI Doze service]"
+                    #ui_print " [ Verbose  ] [Updated string value: SystemUI Doze service]"
                 # REPACK APK
                     ui_print " "
-                    ui_print " [########--] [Repacking overlay to system...]"
+                    ui_print " [069] [Repacking overlay to system...]"
                     apktool -q b /data/local/tmp/prop/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
-                    ui_print " "
-                    ui_print " [ Verbose  ] [Signing compiled...]"
+                    #ui_print " "
+                    #ui_print " [ Verbose  ] [Signing compiled...]"
                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
                 # PLACE PERMISSION PROP
                     ui_print " "
-                    ui_print " [#########-] [Getting permission file]"
+                    ui_print " [078] [Getting permission file]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
                         PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
@@ -636,19 +591,16 @@ ui_print " [----------] [Getting ready...]"
                         fi
                     copy "/data/local/tmp/prop/permxaml.xml"  "$FINALPERMDEST"
             else
-                ui_print " [########--] [Skipping AOD]"        
+                ui_print " [089] [Skipping AOD]"        
             fi
-    # PROMPT
-        ui_print " "
-        ui_print " [##########] [Clearing temporary files]"
     # rm -rf pkg cache
         rm -rf /data/system/package_cache
     # FIX CONTEXTS
         ui_print " "
-        ui_print " [•] Fixing contexts..."
+        ui_print " [092] Fixing contexts..."
         set_context /system "$MODPATH/system"
 	# Adding extras for protection (bootloop, that is it lmao.)
-        ui_print " [•] Adding final touches"
+        ui_print " [095] Adding final touches"
 		touch $MODPATH/service.sh
 		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' $MODPATH/service.sh
         echo "if [[ "$BOOT" != "1" ]]; then"                        >> $MODPATH/service.sh
@@ -660,7 +612,7 @@ ui_print " [----------] [Getting ready...]"
         echo "fi"                                                   >> $MODPATH/service.sh
         curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/notify.sh --output $MODPATH/notify.sh
         DLCHECK
-        ui_print " [•] Added some self-protections"
+        ui_print " [100] Added some self-protections"
 
 touch $MODPATH$RMSYS
 ui_print " "
