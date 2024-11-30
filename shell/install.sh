@@ -591,6 +591,7 @@ ui_print " [000] [Getting ready...]"
                 else
                     ui_print " "
                     ui_print " [089] [Module changes. Skipping overlay.]"
+                fi
             else
                 ui_print " [089] [Skipping AOD]"        
             fi
