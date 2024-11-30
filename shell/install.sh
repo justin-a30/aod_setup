@@ -10,7 +10,8 @@
 DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
-    # DEFIND PARAMETERS
+    # DEFIND PARAMETERS 
+        Upgradable=0
         Android=$(getprop ro.build.version.release)
         ModVerInstalled=$(awk -F '=' '/versionCode/{print $2}' "/data/adb/modules/moddedxgoodies/module.prop")
         RMOV="/data/adb/modules/moddedxgoodies/remove"
@@ -193,23 +194,23 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         ui_print " Do you want to add selected mod(s)?"
         ui_print " Selected mod(s):"
             # HEPROP CHECK
-                if [ -r $HEPath ]; then
+                if [[ "$HE" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - High End properties"
                 fi
             # CHARGEPROP CHECK
-                if [ -r $ChargeGlow ]; then
+                if [[ "$ChargeGlow" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - Charging Animation - Glow"
-                elif [ -r $ChargeMini ]; then
+                elif [[ "$ChargeMini" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - Charging Animation - Particle"
-                elif [ -r $ChargeBottle ]; then
+                elif [[ "$ChargeBottle" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - Charging Animation - Bottle"
                 fi
-            # HEPROP CHECK
-                if [ -r $AodPath ]; then
+            # AOD CHECK
+                if [[ "$AodPath" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - AOD framework "
                 fi
