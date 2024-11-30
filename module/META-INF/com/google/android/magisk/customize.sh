@@ -25,11 +25,9 @@ else
 fi
 # NOTIFY AND MKDIR
     ui_print " [i] Preparing destination..."
-        mkdir /data/local/tmp/prop
-        mkdir /data/local/tmp/prop/xaml
-        mkdir /data/local/tmp/prop/curl
-        mkdir /data/local/tmp/prop/curl/aod
-        mkdir /data/local/tmp/prop/curl/cm
+        mkdir -p /data/local/tmp/aod/xaml
+        mkdir -p /data/local/tmp/aod/curl/aod
+        mkdir /data/local/tmp/aod/curl/cm
 # GET FILE
     # SHELL
         curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
