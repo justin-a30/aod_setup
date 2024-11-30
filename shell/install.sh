@@ -37,13 +37,16 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
     ui_print " - Android version: "$Android""
     if [ "$MOS" -gt 14 ]; then
         ui_print " - HyperOS version: "$OS""
+        ui_print " "
     else
         ui_print " - MIUI version: "$OS""
         ui_print " "
     fi
 # CHECKING ANDROID VERSION
-    if [[ "$Android" -lt 9 ]]; then
+    if [[ "$Android" -lt 13 ]]; then
         end " [!] Error: Android $Android not supported."
+    elif [ "$MOS" -le 14 ]; then
+        ui_print " MIUI AOD support ended for now."
     else
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
             ui_print " [#] Note"
@@ -149,6 +152,9 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         #    ui_print " [   i   ] Amoled user. Skipping AOD installation."
         #    echo 0 /data/local/tmp/prop/aod.prop
         #else
+        if [ "$MOS" -le 14 ]; then
+            ui_print " [!] Automatically skipping AOD"
+        else
             # PRINT OUT PROMPT
                 ui_print " "
                 ui_print "--------------------"
@@ -174,7 +180,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
                     ui_print "--------------------"
                     ui_print " [i] Skipped."
                 fi
-        #fi
+        fi
 
 # SUMMARY
     # PRINT OUT PROMPT
@@ -274,22 +280,12 @@ ui_print " [000] [Getting ready...]"
         # CHECK AOD OPTIONS
             if [ -r $AodPath ]; then
                 # PLACE AOD          
-                    if [ "$MOS" -ge 816 ]; then
-                        ui_print " "
-                        ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/prop/curl/aod/hyper.apk
-                        DLCHECK
-                        ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                        copy "/data/local/tmp/prop/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
-                    elif [ "$MOS" -lt 816 ]; then
-                        ui_print " "
-                        ui_print " [032] [Downloaing AOD app for MIUI $MOS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/mibug.zip --output /data/local/tmp/prop/curl/aod/mibug.zip
-                        DLCHECK
-                        ui_print " [037] [Placing AOD app for MIUI $MOS...]"
-                        7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
-                        copy "/data/local/tmp/prop/curl/aod/mibug" "$AODMODPATH"
-                    fi
+                    ui_print " "
+                    ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/prop/curl/aod/hyper.apk
+                    DLCHECK
+                    ui_print " [037] [Placing AOD app for HyperOS $OS...]"
+                    copy "/data/local/tmp/prop/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
