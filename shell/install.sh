@@ -49,6 +49,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
             ui_print "     Found version: "$ModVerInstalled"."
             Upgradable=1
         fi
+    fi
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
             ui_print " [#] Note"
             ui_print " Once the installation begins,"
@@ -619,7 +620,7 @@ ui_print " [000] [Getting ready...]"
 touch $MODPATH$RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
-if [ -r $ChargeMini ]; then
+if [[ "$ChargeMini" -eq 1 ]]; then
     ui_print " [!] BEFORE REBOOT!!!"
     ui_print "     Since you selected Particle Charge animation"
     ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
