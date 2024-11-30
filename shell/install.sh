@@ -397,6 +397,9 @@ ui_print " [000] [Getting ready...]"
                             add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/prop/xaml/$DevName.xml
                         fi
                     copy "/data/local/tmp/prop/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+            # Overlay checkup for dynamic updates
+                OverPath="$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
+                if [ -r $OverPath ]; then
                 # UNPACK APK
                     ui_print " "
                     ui_print " [045] [Unpacking overlay to enable AOD...]"
@@ -589,6 +592,9 @@ ui_print " [000] [Getting ready...]"
                        </privapp-permissions>" /data/local/tmp/prop/permxaml.xml
                         fi
                     copy "/data/local/tmp/prop/permxaml.xml"  "$FINALPERMDEST"
+                else
+                    ui_print " "
+                    ui_print " [089] [Module changes. Skipping overlay.]"
             else
                 ui_print " [089] [Skipping AOD]"        
             fi

@@ -17,6 +17,7 @@ If you're locally building, and don't want to perform "Upload to Telegram option
 In case you wanna upload it to Telegram, check the file `TGBOT.ID` and `TGPOST.ID` for more info.
 
 ### Credits
-[LLions](t.me/lokallion)
-[BlassGO!](github.com/blassgo)
-[Ianchb](github.com/ianchb)
+[LLions](t.me/lokallion) for initial ideas
+[BlassGO!](github.com/blassgo) for Dynamic Installer
+[Ianchb](github.com/ianchb) for MIUI AOD fixes
+[Rem01Gaming](github.com/Rem01Gaming) for uploadtg.sh
