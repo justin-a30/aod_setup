@@ -15,16 +15,3 @@ exit 1
 fi
    echo "Zipping folder by p7zip (7z)"
    7z a ModdedXGoodies-v"$VER"-"$DATE".zip $LOCATION/module/*
-ZIP=$(find $LOCATION -name 'ModdedXGoodies*.zip')
-CL=$(cat "$LOCATION/changelog.md")
-BOT_TOKEN=$(cat TGBOT.ID)
-CHAT_ID=$(cat TGPOST.ID)
-FILE_TO_SEND="$ZIP"
-TEXT_TO_SEND="$CL"
-
-curl -4 -s -S -L -w"\n" -o- \
-    -F document=@"${FILE_TO_SEND}" \
-    -F parse_mode='Markdown' \
-    -F caption="${TEXT_TO_SEND}" \
-    -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendDocument \
-    -F chat_id="${CHAT_ID}"

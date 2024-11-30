@@ -16,14 +16,19 @@ jobs:
           echo "Time and Date right now (H:M D-M-Y): $(date +"%H%M-%d%m%Y")"
       - name: Zip file
         run: 7z a ModdedXGoodies-v"$(cat version)"-"$(date +"%H%M-%d%m%Y")".zip ./module/*
-      - name: Upload file to Telegram
-        env: 
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: |
-          curl -4 -s -S -L -w"\n" -o- \
-              -F document=@"$(find ModdedXGoodies*.zip -maxdepth 1)" \
-              -F parse_mode='Markdown' \
-              -F caption="$(cat changelog.md)" \
-              -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendDocument \
-              -F chat_id="${CHAT_ID}"
+    - name: upload to tg
+      env:
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        COMMIT_URL: ${{ github.event.head_commit.url }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        TITLE: Dualboot Helper
+      run: |
+        if [ ! -z "${{ secrets.CHAT_ID }}" ] && [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
+          export VERSION=$(git rev-list --count HEAD)
+          bash $GITHUB_WORKSPACE/uploadtg.sh $(find . -type f -name "ModdedXGoodies*.zip")
+        else
+          echo "Telegram bot token is undefined, please add it to repository secrets!"
+          exit 1
+        fi

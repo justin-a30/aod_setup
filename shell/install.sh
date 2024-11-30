@@ -277,9 +277,8 @@ ui_print " [000] [Getting ready...]"
                     if [ "$MOS" -ge 816 ]; then
                         ui_print " "
                         ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
-                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.zip --output /data/local/tmp/prop/curl/aod/hyper.zip
+                        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/prop/curl/aod/hyper.apk
                         DLCHECK
-                        7z x /data/local/tmp/prop/curl/aod/mibug.zip -o/data/local/tmp/prop/curl/aod
                         ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                         copy "/data/local/tmp/prop/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                     elif [ "$MOS" -lt 816 ]; then

@@ -16,4 +16,7 @@ If you're locally building, and don't want to perform "Upload to Telegram option
 
 In case you wanna upload it to Telegram, check the file `TGBOT.ID` and `TGPOST.ID` for more info.
 
-### [Changelogs](changelog.md#Changelogs)
+### Credits
+[LLions](t.me/lokallion)
+[BlassGO!](github.com/blassgo)
+[Ianchb](github.com/ianchb)
