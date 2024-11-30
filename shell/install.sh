@@ -399,6 +399,9 @@ ui_print " [000] [Getting ready...]"
                     copy "/data/local/tmp/aod/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
             # Overlay checkup for dynamic updates
                 if [[ "$Upgradable" -eq 1 ]]; then
+                    ui_print " "
+                    ui_print " [089] [Module changes. Skipping overlay.]"
+                else
                 # UNPACK APK
                     ui_print " "
                     ui_print " [045] [Unpacking overlay to enable AOD...]"
@@ -590,9 +593,6 @@ ui_print " [000] [Getting ready...]"
                        </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
                         fi
                     copy "/data/local/tmp/aod/permxaml.xml"  "$FINALPERMDEST"
-                else
-                    ui_print " "
-                    ui_print " [089] [Module changes. Skipping overlay.]"
                 fi
             else
                 ui_print " [089] [Skipping AOD]"        
