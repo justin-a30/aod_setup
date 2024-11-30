@@ -210,7 +210,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
                 ui_print " - Charging Animation - Bottle"
                 fi
             # AOD CHECK
-                if [[ "$AodPath" -eq 1 ]]; then
+                if [[ "$AodOpt" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - AOD framework "
                 fi
