@@ -6,7 +6,7 @@
   ui_print " [!] Connection to the internet is required."
   ui_print "     Make sure you're connected to the internet."
 # Define the URL of the version file
-  VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/developer/version"
+  VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/version"
 
 # Download the version file
 curl -sSL "$VERSION_URL" -o "$MODPATH/version"
@@ -30,7 +30,7 @@ fi
         mkdir /data/local/tmp/aod/curl/cm
 # GET FILE
     # SHELL
-        curl https://raw.githubusercontent.com/justin-a30/aod_setup/developer/shell/install.sh --output $MODPATH/install.sh
+        curl https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/shell/install.sh --output $MODPATH/install.sh
 
     # PERFORM SHELL
         . $MODPATH/install.sh

@@ -264,7 +264,7 @@ ui_print " [000] [Getting ready...]"
                 # PLACE CHARGE GLOW     
                     ui_print " "
                     ui_print " [015] [Downloading Glow Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/GlowCharge.apk --output /data/local/tmp/aod/curl/cm/GlowCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/GlowCharge.apk --output /data/local/tmp/aod/curl/cm/GlowCharge.apk
                     DLCHECK
                     ui_print " [018] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/aod/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
@@ -272,7 +272,7 @@ ui_print " [000] [Getting ready...]"
                 # PLACE CHARGE MINI     
                     ui_print " "
                     ui_print " [015] [Downloading Particle Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/SimpleCharge.apk --output /data/local/tmp/aod/curl/cm/SimpleCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/SimpleCharge.apk --output /data/local/tmp/aod/curl/cm/SimpleCharge.apk
                     DLCHECK
                     ui_print " [018] [Installing Particle Charging Animation]"
                     copy "/data/local/tmp/aod/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
@@ -280,7 +280,7 @@ ui_print " [000] [Getting ready...]"
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
                     ui_print " [015] [Downloading Bottle Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/BottleCharge.apk --output /data/local/tmp/aod/curl/cm/BottleCharge.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/BottleCharge.apk --output /data/local/tmp/aod/curl/cm/BottleCharge.apk
                     DLCHECK
                     ui_print " [018] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/aod/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
@@ -294,14 +294,14 @@ ui_print " [000] [Getting ready...]"
                 if [[ "$HyperOS2" -eq "true" ]]; then
                     ui_print " "
                     ui_print " [032] [Downloading AOD app for Hyper$OS...]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper2.apk --output /data/local/tmp/aod/curl/aod/hyper2.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/hyper2.apk --output /data/local/tmp/aod/curl/aod/hyper2.apk
                     DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                     copy "/data/local/tmp/aod/curl/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                 else
                     ui_print " "
                     ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/aod/curl/aod/hyper.apk
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/hyper.apk --output /data/local/tmp/aod/curl/aod/hyper.apk
                     DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                     copy "/data/local/tmp/aod/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
@@ -572,7 +572,7 @@ ui_print " [000] [Getting ready...]"
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
                     # COPY
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/aod/permxaml.xml
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/aod/permxaml.xml
                     # copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
                     # DOING THE WORK
 #                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
@@ -631,7 +631,7 @@ ui_print " [000] [Getting ready...]"
         echo "  touch $MODDIR/disable"                              >> $MODPATH/service.sh
         echo "  reboot"                                             >> $MODPATH/service.sh
         echo "fi"                                                   >> $MODPATH/service.sh
-        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/notify.sh --output $MODPATH/notify.sh
+        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/notify.sh --output $MODPATH/notify.sh
         DLCHECK
         ui_print " [100] Added some self-protections"
 
