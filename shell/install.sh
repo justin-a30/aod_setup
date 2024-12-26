@@ -7,7 +7,7 @@
 # Thanks to 30+ testers!
 
 # Add a download checker
-DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_print " "; else end " [ Error    ] Failed to cURL. Aborting..."; fi }
+DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_print " "; else end " [E] Failed to cURL. Aborting..."; fi }
 
 # DEFINATION LOGIC
     # DEFIND PARAMETERS 
@@ -18,7 +18,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         RMSYS="/system/rm.pending"
         ModVer=$(awk -F '=' '/versionCode/{print $2}' "$MODPATH/module.prop")
         DevName=$(getprop ro.product.odm.device)
-        MOS=$(getprop ro.build.version.incremental | grep -Eo '[1-8]{2,3}')
+        MOS=$(getprop ro.build.version.incremental | grep -oP '(^|(?<=OS))\d+' | head -n 1)
         OS=$(getprop ro.build.version.incremental)
         CurInstVer="/data/adb/modules/moddedxgoodies/module.prop"
 
@@ -32,8 +32,15 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
     ui_print " [i] Device info"
     ui_print " - Android version: "$Android""
     if [ "$MOS" -gt 14 ]; then
-        ui_print " - HyperOS version: "$OS""
-        ui_print " "
+        if [ "$MOS" -eq 2 ]; then
+            ui_print " - HyperOS2 version: "$OS""
+            ui_print " - Setting HyperOS2 compatibility flag"
+            ui_print " "
+            HyperOS2=true
+        else
+            ui_print " - HyperOS2 version: "$OS""
+            ui_print " "
+        fi
     else
         ui_print " - MIUI version: "$OS""
         ui_print " "
@@ -48,7 +55,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         if [[ "$ModVerInstalled" -le "$ModVer" ]]; then
             ui_print " [#] Note"
             ui_print "     Found version: "$ModVerInstalled"."
-            Upgradable=1
+            Upgradable=0 # disable for now
         fi
     fi
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
@@ -283,13 +290,22 @@ ui_print " [000] [Getting ready...]"
     # # INSTALL AOD
         # CHECK AOD OPTIONS
             if [[ "$AodOpt" -eq 1 ]]; then
-                # PLACE AOD          
+                # PLACE AOD
+                if [[ "$HyperOS2" -eq "true" ]]; then
+                    ui_print " "
+                    ui_print " [032] [Downloading AOD app for Hyper$OS...]"
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper2.apk --output /data/local/tmp/aod/curl/aod/hyper2.apk
+                    DLCHECK
+                    ui_print " [037] [Placing AOD app for HyperOS $OS...]"
+                    copy "/data/local/tmp/aod/curl/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                else
                     ui_print " "
                     ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
                     curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/hyper.apk --output /data/local/tmp/aod/curl/aod/hyper.apk
                     DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                     copy "/data/local/tmp/aod/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                fi
                         # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
                         # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
@@ -548,50 +564,51 @@ ui_print " [000] [Getting ready...]"
                     # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
                     if [[ "$Android" -le 12 ]]; then
                         PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-miui.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                         # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
                     else
                         PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-product.xml"
+                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
                     # COPY
-                    copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
+                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/developer/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/aod/permxaml.xml
+                    # copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
                     # DOING THE WORK
-                        if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
-                            xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/aod/permxaml.xml > /data/local/tmp/aod/temp.xml
-                            if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/permxaml.xml
-                            fi
-                        #
-                            if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/temp.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/permxaml.xml
-                            fi
-                        # NO PERMISSIONS?
-                        else
-                            add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
-                          <permission name="android.permission.BIND_WALLPAPER" />
-                          <permission name="android.permission.INTERACT_ACROSS_USERS" />
-                          <permission name="android.permission.READ_DREAM_STATE" />
-                          <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
-                       </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
-                        fi
+#                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
+#                             xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/aod/permxaml.xml > /data/local/tmp/aod/temp.xml
+#                             if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/temp.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/permxaml.xml
+#                             fi
+#                         #
+#                             if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/temp.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/permxaml.xml
+#                             fi
+#                         #
+#                             if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/temp.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/permxaml.xml
+#                             fi
+#                         #
+#                             if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/temp.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/permxaml.xml
+#                             fi
+#                         # NO PERMISSIONS?
+#                         else
+#                             add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
+#                           <permission name="android.permission.BIND_WALLPAPER" />
+#                           <permission name="android.permission.INTERACT_ACROSS_USERS" />
+#                           <permission name="android.permission.READ_DREAM_STATE" />
+#                           <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
+#                        </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
+#                         fi
                     copy "/data/local/tmp/aod/permxaml.xml"  "$FINALPERMDEST"
                 fi
             else
