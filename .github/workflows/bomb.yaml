@@ -1,9 +1,9 @@
 name: bomb
 on:
   push:
-    branches: [ "developer" ]
+    branches: [ "hyper2" ]
   pull_request:
-    branches: [ "developer" ]
+    branches: [ "hyper2" ]
   workflow_dispatch:
 jobs:
   build:
