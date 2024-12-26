@@ -1,5 +1,5 @@
 # Import old necessary binary
-  import_bin "$addons/apktool.jar"
+# import_bin "$addons/apktool.jar"
   import_bin "$addons/curl"
 
 # Download files first

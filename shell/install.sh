@@ -32,15 +32,13 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
     ui_print " [i] Device info"
     ui_print " - Android version: "$Android""
     if [ "$MOS" -gt 14 ]; then
-        if [ "$MOS" -eq 2 ]; then
-            ui_print " - HyperOS2 version: "$OS""
-            ui_print " - Setting HyperOS2 compatibility flag"
-            ui_print " "
-            HyperOS2=true
-        else
-            ui_print " - HyperOS2 version: "$OS""
-            ui_print " "
-        fi
+        ui_print " - HyperOS version: "$OS""
+        ui_print " "
+    elif [ "$MOS" -eq 2 ]; then
+        ui_print " - HyperOS2 version: "$OS""
+        ui_print " - Setting HyperOS2 compatibility flag"
+        ui_print " "
+        HyperOS2=true
     else
         ui_print " - MIUI version: "$OS""
         ui_print " "

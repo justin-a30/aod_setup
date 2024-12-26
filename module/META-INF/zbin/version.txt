@@ -1,3 +1,3 @@
 Project: Dynamic Installer
-Version: Stable - 5.2-Z
+Version: Stable - 5.3-bZ
 Author:  @BlassGO
