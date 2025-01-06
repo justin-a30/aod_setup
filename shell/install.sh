@@ -262,7 +262,7 @@ ui_print " [000] [Getting ready...]"
                 # PLACE CHARGE GLOW     
                     ui_print " "
                     ui_print " [015] [Downloading Glow Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/GlowCharge.apk --output /data/local/tmp/aod/curl/cm/GlowCharge.apk
+                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGGlowAnimationOverlayHelper.apk -o /data/local/tmp/aod/curl/cm/GlowCharge.apk -q
                     DLCHECK
                     ui_print " [018] [Installing Glow Charging Animation]"
                     copy "/data/local/tmp/aod/curl/cm/GlowCharge.apk" "$CHARGERMODPATH/GlowCharge.apk"
@@ -270,15 +270,15 @@ ui_print " [000] [Getting ready...]"
                 # PLACE CHARGE MINI     
                     ui_print " "
                     ui_print " [015] [Downloading Particle Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/SimpleCharge.apk --output /data/local/tmp/aod/curl/cm/SimpleCharge.apk
+                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGParticleAnimationOverlayHelper.apk -o /data/local/tmp/aod/curl/cm/ParticleCharge.apk -q
                     DLCHECK
                     ui_print " [018] [Installing Particle Charging Animation]"
-                    copy "/data/local/tmp/aod/curl/cm/SimpleCharge.apk" "$CHARGERMODPATH/SimpleCharge.apk"
+                    copy "/data/local/tmp/aod/curl/cm/ParticleCharge.apk" "$CHARGERMODPATH/ParticleCharge.apk"
             elif [[ "$ChargeBottle" -eq 1 ]]; then
                 # PLACE CHARGE BOTTLE     
                     ui_print " "
                     ui_print " [015] [Downloading Bottle Charging Animation]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/BottleCharge.apk --output /data/local/tmp/aod/curl/cm/BottleCharge.apk
+                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGBottleAnimationOverlayHelper.apk -o /data/local/tmp/aod/curl/cm/BottleCharge.apk -q
                     DLCHECK
                     ui_print " [018] [Installing Bottle Charging Animation]"
                     copy "/data/local/tmp/aod/curl/cm/BottleCharge.apk" "$CHARGERMODPATH/BottleCharge.apk"
@@ -292,20 +292,18 @@ ui_print " [000] [Getting ready...]"
                 if [[ "$HyperOS2" -eq "true" ]]; then
                     ui_print " "
                     ui_print " [032] [Downloading AOD app for Hyper$OS...]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/hyper2.apk --output /data/local/tmp/aod/curl/aod/hyper2.apk
+                    aria2c https://github.com/justin-a30/aod_setup/raw/refs/heads/hyper2/apks/aod/hyper2.apk -o /data/local/tmp/aod/curl/aod/hyper2.apk -q
                     DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                     copy "/data/local/tmp/aod/curl/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                 else
                     ui_print " "
                     ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/hyper.apk --output /data/local/tmp/aod/curl/aod/hyper.apk
+                    aria2c https://github.com/justin-a30/aod_setup/raw/refs/heads/hyper2/apks/aod/hyper.apk -o /data/local/tmp/aod/curl/aod/hyper.apk -q
                     DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
                     copy "/data/local/tmp/aod/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                 fi
-                        # package_extract_dir files/aod/overlay "$MODPATH/system/product/overlay"
-                        # package_extract_dir files/aod/overlay "$MODPATH/system/vendor/overlay"
                 # PLACE PROP
                     ui_print " "
                     ui_print " [040] [Adding AOD's properties...]"
@@ -412,150 +410,161 @@ ui_print " [000] [Getting ready...]"
                         fi
                     copy "/data/local/tmp/aod/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
             # Overlay checkup for dynamic updates
-                if [[ "$Upgradable" -eq 1 ]]; then
+                # if [[ "$Upgradable" -eq 1 ]]; then
+                #     ui_print " "
+                #     ui_print " [089] [Module changes. Skipping overlay.]"
+                # else
+#                 # UNPACK APK
+#                     ui_print " "
+#                     ui_print " [045] [Unpacking overlay to enable AOD...]"
+#                     apktool -q if /system/framework/framework-res.apk
+#                     apktool -qf d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/aod/overlaytmp
+#                 # EDIT APK
+#                     ui_print " "
+#                     ui_print " [052] [Editing overlay files]"
+#                     ui_print " "
+#                     # BOOLEANS
+#                         if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_dozeAlwaysOnDisplayAvailable">false</bool>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     echo " [ Verbose  ] [Edited/added boolean: AOD Doze mode]" >> /sdcard/MXGLog.txt
+#                     #
+#                         if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_dozeSupportsAodWallpaper">false</bool>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_dozeAfterScreenOff">false</bool>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_displayBlanksAfterDoze">true</bool>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_displayBrightnessBucketsInDoze">false</bool>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_dozePulsePickup">true</bool>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     #
+#                         if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                             if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 replace '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     # INTEGER
+#                         if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/aod/overlaytmp/res/values/integers.xml; then
+#                             if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 SBD=$(xml_kit -open '<resources>' '</resources>' -open '<integer name="config_screenBrightnessDoze">' '</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml | grep -Eo '[0-9]{1,3}')
+#                                 replace '    <integer name="config_screenBrightnessDoze">'$SBD'</integer>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml
+#                             fi
+#                         else
+#                             add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]" >> /sdcard/MXGLog.txt
+#                     #ui_print " "
+#                     # STRINGS
+#                         if contains '    <string name="config_dozeComponent">' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
+#                             if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
+#                                 echo "bomb" > /dev/null
+#                             else
+#                                 AST=$(xml_kit -open '<resources>' '</resources>' -open '<string name="config_dozeComponent">' '</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml)
+#                                 REP=$(string inside '>' '<' "$AST")
+#                                 replace "$REP" 'com.android.systemui/com.android.systemui.doze.DozeService' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
+#                             fi
+#                         elif contains '    <string name="config_dozeComponent" />' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
+#                             replace '<string name="config_dozeComponent" />' '<string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
+#                         else
+#                             add_lines_string -bl '</resources>' '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
+#                         fi
+#                     ui_print " [ Verbose  ] [Updated string value: SystemUI Doze service]" >> /sdcard/MXGLog.txt
+#                 # REPACK APK
+#                     ui_print " "
+#                     ui_print " [069] [Repacking overlay to system...]"
+#                     apktool -q b /data/local/tmp/aod/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
+#                     #ui_print " "
+#                     ui_print " [ Verbose  ] [Signing compiled...]" >> /sdcard/MXGLog.txt
+#                     sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
+#                     rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
+                # GET OVERLAY
                     ui_print " "
-                    ui_print " [089] [Module changes. Skipping overlay.]"
-                else
-                # UNPACK APK
+                    ui_print " [045] [Getting overlays to enable AOD...]"
+                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGFrameworkOverlayHelper.apk -o /data/local/tmp/aod/curl/MxGFrameworkOverlayHelper.apk -q
+                    DLCHECK
+                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGSystemUIOverlayHelper.apk -o /data/local/tmp/aod/curl/MxGSystemUIOverlayHelper.apk -q
+                    DLCHECK
                     ui_print " "
-                    ui_print " [045] [Unpacking overlay to enable AOD...]"
-                    apktool -q if /system/framework/framework-res.apk
-                    apktool -qf d /product/overlay/DevicesAndroidOverlay.apk -o /data/local/tmp/aod/overlaytmp
-                # EDIT APK
-                    ui_print " "
-                    ui_print " [052] [Editing overlay files]"
-                    ui_print " "
-                    # BOOLEANS
-                        if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_dozeAlwaysOnDisplayAvailable">false</bool>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    echo " [ Verbose  ] [Edited/added boolean: AOD Doze mode]" >> /sdcard/MXGLog.txt
-                    #
-                        if contains '    <bool name="config_dozeSupportsAodWallpaper">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_dozeSupportsAodWallpaper">false</bool>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_dozeSupportsAodWallpaper">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: AOD wallpaper]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_dozeAfterScreenOff">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_dozeAfterScreenOff">false</bool>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_dozeAfterScreenOff">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Doze when screen off]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_displayBlanksAfterDoze">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_displayBlanksAfterDoze">true</bool>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_displayBlanksAfterDoze">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Display mode on doze]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_displayBrightnessBucketsInDoze">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_displayBrightnessBucketsInDoze">false</bool>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_displayBrightnessBucketsInDoze">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Brightness in doze mode]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_dozePulsePickup">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_dozePulsePickup">true</bool>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_dozePulsePickup">false</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Doze end when pickup]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleAutoSuspendModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: AutoSuspend Power mode on display]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    #
-                        if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                            if contains '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">false</bool>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>' /data/local/tmp/aod/overlaytmp/res/values/bools.xml
-                        fi
-                    ui_print " [ Verbose  ] [Edited/added boolean: Interactive Power mode on display]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    # INTEGER
-                        if contains '    <integer name="config_screenBrightnessDoze">' /data/local/tmp/aod/overlaytmp/res/values/integers.xml; then
-                            if contains '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                SBD=$(xml_kit -open '<resources>' '</resources>' -open '<integer name="config_screenBrightnessDoze">' '</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml | grep -Eo '[0-9]{1,3}')
-                                replace '    <integer name="config_screenBrightnessDoze">'$SBD'</integer>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml
-                            fi
-                        else
-                            add_lines_string -bl '</resources>' '    <integer name="config_screenBrightnessDoze">17</integer>' /data/local/tmp/aod/overlaytmp/res/values/integers.xml
-                        fi
-                    ui_print " [ Verbose  ] [Changed integer value: Brightness when doze (AOD brightness)]" >> /sdcard/MXGLog.txt
-                    #ui_print " "
-                    # STRINGS
-                        if contains '    <string name="config_dozeComponent">' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
-                            if contains '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                AST=$(xml_kit -open '<resources>' '</resources>' -open '<string name="config_dozeComponent">' '</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml)
-                                REP=$(string inside '>' '<' "$AST")
-                                replace "$REP" 'com.android.systemui/com.android.systemui.doze.DozeService' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
-                            fi
-                        elif contains '    <string name="config_dozeComponent" />' /data/local/tmp/aod/overlaytmp/res/values/strings.xml; then
-                            replace '<string name="config_dozeComponent" />' '<string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
-                        else
-                            add_lines_string -bl '</resources>' '    <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>' /data/local/tmp/aod/overlaytmp/res/values/strings.xml
-                        fi
-                    ui_print " [ Verbose  ] [Updated string value: SystemUI Doze service]" >> /sdcard/MXGLog.txt
-                # REPACK APK
-                    ui_print " "
-                    ui_print " [069] [Repacking overlay to system...]"
-                    apktool -q b /data/local/tmp/aod/overlaytmp -o "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
-                    #ui_print " "
-                    ui_print " [ Verbose  ] [Signing compiled...]" >> /sdcard/MXGLog.txt
-                    sign "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk" "$MODPATH/system/product/overlay/DevicesAndroidOverlay.apk"
-                    rm "$MODPATH/system/product/overlay/DevicesAndroidOverlay_unsigned.apk"
+                    ui_print " [069] [Installing overlays to system...]"
+                    copy "/data/local/tmp/aod/curl/cm/MxGSystemUIOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGSystemUIOverlayHelper.apk"
+                    copy "/data/local/tmp/aod/curl/cm/MxGFrameworkOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGFrameworkOverlayHelper.apk"
                 # PLACE PERMISSION PROP
                     ui_print " "
                     ui_print " [078] [Getting permission file]"
@@ -570,7 +579,7 @@ ui_print " [000] [Getting ready...]"
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
                     # COPY
-                    curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/privapp-permissions-aod.xml --output /data/local/tmp/aod/permxaml.xml
+                    aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/privapp-permissions-aod.xml -o /data/local/tmp/aod/permxaml.xml -q
                     # copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
                     # DOING THE WORK
 #                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
