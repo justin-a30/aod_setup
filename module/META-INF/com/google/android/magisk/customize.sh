@@ -9,7 +9,7 @@
   VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/version"
 
 # Download the version file
-aria2c "$VERSION_URL" -o "$MODPATH/version" -q
+aria2c "$VERSION_URL" --dir=$MODPATH -o "version" -q
 
 # Check if download was successful
 if [ $? -eq 0 ]; then
@@ -30,7 +30,7 @@ fi
         mkdir /data/local/tmp/aod/curl/cm
 # GET FILE
     # SHELL
-        aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/shell/install.sh -o $MODPATH/install.sh -q
+        aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/shell/install.sh --dir=$MODPATH -o install.sh -q
 
     # PERFORM SHELL
         . $MODPATH/install.sh

@@ -638,7 +638,7 @@ ui_print " [000] [Getting ready...]"
         echo "  touch $MODDIR/disable"                              >> $MODPATH/service.sh
         echo "  reboot"                                             >> $MODPATH/service.sh
         echo "fi"                                                   >> $MODPATH/service.sh
-        curl -s https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/notify.sh --output $MODPATH/notify.sh
+        aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/notify.sh --dir=$MODPATH -o notify.sh -q
         DLCHECK
         ui_print " [100] Added some self-protections"
 
@@ -650,5 +650,6 @@ if [[ "$ChargeMini" -eq 1 ]]; then
     ui_print "     Since you selected Particle Charge animation"
     ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
     ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
+    ui_print " \n \n "
 fi
 rm -r /data/local/tmp/aod
