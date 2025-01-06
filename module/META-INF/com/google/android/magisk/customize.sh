@@ -1,6 +1,6 @@
 # Import old necessary binary
   import_bin "$addons/apktool.jar"
-  import_bin "$addons/curl"
+  import_bin "$addons/aria2c"
 
 # Download files first
   ui_print " [!] Connection to the internet is required."
@@ -9,7 +9,7 @@
   VERSION_URL="https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/version"
 
 # Download the version file
-curl -sSL "$VERSION_URL" -o "$MODPATH/version"
+aria2c "$VERSION_URL" -o "$MODPATH/version" -q
 
 # Check if download was successful
 if [ $? -eq 0 ]; then
@@ -30,7 +30,7 @@ fi
         mkdir /data/local/tmp/aod/curl/cm
 # GET FILE
     # SHELL
-        curl https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/shell/install.sh --output $MODPATH/install.sh
+        aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/shell/install.sh -o $MODPATH/install.sh -q
 
     # PERFORM SHELL
         . $MODPATH/install.sh
