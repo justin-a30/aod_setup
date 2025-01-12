@@ -1,9 +1,9 @@
 name: bomb
 on:
   push:
-    branches: [ "hyper2" ]
+    branches: [ "developer" ]
   pull_request:
-    branches: [ "hyper2" ]
+    branches: [ "developer" ]
   workflow_dispatch:
 jobs:
   build:
@@ -12,10 +12,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Echo out some stuff
         run: |
-          echo "Current module version: $(cat version)"
-          echo "Time and Date right now (H:M D-M-Y): $(date +"%H%M-%d%m%Y")"
+          file_getprop() {   grep "^$2=" "$1" | cut -d= -f2-; }
+          version=$(file_getprop module.prop versionCode)
+          echo "Current module version: $version"
+          DATE=$(date +"%H%M-%d%m%Y")
+          echo "Time and Date right now (H:M D-M-Y): $DATE"
       - name: Zip file
-        run: 7z a ModdedXGoodies-v"$(cat version)"-"$(date +"%H%M-%d%m%Y")".zip ./module/*
+        run: 7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*
       - name: upload to tg
         env:
           CHAT_ID: ${{ secrets.CHAT_ID }}
