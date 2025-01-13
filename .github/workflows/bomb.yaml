@@ -1,24 +1,32 @@
 name: bomb
 on:
   push:
-    branches: [ "developer" ]
+    branches: [ "hyper2" ]
   pull_request:
-    branches: [ "developer" ]
+    branches: [ "hyper2" ]
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Echo out some stuff
+      - name: Zip file
         run: |
           file_getprop() {   grep "^$2=" "$1" | cut -d= -f2-; }
           version=$(file_getprop module.prop versionCode)
           echo "Current module version: $version"
           DATE=$(date +"%H%M-%d%m%Y")
           echo "Time and Date right now (H:M D-M-Y): $DATE"
-      - name: Zip file
-        run: 7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*
+          git clone https://github.com/justin-a30/MxGOverlayHelper.git
+          cp -r MxGOverlayHelper/apk_out overlay
+          XZ_OPT=-9 tar cJf overlay.tar.xz overlay
+          XZ_OPT=-9 tar cJf apks.tar.xz apks
+          rm -rf MxGOverlayHelper
+          mkdir module
+          cp -r * module
+          rm -rf module/apks module/overlay
+          7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*        
+
       - name: upload to tg
         env:
           CHAT_ID: ${{ secrets.CHAT_ID }}

@@ -9,16 +9,10 @@
 # Ideas+Clues: LLions
 # Thanks to 30+ testers!
 
-# Add a download checker
-DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_print " "; else end " [E] Failed to cURL. Aborting..."; fi }
-
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
-        Upgradable=0
         Android=$(getprop ro.build.version.release)
         ModVerInstalled=$(awk -F '=' '/versionCode/{print $2}' "/data/adb/modules/moddedxgoodies/module.prop")
-        RMOV="/data/adb/modules/moddedxgoodies/remove"
-        RMSYS="/system/rm.pending"
         ModVer=$(awk -F '=' '/versionCode/{print $2}' "$MODPATH/module.prop")
         DevName=$(getprop ro.product.odm.device)
         MOS=$(getprop ro.build.version.incremental)
@@ -32,6 +26,21 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
     ui_print " Keynote: If you see [+], this means Volume Up"
     ui_print "          If you see [-], this means Volume Down"
     ui_print " "
+# FILE PREPARATION
+    ui_print " --## FILE PREPARATION ##--"
+    ui_print " Extracting required files..."
+    ui_print " "
+    WORKLOAD="/data/local/tmp/mxg/workhelper"
+    mkdir -p $WORKLOAD/extracted
+    package_extract_file "apk.tar.xz" $WORKLOAD
+    package_extract_file "overlay.tar.xz" $WORKLOAD
+    tar xJf $WORKLOAD/apk.tar.xz -C $WORKLOAD/extracted
+    tar xJf $WORKLOAD/overlay.tar.xz -C $WORKLOAD/extracted
+    if [ -d $WORKLOAD/extracted ]; then
+        ui_print " [✓] Files extracted."
+    else
+        end " [!] Error: Files not extracted."
+    fi
 # PRINT INFO
     ui_print " [i] Device info"
     ui_print " - Android version: "$Android""
@@ -45,7 +54,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         ui_print " [*] HyperOS 2 Detected "
         HyperOS2=true
     else
-        ui_print "UNKNOWN COMPATIBILITY"
+        end "UNKNOWN COMPATIBILITY"
     fi
 # CHECKING ANDROID VERSION
     if [[ "$Android" -lt 13 ]]; then
@@ -158,7 +167,7 @@ DLCHECK () { if [ $? -eq 0 ]; then ui_print " " ; ui_print " [i] DL Done!"; ui_p
         #    ui_print " [   i   ] Amoled user. Skipping AOD installation."
         #    echo 0 /data/local/tmp/aod/aod.prop
         #else
-        if [ "$MOS" -le 14 ]; then
+        if [ "$MIUI" -eq "true" ]; then
             ui_print " [!] Automatically skipping AOD"
         else
             # PRINT OUT PROMPT
@@ -280,18 +289,12 @@ ui_print " [000] [Getting ready...]"
                 # PLACE AOD
                 if [[ "$HyperOS2" -eq "true" ]]; then
                     ui_print " "
-                    ui_print " [032] [Downloading AOD app for Hyper$OS...]"
-                    aria2c https://github.com/justin-a30/aod_setup/raw/refs/heads/hyper2/apks/aod/hyper2.apk -o /data/local/tmp/aod/curl/aod/hyper2.apk -q
-                    DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "/data/local/tmp/aod/curl/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                    copy "$WORKLOAD/extracted/apks/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                 elif [[ "$HyperOS1" -eq "true" ]]; then
                     ui_print " "
-                    ui_print " [032] [Downloading AOD app for HyperOS $OS...]"
-                    aria2c https://github.com/justin-a30/aod_setup/raw/refs/heads/hyper2/apks/aod/hyper.apk -o /data/local/tmp/aod/curl/aod/hyper.apk -q
-                    DLCHECK
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "/data/local/tmp/aod/curl/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                    copy "$WORKLOAD/extracted/apks/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
                 fi
                 # PLACE PROP
                     ui_print " "
@@ -393,22 +396,17 @@ ui_print " [000] [Getting ready...]"
                                 echo "bomb" > /dev/null
                             else
                                 replace '    <bool name="support_aod_aon">false</bool>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
+                   /data/local/tmp/aod/curl/cm
+/data/local/tmp/aod/curl/cm         fi
                         else
                             add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
                         fi
                     copy "/data/local/tmp/aod/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # GET OVERLAY
                     ui_print " "
-                    ui_print " [045] [Getting overlays to enable AOD...]"
-                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGFrameworkOverlayHelper.apk -o /data/local/tmp/aod/curl/MxGFrameworkOverlayHelper.apk -q
-                    DLCHECK
-                    aria2c https://github.com/justin-a30/MxGOverlayHelper/raw/refs/heads/main/apk_out/MxGSystemUIOverlayHelper.apk -o /data/local/tmp/aod/curl/MxGSystemUIOverlayHelper.apk -q
-                    DLCHECK
-                    ui_print " "
                     ui_print " [069] [Installing overlays to system...]"
-                    copy "/data/local/tmp/aod/curl/cm/MxGSystemUIOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGSystemUIOverlayHelper.apk"
-                    copy "/data/local/tmp/aod/curl/cm/MxGFrameworkOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGFrameworkOverlayHelper.apk"
+                    copy "$WORKLOAD/extracted/overlay/MxGSystemUIOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGSysUIHelper/MxGSystemUIOverlayHelper.apk"
+                    copy "$WORKLOAD/extracted/overlay/MxGFrameworkOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGFrameworkHelper/MxGFrameworkOverlayHelper.apk"
                 # PLACE PERMISSION PROP
                     ui_print " "
                     ui_print " [078] [Getting permission file]"
@@ -422,8 +420,7 @@ ui_print " [000] [Getting ready...]"
                         FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                         # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
                     fi
-                    # COPY
-                    aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/apks/aod/privapp-permissions-aod.xml -o /data/local/tmp/aod/permxaml.xml -q
+                    # COPY 
                     # copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
                     # DOING THE WORK
 #                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
@@ -460,7 +457,7 @@ ui_print " [000] [Getting ready...]"
 #                           <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
 #                        </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
 #                         fi
-                    copy "/data/local/tmp/aod/permxaml.xml"  "$FINALPERMDEST"
+                    copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
                 fi
             else
                 ui_print " [089] [Skipping AOD]"
@@ -474,19 +471,20 @@ ui_print " [000] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [095] Adding final touches"
 		touch $MODPATH/service.sh
-		add_lines_string '#!/system/bin/sh' 'MODDIR="${0%/*}"' 'BOOT=$(getprop sys.boot_completed)' 'sleep 60' $MODPATH/service.sh
-        echo "if [[ "$BOOT" != "1" ]]; then"                        >> $MODPATH/service.sh
-        echo "  rm -rf /data/system/package_cache"                  >> $MODPATH/service.sh
-        echo "  cp $MODDIR/disable /data/adb/service.d/notify.sh"   >> $MODPATH/service.sh
-        echo "  chmod +x /data/adb/service.d/notify.sh"             >> $MODPATH/service.sh
-        echo "  touch $MODDIR/disable"                              >> $MODPATH/service.sh
-        echo "  reboot"                                             >> $MODPATH/service.sh
-        echo "fi"                                                   >> $MODPATH/service.sh
-        aria2c https://raw.githubusercontent.com/justin-a30/aod_setup/hyper2/notify.sh --dir=$MODPATH -o notify.sh -q
-        DLCHECK
+        echo '#!/system/bin/sh'                                       > $MODPATH/service.sh
+        echo "MODDIR=\"\${0%/*}\""                                   >> $MODPATH/service.sh
+        echo "BOOT=\$(getprop sys.boot_completed)"                   >> $MODPATH/service.sh
+        echo "sleep 60"                                              >> $MODPATH/service.sh
+        echo "if [[ \"\$BOOT\" != \"1\" ]]; then"                    >> $MODPATH/service.sh
+        echo "  rm -rf /data/system/package_cache"                   >> $MODPATH/service.sh
+        echo "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh" >> $MODPATH/service.sh
+        echo "  chmod +x /data/adb/service.d/notify.sh"              >> $MODPATH/service.sh
+        echo "  touch \$MODDIR/disable"                              >> $MODPATH/service.sh
+        echo "  reboot"                                              >> $MODPATH/service.sh
+        echo "fi"                                                    >> $MODPATH/service.sh
+        package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
 
-touch $MODPATH$RMSYS
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
 if [[ "$ChargeMini" -eq 1 ]]; then
