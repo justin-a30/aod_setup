@@ -23,7 +23,7 @@ jobs:
           XZ_OPT=-9 tar cJf apks.tar.xz apks
           rm -rf MxGOverlayHelper
           mkdir module
-          cp -r * module
+          cp -r !(module) module
           rm -rf module/apks module/overlay
           7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*        
 
