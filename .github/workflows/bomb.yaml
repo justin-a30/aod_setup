@@ -23,7 +23,7 @@ jobs:
           XZ_OPT=-9 tar cJf apks.tar.xz apks
           rm -rf MxGOverlayHelper
           mkdir module
-          cp -r !(module) module
+          rsync -av . module --exclude=module
           rm -rf module/apks module/overlay
           7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*        
 
@@ -34,7 +34,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TITLE: MXG Module
+          TITLE: MXG Module - INSTALLATION IS NOT READY
         run: |
           if [ ! -z "${{ secrets.CHAT_ID }}" ] && [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             export VERSION=$(git rev-list --count HEAD)
