@@ -27,7 +27,7 @@ jobs:
               ls -l telegram-bot-api/bin/telegram-bot-api*
               
       - name: Upload artifacts
-      - uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: tgbotapi
           path: telegram-bot-api/bin/telegram-bot-api
