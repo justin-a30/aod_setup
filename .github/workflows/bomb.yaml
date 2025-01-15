@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get dependencies
+	run: sudo apt-get install zlib1g-dev libssl-dev gperf cmake g++
       - name: Get basic variables
         run: |
           file_getprop() { grep "^$2=" "$1" | cut -d= -f2-; }
