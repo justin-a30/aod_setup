@@ -55,13 +55,26 @@ jobs:
           echo "MODULE=$(find "$(pwd)" -name 'ModdedXGoodies*.zip')" >> $GITHUB_ENV
           echo "${{ env.MODULE }}"
 
+      - name: Build TelegramBotAPI
+        run: |
+              sudo apt-get update
+              sudo apt-get upgrade
+              sudo apt-get install make git zlib1g-dev libssl-dev gperf cmake g++
+              git clone --recursive https://github.com/tdlib/telegram-bot-api.git
+              cd telegram-bot-api
+              rm -rf build
+              mkdir build
+              cd build
+              cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=.. ..
+              cmake --build . --target install
+              cd ../..
+              ls -l telegram-bot-api/bin/telegram-bot-api*
+              
       - name: Initialize TelegramBotAPI for file uploads
         env:
           API_ID: ${{ secrets.API_ID }}
           API_HASH: ${{ secrets.API_HASH }}
-        run: |
-          chmod +x .github/bin/telegram-bot-api
-          ./.github/bin/telegram-bot-api --api-id=$API_ID --api-hash=$API_HASH &
+        run: ./telegram-bot-api/bin/telegram-bot-api --api-id=$API_ID --api-hash=$API_HASH &
 
       - name: upload to tg
         env:
