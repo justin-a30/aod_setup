@@ -22,7 +22,7 @@ jobs:
         env:
           version: ${{ env.version }}
           DATE: ${{ env.DATE }}
-        run: echo "Version: $version, DATE: $DATE"
+        run: echo "Version $version, DATE $DATE"
 
       - name: Get overlay helper
         run: |
