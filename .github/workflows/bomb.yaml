@@ -8,38 +8,64 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Zip file
+
+      - name: Get basic variables
         run: |
-          file_getprop() {   grep "^$2=" "$1" | cut -d= -f2-; }
-          version=$(file_getprop module.prop versionCode)
-          echo "Current module version: $version"
-          DATE=$(date +"%H%M-%d%m%Y")
-          echo "Time and Date right now (H:M D-M-Y): $DATE"
+          file_getprop() { grep "^$2=" "$1" | cut -d= -f2-; }
+          echo "version=$(grep '^versionCode=' module.prop | cut -d= -f2-)" >> $GITHUB_ENV
+          echo "DATE=$(date +"%H%M-%d%m%Y")" >> $GITHUB_ENV
+
+      - name: Ensure var (Verbose)
+        env:
+          version: ${{ env.version }}
+          DATE: ${{ env.DATE }}
+        run: echo "Version: $version, DATE: $DATE"
+
+      - name: Get overlay helper
+        run: |
           git clone https://github.com/justin-a30/MxGOverlayHelper.git
           cp -r MxGOverlayHelper/apk_out overlay
+
+      - name: Tar time
+        run: |
           XZ_OPT=-9 tar cJf overlay.tar.xz overlay
           XZ_OPT=-9 tar cJf apks.tar.xz apks
+
+      - name: Tidy up
+        run: |
           rm -rf MxGOverlayHelper
           mkdir module
           rsync -av . module --exclude=module
           rm -rf module/apks module/overlay
-          7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*        
+
+      - name: Zip time
+        env:
+          version: ${{ env.version }}
+          DATE: ${{ env.DATE }}
+        run: 7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*  
+
+      - name: Find module
+        run: |
+          echo "MODULE=$(find "$(pwd)" -name 'ModdedXGoodies*.zip')" >> $GITHUB_ENV
+          echo "$MODULE"
+
+      - name: Initialize TelegramBotAPI for file uploads
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+        run: |
+          chmod +x .github/bin/telegram-bot-api
+          ./telegram-bot-api/bin/telegram-bot-api --api-id=$API_ID --api-hash=$API_HASH &
 
       - name: upload to tg
         env:
+          MODULE: ${{ env.MODULE }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TITLE: MXG Module - INSTALLATION IS NOT READY
-        run: |
-          if [ ! -z "${{ secrets.CHAT_ID }}" ] && [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-            export VERSION=$(git rev-list --count HEAD)
-            bash $GITHUB_WORKSPACE/uploadtg.sh $(find . -type f -name "ModdedXGoodies*.zip")
-          else
-            echo "Telegram bot token is undefined, please add it to repository secrets!"
-            exit 1
-          fi
+        run: python3 .github/scripts/tg.py
