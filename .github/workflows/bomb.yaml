@@ -50,7 +50,7 @@ jobs:
       - name: Find module
         run: |
           echo "MODULE=$(find "$(pwd)" -name 'ModdedXGoodies*.zip')" >> $GITHUB_ENV
-          echo "$MODULE"
+          echo "${{ env.MODULE }}"
 
       - name: Initialize TelegramBotAPI for file uploads
         env:
@@ -58,7 +58,7 @@ jobs:
           API_HASH: ${{ secrets.API_HASH }}
         run: |
           chmod +x .github/bin/telegram-bot-api
-          ./telegram-bot-api/bin/telegram-bot-api --api-id=$API_ID --api-hash=$API_HASH &
+          ./.github/bin/telegram-bot-api --api-id=$API_ID --api-hash=$API_HASH &
 
       - name: upload to tg
         env:
