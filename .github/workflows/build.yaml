@@ -1,4 +1,4 @@
-name: bomb
+name: build
 on:
   push:
     branches: [ "hyper2" ]
