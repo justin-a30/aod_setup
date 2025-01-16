@@ -12,13 +12,9 @@
 # DEFINATION LOGIC
     # DEFIND PARAMETERS
         Android=$(getprop ro.build.version.release)
-        ModVerInstalled=$(awk -F '=' '/versionCode/{print $2}' "/data/adb/modules/moddedxgoodies/module.prop")
-        ModVer=$(awk -F '=' '/versionCode/{print $2}' "$MODPATH/module.prop")
         DevName=$(getprop ro.product.odm.device)
-        MOS=$(getprop ro.build.version.incremental)
         OS=$(getprop ro.build.version.incremental)
-        CurInstVer="/data/adb/modules/moddedxgoodies/module.prop"
-        MAJOR_VERSION=$(echo "$OS" | grep -oP '^\d+|(?<=OS)\d+')
+        MAJOR_VERSION=$(echo "$OS" | grep -o '^[0-9]\+')
 
 # PRINT NOTES
     ui_print " --## NOTES ##--"
@@ -44,22 +40,22 @@
 # PRINT INFO
     ui_print " [i] Device info"
     ui_print " - Android version: "$Android""
-    if [[ "$MAJOR_VERSION" -le 14 ]]; then
-        ui_print " [*] MIUI $MAJOR_VERSION Detected "
-        MIUI=true
+    if [[ "$OS" =~ ^OS2\. ]]; then
+        ui_print " [*] HyperOS 2 Detected "
+        HyperOS2=true
     elif [[ "$OS" =~ ^816\. ]]; then
         ui_print " [*] HyperOS 1 Detected "
         HyperOS1=true
-    elif [[ "$OS" =~ ^OS2\. ]]; then
-        ui_print " [*] HyperOS 2 Detected "
-        HyperOS2=true
+    elif [[ "$MAJOR_VERSION" =~ ^[0-9]+$ && "$MAJOR_VERSION" -le 14 ]]; then
+        ui_print " [*] MIUI $MAJOR_VERSION Detected "
+        MIUI=true
     else
         end "UNKNOWN COMPATIBILITY"
     fi
 # CHECKING ANDROID VERSION
     if [[ "$Android" -lt 13 ]]; then
         end " [!] Error: Android $Android not supported."
-    elif [ "$MIUI" -eq "true" ]; then
+    elif [ "$MIUI" == "true" ]; then
         ui_print " MIUI AOD support ended for now."
     else
 
@@ -167,7 +163,7 @@
         #    ui_print " [   i   ] Amoled user. Skipping AOD installation."
         #    echo 0 /data/local/tmp/aod/aod.prop
         #else
-        if [ "$MIUI" -eq "true" ]; then
+        if [ "$MIUI" == "true" ]; then
             ui_print " [!] Automatically skipping AOD"
         else
             # PRINT OUT PROMPT
@@ -396,8 +392,7 @@ ui_print " [000] [Getting ready...]"
                                 echo "bomb" > /dev/null
                             else
                                 replace '    <bool name="support_aod_aon">false</bool>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                   /data/local/tmp/aod/curl/cm
-/data/local/tmp/aod/curl/cm         fi
+                            fi
                         else
                             add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
                         fi
@@ -458,7 +453,6 @@ ui_print " [000] [Getting ready...]"
 #                        </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
 #                         fi
                     copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
-                fi
             else
                 ui_print " [089] [Skipping AOD]"
             fi
