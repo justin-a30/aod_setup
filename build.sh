@@ -26,6 +26,7 @@ rm -rf MxGOverlayHelper
 # GETTING READY
 mkdir module
 rsync -av . module --exclude=module
+cp module.prop module/META-INF/com/google/android/magisk/module.prop
 rm -rf module/apks module/overlay
 
 # ZIP!
