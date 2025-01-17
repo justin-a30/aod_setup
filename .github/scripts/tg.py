@@ -12,7 +12,7 @@ file_name = os.path.basename(file_path)
 chat_id = os.getenv('CHAT_ID')
 
 payload = {
-    'chat_id': '-1002059105712',
+    'chat_id': chat_id,
     'caption': f"*ModdedXGoodies* \- {version}\n\n> {commit_message}\n\n[Commit URL]({commit_url})\n[Run URL]({commit_run})",
     'parse_mode': 'MarkdownV2'
 }
