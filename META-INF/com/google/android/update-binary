@@ -5,30 +5,15 @@
 true() { return 0; }
 false() { return 1; }
 echo2() { >&2 echo "$@"; }
-find_bin() { local IFS=":"; for path in $PATH; do [ -e "$path/$1" ] && echo "$path/$1" && break; done; }
-ui_print() { while [ "$1" ]; do (! $BOOTMODE && [ -e "$OUTFD" ]) && echo -e "ui_print $1\nui_print" >> $OUTFD || echo "$1"; shift; done; }
-defined() { while [ "$1" ]; do eval "[ -z \"\${${1}}\" ]" && return 1; shift; done; return 0; }
+ui_print() { for __ in "$@"; do [ "$BOOTMODE" == "false" -a -e "$OUTFD" ] && echo -e "ui_print $__\nui_print" >> $OUTFD || echo "$__"; done; }
 abort() { ui_print " " "$@" " "; exit 1; }
-import_info() { ( echo >> "$l/info.txt"; cat "$1" >> "$l/info.txt"; rm -f "$1" ) 2>/dev/null; }
-testrw() { local test return=0; for test; do if [ -d "$test" ]; then (rm -f "$test/.rw$$"; touch "$test/.rw$$" || echo > "$test/.rw$$") 2>/dev/null; if [ -f "$test/.rw$$" ]; then rm -f "$test/.rw$$"; else echo2 '!'"Read-Only: $test" && return=1; fi; else echo2 "Cant find: $test directory" && return=1; fi; done; return $return; }
-ensure_dir() { while [ "$1" ]; do ( rm -rf "$1" ) 2>/dev/null; mkdir -p "$1"; [ ! -d "$1" ] && abort "ERROR: Cant create folder $1"; shift; done; }
+import_info() { [ -f "$1" ] && { echo >> "$l/info.txt"; cat "$1" >> "$l/info.txt"; rm -f "$1" ; } ; }
+testrw() { for __ in "$@"; do { [ -d "$__" ] && { touch "$__/.rw$$" || echo > "$__/.rw$$" ; } 2>/dev/null && rm -f "$__/.rw$$"; } || { echo2 '!'"Read-Only: $__"; return 1; }; done; }
+ensure_dir() { for __ in "$@"; do rm -rf "$__" 2>/dev/null; mkdir -p "$__" || abort "ERROR: Cant create folder $__"; done; }
+is_substring() { case $2 in *"$1"*) return 0 ;; *) return 1 ;; esac; }
+is64bit() { __=$(od -An -t x1 -j 4 -N 1 "$1"); case $__ in *"02"*) return 0 ;; *"01"*) return 1 ;; *) echo2 "is64bit: Unknown $__: $1"; return 2 ;; esac; }
 
 #Advanced functions
-is_substring() {
-    case "$2" in
-        *"$1"*) return 0 ;;
-        *) return 1 ;;
-    esac
-}
-zip_list() {
-   if [ -n "$2" ]; then
-      "$l/7z" l -ba -bse0 -slt "$1" "$2" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}'
-   elif [ -n "$1" ]; then
-      "$l/7z" l -ba -bse0 -slt "$1" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}'
-   elif [ -n "$installzip" ]; then
-      "$l/7z" l -ba -bse0 -slt "$installzip" | awk '/^Path =/{path=$0; getline; if (/^Folder = \+/) print substr(path, index(path, "=") + 2)"/"; else print substr(path, index(path, "=") + 2)}'
-   fi
-}
 d64_posix() {
     awk 'BEGIN {
         chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -59,104 +44,45 @@ d64_posix() {
         }
     }' "$1"
 }
-get() {
-  local args=$# skip=0 from to in get rm root
-  while [ $args -gt 0 ]; do
-    case $1 in
-       -from)
-       from="$2"
-       skip=2;
-       ;;
-       -to)
-       to="$2"
-       skip=2;
-       ;;
-       -in)
-       in="$2"
-       skip=2;
-       ;;
-       *)
-       set -- "$@" "$1"
-       skip=1;
-       ;;
-    esac
-    shift $skip; args=$(($args-$skip)); 
-  done
-  [ -z "$from" -o ! -f "$from" ] && abort "ERROR: Invalid ZIP: \"$from\""
-  [ -z "$to" ] && to="$PWD"; to="${to%%/}/"
-  [ -n "$in" ] && in="${in%%/}/"
-  for get in "$@"; do
-     root="${in}$get"
-     echo2 "Getting: $get"
-     "$l/7z" e "$from" "$root" -o"${to}" -y -bd -bb0 -bso0 -bsp0
-     if [ -f "${to}$get" ]; then
-        chmod 755 "${to}$get"
-     else abort "ERROR:1: Cant get $get"
-     fi
-  done
-}
 ensure_bin() {
-   local path bin result=1
-   [ -z "$bb" ] && bb=$(find_bin busybox)
-   while [ "$1" ]; do
-      if [ -z "$(command -v "$1")" ]; then
-         bin=$(find_bin $1); [ -n "$bin" ] && bin="\"$bin\""
-         if [ -z "$bin" -a -n "$bb" ] && "$bb" --list | "$bb" grep -Eq "^$1$"; then bin="\"$bb\" $1"; fi
-         if [ -n "$bin" ]; then eval "$1() { $bin \"\$@\"; }"; result=0
-         else $needed && abort "ERROR: Could not define \"$1\" binary" || return 1
-         fi
-      else
-         result=0
-      fi
-      shift;
-   done
-   return $result
+  _r_=0
+  for __ in "$@"; do
+    if ! command -v $__ >/dev/null; then
+      $bb_set || { bb_set=true; [ -n "$bb" ] && bb_list=" $(echo $("$bb" --list)) "; }
+      { [ -n "$bb" ] && is_substring " $__ " "$bb_list" ; } && eval "$__() { \"$bb\" $__ \"\$@\"; }" || { $needed && abort "ERROR: Could not define \"$__\" binary" || _r_=1; }
+    fi
+  done
+  return $_r_
 }
 ForArch() {
-   local fpath
-   export ARCH
-   $d64 $TMP/7zarch.txt > $TMP/7zarch.zip
-   unzip -qo $TMP/7zarch.zip -d $l
-   for ARCH in $l/*; do
-       if [ -d "$ARCH" ]; then
-          fpath=$ARCH/7z
-          chmod 755 $fpath
-          if [ -x $fpath ] && $fpath >/dev/null 2>&1; then
-            ARCH=${ARCH##*/}
-            mv -f $fpath $l/7z
-            (rm -rf $ARCH) 2>/dev/null
-            break
-          fi
-          (rm -rf $ARCH) 2>/dev/null
-       fi
+   $d64 "$TMP/7zarch.txt" > "$TMP/7zarch.zip"
+   unzip -qo "$TMP/7zarch.zip" -d "$l"
+   for ARCH in "$l"/*; do
+      [ -d "$ARCH" ] && fpath="$ARCH/7z" && chmod 755 "$fpath" || continue
+      [ -x "$fpath" ] && "$fpath" >/dev/null 2>&1 && { mv -f "$fpath" "$TMP/7z"; break; }
    done
-   [ ! -f "$l/7z" ] && abort "ERROR: Unsupported device architecture!"
+   rm -rf "$l"/* 2>/dev/null
+   mv -f "$TMP/7z" "$l/7z" 2>/dev/null
+   [ -f "$l/7z" ] && ARCH=${ARCH##*/} || abort "ERROR: Unsupported device architecture!"
+}
+ensureArch() {
+  _f_=$(readlink -f /system/bin/sh 2>/dev/null || readlink /proc/$PPID/exe 2>/dev/null || readlink /proc/self/exe 2>/dev/null || ps | awk '/sh|busybox/{print $NF; exit}' 2>/dev/null)
+  [ -e "$_f_" ] && { is64bit "$_f_" || ARCH="armeabi-v7a" ; echo2 "$ARCH: $_f_"; }
 }
 setup_bb() {
-   #Try to ensure /system/bin/sh
-   needed=false; ensure_bin umount ln
-   if [ ! -f /system/bin/sh ]; then
-      umount -l /system 2>/dev/null
-      mkdir -p /system/bin
-      ln -sf "$(command -v sh)" /system/bin/sh
-   fi
-   if [ -e "$bb" ]; then
-     if ! echo "read me" | "$bb" grep -q "read me"; then
-        abort "ERROR:4: BusyBox cannot load on this device!"
-     elif ! "$bb" --install -s "$l"; then
-        for i in $("$bb" --list); do
-          if ! ln -sf "$bb" "$l/$i" && ! "$bb" ln -sf "$bb" "$l/$i" && ! "$bb" ln -f "$bb" "$l/$i"; then
-            # create script wrapper if symlinking and hardlinking failed because of restrictive selinux policy
-            if ! echo "#!$bb" > "$l/$i" || ! chmod 755 "$l/$i"; then
-              abort "ERROR:2: Failed to setup BusyBox"
-            fi
-          fi
-        done
-     fi
-   else
-      abort "ERROR:1: Cant find BusyBox"
-   fi
-   [ ! -f "$l/sh" ] && abort "ERROR:3: Failed to setup BusyBox"
+  needed=false; ensure_bin umount ln
+  [ ! -f /system/bin/sh ] && { umount -l /system 2>/dev/null; mkdir -p /system/bin; ln -sf "$(command -v sh)" /system/bin/sh; }
+  [ -e "$bb" ] || abort "ERROR:1: Cant find BusyBox"
+  if ! echo "read me" | "$bb" grep -q "read me"; then
+    abort "ERROR:4: BusyBox cannot load on this device!"
+  elif ! "$bb" --install -s "$l"; then
+    for i in $("$bb" --list); do
+      ln -sf "$bb" "$l/$i" || "$bb" ln -sf "$bb" "$l/$i" || "$bb" ln -f "$bb" "$l/$i" || {
+        echo "#!$bb" > "$l/$i" && chmod 755 "$l/$i" || abort "ERROR:2: Failed to setup BusyBox"
+      }
+    done
+  fi
+  [ -f "$l/sh" ] || abort "ERROR:3: Failed to setup BusyBox"
 }
 setup() {
   #Ensure work DIRs
@@ -165,57 +91,59 @@ setup() {
   #Ensure 7z for ARCH
   ForArch
   
-  #Remove only zbin plugins
-  ( rm -f "$TMP/bin" "$TMP/extra.zip" "$TMP/core" "$TMP/static") 2>/dev/null
+  #Extract contents
+  "$l/7z" x "$installzip" "META-INF/zbin/*" -xr'!META-INF/zbin/arch/*' -o"$TMP" -y -bd -bb0 -bso0 -bsp0 || abort "ERROR: Failed to extract contents"
+  "$l/7z" x "$installzip" "META-INF/zbin/arch/$ARCH/*" -o"$TMP" -y -bd -bb0 -bso0 -bsp0 || abort "ERROR: Failed to extract specific architecture contents"
+  ROOT="$TMP/META-INF/zbin"
   
-  #Extracting BusyBox & bin for ARCH
-  get busybox bin -from "$installzip" -in "META-INF/zbin/arch/$ARCH" -to "$TMP"
-  bb="$TMP/zbin/busybox"; mv -f $TMP/busybox $bb
+  #Check contents
+  [ -f "$ROOT/core" ] && cd "$ROOT" || abort "ERROR: Failed to extract contents"
   
-  #Extracting core & static
-  get core static -from "$installzip" -in "META-INF/zbin" -to "$TMP"
+  #Ensure BusyBox for ARCH
+  bb="$TMP/zbin/busybox"
+  mv -f "arch/$ARCH/busybox" "$bb"; chmod 755 "$bb"
   
   #Ensure BusyBox Environment
   setup_bb; export PATH="$l:$PATH"
   
-  #Extracting extra.zip (Optional)
-  is_substring extra.zip "$(zip_list "$installzip" META-INF/addons/extra.zip)" && get extra.zip -from "$installzip" -in "META-INF/addons" -to "$TMP"
+  #Rectify ARCH for 32bit devices
+  ensureArch
   
   #Loading bin & static
-  for bin in bin static; do
-     unzip -qo "$TMP/$bin" -d "$TMP/zbin"
-     import_info "$TMP/zbin/info.txt"
+  for bin in "arch/$ARCH/bin" static; do
+     if [ -f "$bin" ]; then
+        unzip -qo "$bin" -d configs
+        import_info configs/info.txt
+     else
+        abort "ERROR: Cant get $bin"
+     fi
   done
   
-  #Loading extra.zip (Optional)
-  if [ -f "$TMP/extra.zip" ]; then
-     if is_substring $ARCH "$(unzip -l "$TMP/extra.zip" "$ARCH/")"; then
-        unzip -qoj "$TMP/extra.zip" "$ARCH/*" -d "$TMP/zbin"
-        import_info "$TMP/zbin/info.txt"
-     else
-        echo2 "setup: extra.zip does not include additions to your architecture"
-     fi
-  fi
+  #Getting version
+  di_version=$(grep -Eo "[0-9]+\.[0-9]+[-[:alnum:]]*" version.txt 2>/dev/null)
+  
+  #Getting configs & bins
+  chmod -R 755 configs
+  mv -f configs/* -t "$l"
+  mv -f core "$TMP/zbin/core"; cd $TMP
+  rm -rf "$TMP/META-INF" "$TMP/extra.zip" 2>/dev/null
   
   #Start Installation
-  find "$TMP/zbin" -type f ! -name "busybox" -exec mv -f {} "$l" \;
-  find "$l" -type f -exec chmod 755 {} +;
-  mv -f "$TMP/core" "$TMP/zbin/core"
-  find "$TMP" -mindepth 1 -maxdepth 1 -type f -delete > /dev/null
-  PATH="$PATH:/system/bin" bash "$TMP/zbin/core" "$@"
+  PATH="$PATH" bash "$TMP/zbin/core"
   [ $? == 130 ] && exit 1 || exit 0
 }
 
-#Get BOOTMODE and OUTFD
-ps | grep zygote | grep -qv grep && export BOOTMODE=true || export BOOTMODE=false
-$BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -qv grep && export BOOTMODE=true
-[ -n "$2" -a -e "/proc/self/fd/$2" ] && export OUTFD="/proc/self/fd/$2"
+#General vars
+[ -n "$2" -a -e "/proc/self/fd/$2" ] && OUTFD="/proc/self/fd/$2" || OUTFD=
+[ -f "$3" ] && installzip="$3" ZIPFILE="$3" PERSISTDIR=/sbin/.magisk/mirror/persist || installzip="$ZIPFILE" CUSTOM_SETUP=2
+BOOTMODE=$( [ "$(getprop sys.boot_completed 2>/dev/null)" == 1 ] && echo true || { ps | grep -q "[z]ygote" || ps -A 2>/dev/null | grep -q "[z]ygote" && echo true || echo false ; } )
 
 #Start
 umask 022
 unsupport=false
 export PATH="/sbin:/system/bin:/sbin/su:/su/bin:/su/xbin:/system/xbin:/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH"
-needed=true; ensure_bin mkdir chmod cat mv unzip
+bb_set=false; bb=$(command -v busybox)
+needed=true;  ensure_bin mkdir chmod cat mv unzip
 needed=false; ensure_bin rm
 if ensure_bin base64; then
    d64="base64 -d"
@@ -226,20 +154,19 @@ else
 fi
 
 echo2 "D64: $d64"
-   
+
 #Ensure Temp directory
 for TMP in /dev/tmp$$ /cache/tmp$$ /mnt/tmp$$ /data/tmp$$ /data/local/tmp$$; do
-    mkdir -p $TMP 2>/dev/null; testrw $TMP && break || TMP=
+    mkdir -p $TMP 2>/dev/null && break
 done
-[ -n "$TMP" ] && export TMP || abort "ERROR: Failed to create temporary directory"
+[ -d "$TMP" ] || abort "ERROR: Failed to create temporary directory"
 
 #Global vars
-[ -f "$3" ] && export installzip="$3" ZIPFILE="$3" PERSISTDIR=/sbin/.magisk/mirror/persist || export installzip="$ZIPFILE" CUSTOM_SETUP=2
 export TMPDIR="$TMP" \
 DNM="META-INF/com/google/android/magisk" \
-cert="META-INF/zbin/version.txt" \
 addons="$TMP/zbin/addons" \
-l="$TMP/zbin/ugu"
+l="$TMP/zbin/ugu" \
+TMP BOOTMODE OUTFD ZIPFILE PERSISTDIR CUSTOM_SETUP ARCH installzip di_version
 
 #7z binaries (b64 encoded)
 cat << 'EOF' > "$TMP/7zarch.txt"
@@ -77569,4 +77496,4 @@ UEsBAhQAFAAIAAgAMjriWAAAAAACAAAAAAAAAAwAAAAAAAAAAAAQAAAA9aggAGFybWVhYmktdjdh
 L1BLAQIUABQACAAIALlsu1iiRNxJW5YiACRURgAOAAAAAAAAAAAAAAAAADGpIABhcm1lYWJpLXY3
 YS83elBLBQYAAAAABAAEAOgAAADIP0MAAAA=
 EOF
-setup "$@"
+setup

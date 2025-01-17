@@ -286,11 +286,11 @@ ui_print " [000] [Getting ready...]"
                 if [[ "$HyperOS2" -eq "true" ]]; then
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "$WORKLOAD/extracted/apks/aod/hyper2.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                    copy "$WORKLOAD/extracted/apks/aod/hyper2.apk" "$AODMODPATH/priv-app/MIUIAod/MIUIAod.apk"
                 elif [[ "$HyperOS1" -eq "true" ]]; then
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "$WORKLOAD/extracted/apks/aod/hyper.apk" "$AODMODPATH/MIUIAod/MIUIAod.apk"
+                    copy "$WORKLOAD/extracted/apks/aod/hyper.apk" "$AODMODPATH/priv-app/MIUIAod/MIUIAod.apk"
                 fi
                 # PLACE PROP
                     ui_print " "
