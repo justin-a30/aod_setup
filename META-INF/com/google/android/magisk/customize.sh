@@ -468,7 +468,7 @@ ui_print " [000] [Getting ready...]"
         echo '#!/system/bin/sh'                                       > $MODPATH/service.sh
         echo "MODDIR=\"\${0%/*}\""                                   >> $MODPATH/service.sh
         echo "BOOT=\$(getprop sys.boot_completed)"                   >> $MODPATH/service.sh
-        echo "sleep 60"                                              >> $MODPATH/service.sh
+        echo "sleep 90"                                              >> $MODPATH/service.sh
         echo "if [[ \"\$BOOT\" != \"1\" ]]; then"                    >> $MODPATH/service.sh
         echo "  rm -rf /data/system/package_cache"                   >> $MODPATH/service.sh
         echo "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh" >> $MODPATH/service.sh
