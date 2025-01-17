@@ -18,6 +18,9 @@ In case you wanna upload it to Telegram, check the file `TGBOT.ID` and `TGPOST.I
 
 ### Credits
 [LLions](t.me/lokallion) for initial ideas
+
 [BlassGO!](github.com/blassgo) for Dynamic Installer
+
 [Ianchb](github.com/ianchb) for MIUI AOD fixes
+
 [Rem01Gaming](github.com/Rem01Gaming) for uploadtg.sh
