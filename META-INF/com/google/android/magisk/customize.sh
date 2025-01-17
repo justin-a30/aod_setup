@@ -28,9 +28,9 @@
     ui_print " "
     WORKLOAD="/data/local/tmp/mxg/workhelper"
     mkdir -p $WORKLOAD/extracted
-    package_extract_file "apk.tar.xz" $WORKLOAD
-    package_extract_file "overlay.tar.xz" $WORKLOAD
-    tar xJf $WORKLOAD/apk.tar.xz -C $WORKLOAD/extracted
+    package_extract_file "apks.tar.xz" $WORKLOAD/apks.tar.xz
+    package_extract_file "overlay.tar.xz" $WORKLOAD/overlay.tar.xz
+    tar xJf $WORKLOAD/apks.tar.xz -C $WORKLOAD/extracted
     tar xJf $WORKLOAD/overlay.tar.xz -C $WORKLOAD/extracted
     if [ -d $WORKLOAD/extracted ]; then
         ui_print " [✓] Files extracted."
