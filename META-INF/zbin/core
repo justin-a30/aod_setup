@@ -1,4 +1,19 @@
 #!/sbin/sh
+
+#Bobert's Script
+
+update_feature() {
+    local feature_name="$1"
+    local feature_value="$2"
+    local file="$3"
+    
+    if contains "<bool name=\"$feature_name\">" "$file"; then
+        replace "<bool name=\"$feature_name\">false</bool>" "<bool name=\"$feature_name\">$feature_value</bool>" "$file"
+    else
+        add_lines_string -al '<features>' "    <bool name=\"$feature_name\">$feature_value</bool>" "$file"
+    fi
+}
+
 #Dynamic Installer by @BlassGO --- Also uses code from @osm0sis and @topjohnwu
 
 unmount() { { umount "$1" || umount -l "$1" ; } 2>/dev/null; }

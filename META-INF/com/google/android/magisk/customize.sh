@@ -113,10 +113,18 @@
         ui_print " Currently available options:"
         sleep 0.5
         ui_print " "
-        ui_print " [1] Glow (Flagship)"
-        ui_print " [2] Particle Animation"
-        ui_print " [3] Bottle Animation (flowing to battery packet)"
-        ui_print " [4] Skip"
+        if [[ "$HyperOS2" != "true" ]]; then
+            ui_print " [1] Glow (Flagship)"
+            ui_print " [2] Particle Animation"
+            ui_print " [3] Ripple Animation (from HyperOS2)"
+            ui_print " [4] Bottle Animation (flowing to battery packet)"
+            ui_print " [5] Skip"
+        else
+            ui_print " [1] Glow (Flagship)"
+            ui_print " [2] Particle Animation"
+            ui_print " [3] Bottle Animation (flowing to battery packet)"
+            ui_print " [4] Skip"
+        fi
         ui_print " "
         ui_print "--------------------"
         ui_print " "
@@ -131,12 +139,22 @@
             [[ "$cm" -gt "4" ]] && cm=1
         done
 
-        case "$cm" in
-            "1") option="Glow Animation" ;;
-            "2") option="Particle Animation" ;;
-            "3") option="Bottle Animation" ;;
-            "4") option="Skip charging animation mod" ;;
-        esac
+        if [[ "$HyperOS2" != "true" ]]; then
+            case "$cm" in
+                "1") option="Glow Animation" ;;
+                "2") option="Particle Animation" ;;
+                "3") option="Ripple Animation" ;;
+                "4") option="Bottle Animation" ;;
+                "5") option="Skip charging animation mod" ;;
+            esac
+        else
+            case "$cm" in
+                "1") option="Glow Animation" ;;
+                "2") option="Particle Animation" ;;
+                "3") option="Bottle Animation" ;;
+                "4") option="Skip charging animation mod" ;;
+            esac
+        fi
         # PRINT OUT SELECTED OPTION
             ui_print " [i] Selected: $option"
             ui_print ""
@@ -149,6 +167,10 @@
                       ui_print "--------------------"
                       ui_print " [i] Added Particle to queue."
                       ChargeMini=1
+            elif [[ "$option" == "Ripple Animation" ]]; then
+                      ui_print "--------------------"
+                      ui_print " [i] Added Ripple to queue."
+                      ChargeRipple=1
             elif [[ "$option" == "Bottle Animation" ]]; then
                       ui_print "--------------------"
                       ui_print " [i] Added Bottle to queue."
@@ -157,14 +179,40 @@
                       ui_print "--------------------"
                       ui_print " [i] Skipped."
             fi
+
+ # OVERLAY MOD
+            # PRINT OUT PROMPT
+                ui_print " "
+                ui_print "--------------------"
+                ui_print " Extra Overlays"
+                ui_print " "
+                ui_print " Do you want to add Extra Overlays?"
+                ui_print " "
+                ui_print " This will replace current fingerprint"
+                ui_print " animation with HyperOS2 style, along"
+                ui_print " with other minor changes."
+                ui_print " "
+                sleep 0.5
+                ui_print "--------------------"
+                ui_print " "
+                ui_print " [+] Yes!"
+                ui_print " [-] No"
+            # VOLUME KEY LOGIC
+                if $yes; then
+                    ui_print "--------------------"
+                    ui_print " [i] Added to queue."
+                    ExtOverlay=1
+                else
+                    ui_print "--------------------"
+                    ui_print " [i] Skipped."
+                fi
+
  # AOD MOD
-    # CHECK PACKAGE LOGIC (IMPLEMENT SOON)
-        # if pm list packages | grep -q "^package:$miaod$"; then
-        #    ui_print " [   i   ] Amoled user. Skipping AOD installation."
-        #    echo 0 /data/local/tmp/aod/aod.prop
-        #else
+    # CHECK PACKAGE LOGIC
         if [ "$MIUI" == "true" ]; then
-            ui_print " [!] Automatically skipping AOD"
+            ui_print " [!] Device is MIUI. Skipping AOD installation."
+        elif grep -q '<bool name="support_aod">true</bool>' "/product/etc/$DevName.xml" && ! grep -q '<bool name="is_mxg_installed">true</bool>' "/product/etc/$DevName.xml"; then
+            ui_print " [!] Device already supports AOD. Skipping AOD installation."
         else
             # PRINT OUT PROMPT
                 ui_print " "
@@ -213,9 +261,17 @@
                 elif [[ "$ChargeMini" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - Charging Animation - Particle"
+                elif [[ "$ChargeRipple" -eq 1 ]]; then
+                ui_print " "
+                ui_print " - Charging Animation - Ripple"
                 elif [[ "$ChargeBottle" -eq 1 ]]; then
                 ui_print " "
                 ui_print " - Charging Animation - Bottle"
+                fi
+            # AOD CHECK
+                if [[ "$ExtOverlay" -eq 1 ]]; then
+                ui_print " "
+                ui_print " - Extra overlay "
                 fi
             # AOD CHECK
                 if [[ "$AodOpt" -eq 1 ]]; then
@@ -238,11 +294,7 @@ ui_print " [000] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
-            if [[ "$Android" -le 12 ]]; then
-                AODMODPATH="$MODPATH/system/"
-            else
                 AODMODPATH="$MODPATH/system/product/"
-            fi
                 # CHECK HEPROP OPTIONS
                     if [[ $HE -eq 1 ]]; then
                         # PLACE HEPROP
@@ -271,6 +323,11 @@ ui_print " [000] [Getting ready...]"
                     ui_print " "
                     ui_print " [018] [Installing Particle Charging Animation]"
                     package_extract_file "overlay/MxGParticleAnimationOverlayHelper.apk" "$CHARGERMODPATH/Particle.apk"
+            elif [[ "$ChargeRipple" -eq 1 ]]; then
+                # PLACE CHARGE RIPPLE
+                    ui_print " "
+                    ui_print " [018] [Installing Ripple Charging Animation]"
+                    package_extract_file "overlay/MxGRippleAnimationOverlayHelper.apk" "$CHARGERMODPATH/Particle.apk"
             elif [[ "$ChargeBottle" -eq 1 ]]; then
                 # PLACE CHARGE BOTTLE
                     ui_print " "
@@ -278,6 +335,16 @@ ui_print " [000] [Getting ready...]"
                     package_extract_file "overlay/MxGBottleAnimationOverlayHelper.apk " "$CHARGERMODPATH/Bottle.apk"
             else
                 ui_print " [030] [Skipping Charging Animation]"
+            fi
+    # INSTALL EXT OVERLAY
+        # CHECK EXT OVERLAY OPTIONS
+            if [[ "$ExtOverlay" -eq 1 ]]; then
+                # PLACE EXT OVERLAY
+                    ui_print " "
+                    ui_print " [033] [Installing Extra Overlays...]"
+                    package_extract_file "overlay/MxGExtraOverlayHelper.apk" "$AODMODPATH/overlay/MxGExtraOverlayHelper/MxGExtraOverlayHelper.apk"
+            else
+                ui_print " [040] [Skipping Extra Overlays]"
             fi
     # # INSTALL AOD
         # CHECK AOD OPTIONS
@@ -295,108 +362,26 @@ ui_print " [000] [Getting ready...]"
                 # PLACE PROP
                     ui_print " "
                     ui_print " [040] [Adding AOD's properties...]"
-                    copy "/product/etc/device_features/$DevName.xml" "/data/local/tmp/aod/xaml/$DevName.xml"
+                    TMP_FEAT="/data/local/tmp/aod/xaml/$DevName.xml"
+                    copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
+                    
+                    # MODULE SIDE
+                    update_feature "is_mxg_installed" "true" "$TMP_FEAT"
+
                     # DEVICE STUFF
-                        if contains '    <bool name="is_xiaomi">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="is_xiaomi">false</bool>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="is_xiaomi">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="is_hongmi">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="is_hongmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="is_hongmi">true</bool>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="is_hongmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="is_redmi">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="is_redmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="is_redmi">true</bool>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="is_redmi">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
+                    update_feature "is_xiaomi" "true" "$TMP_FEAT"
+                    update_feature "is_hongmi" "false" "$TMP_FEAT"
+                    update_feature "is_redmi" "false" "$TMP_FEAT"
+
                     # AOD STUFF
-                        if contains '    <bool name="support_gesture_wakeup">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="support_gesture_wakeup">false</bool>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="support_gesture_wakeup">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="support_aod">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="support_aod">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="support_aod">false</bool>' '    <bool name="support_aod">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="support_aod">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="aod_support_keycode_goto_dismiss">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="aod_support_keycode_goto_dismiss">false</bool>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="aod_support_keycode_goto_dismiss">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="is_only_support_keycode_goto">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="is_only_support_keycode_goto">true</bool>' '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="is_only_support_keycode_goto">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="is_aod_need_grayscale">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="is_aod_need_grayscale">true</bool>' '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="is_aod_need_grayscale">false</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="support_screen_paper_mode">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="support_screen_paper_mode">false</bool>' '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="support_screen_paper_mode">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    #
-                        if contains '    <bool name="support_aod_aon">' /data/local/tmp/aod/xaml/$DevName.xml; then
-                            if contains '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml; then
-                                echo "bomb" > /dev/null
-                            else
-                                replace '    <bool name="support_aod_aon">false</bool>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                            fi
-                        else
-                            add_lines_string -al '<features>' '    <bool name="support_aod_aon">true</bool>' /data/local/tmp/aod/xaml/$DevName.xml
-                        fi
-                    copy "/data/local/tmp/aod/xaml/$DevName.xml" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                    update_feature "support_gesture_wakeup" "true" "$TMP_FEAT"
+                    update_feature "support_aod" "true" "$TMP_FEAT"
+                    update_feature "aod_support_keycode_goto_dismiss" "true" "$TMP_FEAT"
+                    update_feature "is_only_support_keycode_goto" "false" "$TMP_FEAT"
+                    update_feature "is_aod_need_grayscale" "false" "$TMP_FEAT"
+                    update_feature "support_screen_paper_mode" "true" "$TMP_FEAT"
+                    update_feature "support_aod_aon" "true" "$TMP_FEAT"
+                    copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # GET OVERLAY
                     ui_print " "
                     ui_print " [069] [Installing overlays to system...]"
@@ -405,53 +390,7 @@ ui_print " [000] [Getting ready...]"
                 # PLACE PERMISSION PROP
                     ui_print " "
                     ui_print " [078] [Getting permission file]"
-                    # CHECK WHENEVER IF ANDROID IS SMALLER OR EQUAL 12
-                    if [[ "$Android" -le 12 ]]; then
-                        PERMDEST="/system/etc/permissions/privapp-permissions-miui.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
-                        # FINALPERMDEST="$MODPATH/system/etc/permissions/privapp-permissions-aod.xml"
-                    else
-                        PERMDEST="/product/etc/permissions/privapp-permissions-product.xml"
-                        FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
-                        # FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml"
-                    fi
-                    # COPY 
-                    # copy "$PERMDEST" /data/local/tmp/aod/permxaml.xml
-                    # DOING THE WORK
-#                         if contains '   <privapp-permissions package="com.miui.aod">' /data/local/tmp/aod/permxaml.xml; then
-#                             xml_kit -open '<permissions>' '</permissions>' -open '<privapp-permissions package="com.miui.aod">' '</privapp-permissions>' /data/local/tmp/aod/permxaml.xml > /data/local/tmp/aod/temp.xml
-#                             if contains '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/temp.xml; then
-#                                 echo "bomb" > /dev/null
-#                             else
-#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.BIND_WALLPAPER" />' /data/local/tmp/aod/permxaml.xml
-#                             fi
-#                         #
-#                             if contains '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/temp.xml; then
-#                                 echo "bomb" > /dev/null
-#                             else
-#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.INTERACT_ACROSS_USERS" />' /data/local/tmp/aod/permxaml.xml
-#                             fi
-#                         #
-#                             if contains '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/temp.xml; then
-#                                 echo "bomb" > /dev/null
-#                             else
-#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.READ_DREAM_STATE" />' /data/local/tmp/aod/permxaml.xml
-#                             fi
-#                         #
-#                             if contains '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/temp.xml; then
-#                                 echo "bomb" > /dev/null
-#                             else
-#                                 add_lines_string -al '   <privapp-permissions package="com.miui.aod">' '   <permission name="android.permission.SCHEDULE_EXACT_ALARM" />' /data/local/tmp/aod/permxaml.xml
-#                             fi
-#                         # NO PERMISSIONS?
-#                         else
-#                             add_lines_string -bl "</permissions>" "   <privapp-permissions package="com.miui.aod">
-#                           <permission name="android.permission.BIND_WALLPAPER" />
-#                           <permission name="android.permission.INTERACT_ACROSS_USERS" />
-#                           <permission name="android.permission.READ_DREAM_STATE" />
-#                           <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
-#                        </privapp-permissions>" /data/local/tmp/aod/permxaml.xml
-#                         fi
+                    FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                     copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
             else
                 ui_print " [089] [Skipping AOD]"
@@ -486,6 +425,6 @@ if [[ "$ChargeMini" -eq 1 ]]; then
     ui_print "     Since you selected Particle Charge animation"
     ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
     ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
-    ui_print " \n \n "
+    ui_print ""
 fi
 rm -r /data/local/tmp/aod
