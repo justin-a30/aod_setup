@@ -15,7 +15,15 @@
         DevName=$(getprop ro.product.odm.device)
         OS=$(getprop ro.build.version.incremental)
         MAJOR_VERSION=$(echo "$OS" | grep -o '^[0-9]\+')
+        MODULE_EXISTENCE="/data/adb/modules/moddedxgoodies"
 
+# ExtraCheck(TM)
+    if [ -d "$MODULE_EXISTENCE" ]; then
+        ui_print " [!] ModdedXGoodies is already installed."
+        ui_print "     Please uninstall the module first."
+        ui_print "     If you want to update, please uninstall, reboot,"
+           abort "     and install the latest version."
+    fi
 # PRINT NOTES
     ui_print " --## NOTES ##--"
     ui_print " Installation TUI has been improved."

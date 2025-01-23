@@ -1,6 +1,10 @@
 #!/sbin/sh
 
-#Bobert's Script
+#Bobert's Func
+
+file_getprop() { 
+   grep "^$2=" "$1" | cut -d= -f2- 
+   }
 
 update_feature() {
     local feature_name="$1"
@@ -5943,7 +5947,6 @@ delete="rm -f " \
 delete_recursive="rm -rf " \
 apk_pkg=apk_package \
 mount_all=auto_mount_partitions \
-file_getprop=get_file_prop \
 read_file=cat \
 greater_than_int=is_greater \
 less_than_int=is_less \
