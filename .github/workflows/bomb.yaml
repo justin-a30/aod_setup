@@ -38,7 +38,7 @@ jobs:
         run: |
           rm -rf MxGOverlayHelper
           mkdir module
-          cp -r apks META-INF customize.sh LICENSE module.prop notify.sh README.md module/
+          rsync -av . module --exclude=module --exclude=.git --exclude=.github --exclude=.idea
           cp install.sh module/META-INF/com/google/android/magisk/customize.sh
           cp module.prop module/META-INF/com/google/android/magisk/module.prop
           rm -rf module/apks module/overlay
