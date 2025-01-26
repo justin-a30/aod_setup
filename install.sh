@@ -14,6 +14,7 @@
         Android=$(getprop ro.build.version.release)
         DevName=$(getprop ro.product.odm.device)
         OS=$(getprop ro.build.version.incremental)
+        TMP_FEAT="/data/local/tmp/aod/xaml/$DevName.xml"
         MAJOR_VERSION=$(echo "$OS" | grep -o '^[0-9]\+')
         MODULE_EXISTENCE="/data/adb/modules/moddedxgoodies"
 
@@ -313,15 +314,14 @@ ui_print " [000] [Getting ready...]"
                             settings put system deviceLevelList "v:3,c:3,g:3"
                             touch $MODPATH/post-fs-data.sh
                             add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:3,c:3,g:3"' $MODPATH/post-fs-data.sh
-                            # CHECK AOD
-                            if [[ "$AodOpt" != 1 ]]; then
-                                TMP_FEAT="/data/local/tmp/aod/xaml/$DevName.xml"
-                                copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
-                                # DEVICE STUFF
-                                update_feature "is_xiaomi" "true" "$TMP_FEAT"
-                                update_feature "is_hongmi" "false" "$TMP_FEAT"
-                                update_feature "is_redmi" "false" "$TMP_FEAT"
-                                copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                            # CHECK PATH
+                            copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
+                            DEVFEAT=1
+                            # DEVICE STUFF
+                            update_feature "is_xiaomi" "true" "$TMP_FEAT"
+                            update_feature "is_hongmi" "false" "$TMP_FEAT"
+                            update_feature "is_redmi" "false" "$TMP_FEAT"
+                            copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                             fi
                     else
                         ui_print " "
@@ -379,13 +379,14 @@ ui_print " [000] [Getting ready...]"
                 # PLACE PROP
                     ui_print " "
                     ui_print " [040] [Adding AOD's properties...]"
-                    TMP_FEAT="/data/local/tmp/aod/xaml/$DevName.xml"
-                    copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
                     
+                    if [ ! -f "$TMP_FEAT" ]; then
+                        copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
+                    fi
                     # MODULE SIDE
                     update_feature "is_mxg_installed" "true" "$TMP_FEAT"
 
-                    if [[ "$HE" != 1 ]]; then
+                    if [[ "$DEVFEAT" != 1 ]]; then
                         # DEVICE STUFF
                         update_feature "is_xiaomi" "true" "$TMP_FEAT"
                         update_feature "is_hongmi" "false" "$TMP_FEAT"
