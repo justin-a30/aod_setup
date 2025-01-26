@@ -26,7 +26,7 @@ rm -rf MxGOverlayHelper
 # GETTING READY
 mkdir module
 cp -r apks META-INF customize.sh LICENSE module.prop notify.sh README.md module/
-cp module.prop module/META-INF/com/google/android/magisk/module.prop
+cp module.prop apks.tar.xz overlay.tar.xz module/META-INF/com/google/android/magisk/module.prop
 cp install.sh module/META-INF/com/google/android/magisk/customize.sh
 rm -rf module/apks module/overlay
 
