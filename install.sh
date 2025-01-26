@@ -150,10 +150,9 @@
         if [[ "$HyperOS2" != "true" ]]; then
             case "$cm" in
                 "1") option="Glow Animation" ;;
-                "2") option="Particle Animation" ;;
-                "3") option="Ripple Animation" ;;
-                "4") option="Bottle Animation" ;;
-                "5") option="Skip charging animation mod" ;;
+                "2") option="Ripple Animation" ;;
+                "3") option="Bottle Animation" ;;
+                "4") option="Skip charging animation mod" ;;
             esac
         else
             case "$cm" in
@@ -314,6 +313,16 @@ ui_print " [000] [Getting ready...]"
                             settings put system deviceLevelList "v:3,c:3,g:3"
                             touch $MODPATH/post-fs-data.sh
                             add_lines_string 'MODDIR=${0%/*}' 'settings put system deviceLevelList "v:3,c:3,g:3"' $MODPATH/post-fs-data.sh
+                            # CHECK AOD
+                            if [[ "$AodOpt" != 1 ]]; then
+                                TMP_FEAT="/data/local/tmp/aod/xaml/$DevName.xml"
+                                copy "/product/etc/device_features/$DevName.xml" "$TMP_FEAT"
+                                # DEVICE STUFF
+                                update_feature "is_xiaomi" "true" "$TMP_FEAT"
+                                update_feature "is_hongmi" "false" "$TMP_FEAT"
+                                update_feature "is_redmi" "false" "$TMP_FEAT"
+                                copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                            fi
                     else
                         ui_print " "
                         ui_print " [005] [Skipping HighEnd props]"
@@ -376,10 +385,12 @@ ui_print " [000] [Getting ready...]"
                     # MODULE SIDE
                     update_feature "is_mxg_installed" "true" "$TMP_FEAT"
 
-                    # DEVICE STUFF
-                    update_feature "is_xiaomi" "true" "$TMP_FEAT"
-                    update_feature "is_hongmi" "false" "$TMP_FEAT"
-                    update_feature "is_redmi" "false" "$TMP_FEAT"
+                    if [[ "$HE" != 1 ]]; then
+                        # DEVICE STUFF
+                        update_feature "is_xiaomi" "true" "$TMP_FEAT"
+                        update_feature "is_hongmi" "false" "$TMP_FEAT"
+                        update_feature "is_redmi" "false" "$TMP_FEAT"
+                    fi
 
                     # AOD STUFF
                     update_feature "support_gesture_wakeup" "true" "$TMP_FEAT"
@@ -428,11 +439,4 @@ ui_print " [000] [Getting ready...]"
 
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
-if [[ "$ChargeMini" -eq 1 ]]; then
-    ui_print " [!] BEFORE REBOOT!!!"
-    ui_print "     Since you selected Particle Charge animation"
-    ui_print "     You may need to use 'Voyager' LSPosed module to enable animation"
-    ui_print "     (find Particle Charging Animation somewhere in SystemUI)"
-    ui_print ""
-fi
 rm -r /data/local/tmp/aod
