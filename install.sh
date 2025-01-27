@@ -322,7 +322,6 @@ ui_print " [000] [Getting ready...]"
                             update_feature "is_hongmi" "false" "$TMP_FEAT"
                             update_feature "is_redmi" "false" "$TMP_FEAT"
                             copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
-                            fi
                     else
                         ui_print " "
                         ui_print " [005] [Skipping HighEnd props]"
