@@ -424,17 +424,16 @@ ui_print " [000] [Getting ready...]"
 	# Adding extras for protection (bootloop, that is it lmao.)
         ui_print " [095] Adding final touches"
 		touch $MODPATH/service.sh
-        echo '#!/system/bin/sh'                                       > $MODPATH/service.sh
-        echo "MODDIR=\"\${0%/*}\""                                   >> $MODPATH/service.sh
-        echo "BOOT=\$(getprop sys.boot_completed)"                   >> $MODPATH/service.sh
-        echo "sleep 90"                                              >> $MODPATH/service.sh
-        echo "if [[ \"\$BOOT\" != \"1\" ]]; then"                    >> $MODPATH/service.sh
-        echo "  rm -rf /data/system/package_cache"                   >> $MODPATH/service.sh
-        echo "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh" >> $MODPATH/service.sh
-        echo "  chmod +x /data/adb/service.d/notify.sh"              >> $MODPATH/service.sh
-        echo "  touch \$MODDIR/disable"                              >> $MODPATH/service.sh
-        echo "  reboot"                                              >> $MODPATH/service.sh
-        echo "fi"                                                    >> $MODPATH/service.sh
+        echo '#!/system/bin/sh'                                              > $MODPATH/service.sh
+        echo "MODDIR=\"\${0%/*}\""                                          >> $MODPATH/service.sh
+        echo "sleep 120"                                                    >> $MODPATH/service.sh
+        echo "if [[ \"\$(getprop sys.boot_completed)\" != \"1\" ]]; then"   >> $MODPATH/service.sh
+        echo "  rm -rf /data/system/package_cache"                          >> $MODPATH/service.sh
+        echo "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh"        >> $MODPATH/service.sh
+        echo "  chmod +x /data/adb/service.d/notify.sh"                     >> $MODPATH/service.sh
+        echo "  touch \$MODDIR/disable"                                     >> $MODPATH/service.sh
+        echo "  reboot"                                                     >> $MODPATH/service.sh
+        echo "fi"                                                           >> $MODPATH/service.sh
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
 
