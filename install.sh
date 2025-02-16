@@ -302,7 +302,7 @@ ui_print " [000] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
-                AODMODPATH="$MODPATH/system/product/"
+                AODMODPATH="$MODPATH/system/product/priv-app/MIUIAod/MIUIAod.apk"
                 # CHECK HEPROP OPTIONS
                     if [[ $HE -eq 1 ]]; then
                         # PLACE HEPROP
@@ -367,13 +367,15 @@ ui_print " [000] [Getting ready...]"
             if [[ "$AodOpt" -eq 1 ]]; then
                 # PLACE AOD
                 if [[ "$HyperOS2" -eq "true" ]]; then
+                    HAOD="$WORKLOAD/extracted/apks/aod/hyper2.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "$WORKLOAD/extracted/apks/aod/hyper2.apk" "$AODMODPATH/priv-app/MIUIAod/MIUIAod.apk"
+                    copy $HAOD "$AODMODPATH"
                 elif [[ "$HyperOS1" -eq "true" ]]; then
+                    HAOD="$WORKLOAD/extracted/apks/aod/hyper.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy "$WORKLOAD/extracted/apks/aod/hyper.apk" "$AODMODPATH/priv-app/MIUIAod/MIUIAod.apk"
+                    copy $HAOD "$AODMODPATH"
                 fi
                 # PLACE PROP
                     ui_print " "
@@ -411,6 +413,10 @@ ui_print " [000] [Getting ready...]"
                     ui_print " [078] [Getting permission file]"
                     FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                     copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
+                # INSTALL AOD
+                    ui_print " "
+                    ui_print " [080] [Installing AOD...]"
+                    pm install "$HAOD"
             else
                 ui_print " [089] [Skipping AOD]"
             fi
