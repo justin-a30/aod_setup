@@ -1,7 +1,4 @@
 #!/system/bin/sh
-# Import old necessary binary
-  import_bin "$addons/aria2c"
-
 # AOD PROJECT
 # MADE BY LOVE, LLIONS.
 # CodeBase: Bobert
