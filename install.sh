@@ -443,10 +443,24 @@ ui_print " [000] [Getting ready...]"
                  'if [[ "$(dumpsys package com.miui.aod | grep versionName | awk "{print \$1}" | cut -d"=" -f2)" != "DEV-2212.0.0.1-10301608" ]]; then' \
                  "  pm install -r /path/to/your/module.apk"                                                                                             \
                  "fi"                                                                                                                                   \
+                 "job_brightness="persist.vendor.disable_idle_fps.threshold""                                                                           \
+                 "min_refresh_rate="ro.vendor.display.primary_idle_refresh_rate""                                                                       \
+                 "aod_refresh_rate="ro.vendor.mi_sf.aod_mode_ddic_refresh_rate""                                                                        \
+                 "if [ -n "$(getprop "$job_brightness")" ]; then"                                                                                       \
+                     "resetprop -n "$job_brightness" 10"                                                                                                \
+                 "fi"                                                                                                                                   \
+                 "if [ -n "$(getprop "$min_refresh_rate")" ]; then"                                                                                     \
+                     "resetprop -n "$min_refresh_rate" 60,1:10"                                                                                         \
+                 "fi"                                                                                                                                   \
+                 "if [ -n "$(getprop "$aod_refresh_rate")" ]; then"                                                                                     \
+                     "resetprop -n "$aod_refresh_rate" 1"                                                                                               \
+                 "fi"                                                                                                                                   \
                  > $MODPATH/service.sh
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
 
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
+ui_print " "
+ui_print " "
 rm -r /data/local/tmp/aod
