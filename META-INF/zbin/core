@@ -6,11 +6,25 @@ file_getprop() {
    grep "^$2=" "$1" | cut -d= -f2- 
    }
 
+update_int() {
+    local feature_name="$1"
+    local feature_value="$2"
+    local file="$3"
+
+    # Updated regex: [0-9]+(\.[0-9]+)? matches integers and decimals
+    if contains "<integer name=\"$feature_name\">" "$file"; then
+        replace "<integer name=\"$feature_name\">[0-9]+(\.[0-9]+)?</integer>" "<integer name=\"$feature_name\">$feature_value</integer>" "$file"
+    else
+        add_lines_string -al '<features>' "    <integer name=\"$feature_name\">$feature_value</integer>" "$file"
+    fi
+}
+
+
 update_feature() {
     local feature_name="$1"
     local feature_value="$2"
     local file="$3"
-    
+
     if contains "<bool name=\"$feature_name\">" "$file"; then
         replace "<bool name=\"$feature_name\">false</bool>" "<bool name=\"$feature_name\">$feature_value</bool>" "$file"
     else

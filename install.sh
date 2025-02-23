@@ -399,6 +399,8 @@ ui_print " [000] [Getting ready...]"
                     update_feature "is_aod_need_grayscale" "false" "$TMP_FEAT"
                     update_feature "support_screen_paper_mode" "true" "$TMP_FEAT"
                     update_feature "support_aod_aon" "true" "$TMP_FEAT"
+                    update_feature "support_aod_fullscreen" "true" "$TMP_FEAT"
+                        update_int "aon_screen_off_fps" "0" "$TMP_FEAT"
                     copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                 # GET OVERLAY
                     ui_print " "
