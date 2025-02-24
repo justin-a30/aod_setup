@@ -430,8 +430,7 @@ ui_print " [000] [Getting ready...]"
 		touch $MODPATH/service.sh
         ui_print '#!/system/bin/sh'                                                                                                                     \
                  "MODDIR=\"\${0%/*}\""                                                                                                                  \
-                 "APKPATH=$AODMODPATH"                                                                                                                  \
-                 "sleep 320"                                                                                                                            \
+                 "sleep 400"                                                                                                                            \
                  "if [[ \"\$(getprop sys.boot_completed)\" != \"1\" ]]; then"                                                                           \
                  "  rm -rf /data/system/package_cache"                                                                                                  \
                  "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh"                                                                                \
@@ -440,21 +439,12 @@ ui_print " [000] [Getting ready...]"
                  "  reboot"                                                                                                                             \
                  "fi"                                                                                                                                   \
                  " "                                                                                                                                    \
-                 'if [[ "$(dumpsys package com.miui.aod | grep versionName | awk "{print \$1}" | cut -d"=" -f2)" != "DEV-2212.0.0.1-10301608" ]]; then' \
-                 "  pm install -r /path/to/your/module.apk"                                                                                             \
+                 'if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then'                                                            \
+                 "  pm install -r \$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"                                                                 \
                  "fi"                                                                                                                                   \
-                 "job_brightness="persist.vendor.disable_idle_fps.threshold""                                                                           \
-                 "min_refresh_rate="ro.vendor.display.primary_idle_refresh_rate""                                                                       \
-                 "aod_refresh_rate="ro.vendor.mi_sf.aod_mode_ddic_refresh_rate""                                                                        \
-                 "if [ -n "$(getprop "$job_brightness")" ]; then"                                                                                       \
-                     "resetprop -n "$job_brightness" 10"                                                                                                \
-                 "fi"                                                                                                                                   \
-                 "if [ -n "$(getprop "$min_refresh_rate")" ]; then"                                                                                     \
-                     "resetprop -n "$min_refresh_rate" 60,1:10"                                                                                         \
-                 "fi"                                                                                                                                   \
-                 "if [ -n "$(getprop "$aod_refresh_rate")" ]; then"                                                                                     \
-                     "resetprop -n "$aod_refresh_rate" 1"                                                                                               \
-                 "fi"                                                                                                                                   \
+                 'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10'                                                                          \
+                 'resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10'                                                                   \
+                 'resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1'                                                                          \
                  > $MODPATH/service.sh
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
