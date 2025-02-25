@@ -399,9 +399,13 @@ ui_print " [000] [Getting ready...]"
                     update_feature "is_aod_need_grayscale" "false" "$TMP_FEAT"
                     update_feature "support_screen_paper_mode" "true" "$TMP_FEAT"
                     update_feature "support_aod_aon" "true" "$TMP_FEAT"
-                    update_feature "support_aod_fullscreen" "true" "$TMP_FEAT"
-                        update_int "aon_screen_off_fps" "0" "$TMP_FEAT"
+                    if [[ "$HyperOS2" == "true" ]]; then
+                        update_feature "support_aod_fullscreen" "true" "$TMP_FEAT"
+                            update_int "aon_screen_off_fps" "0" "$TMP_FEAT"
+                    fi
                     copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                # ON BOOT SERVICE
+                    add_lines_string 'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10' 'resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10' 'resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1' $MODPATH/post-fs-data.sh
                 # GET OVERLAY
                     ui_print " "
                     ui_print " [069] [Installing overlays to system...]"
@@ -415,7 +419,7 @@ ui_print " [000] [Getting ready...]"
                 # INSTALL AOD
                     ui_print " "
                     ui_print " [080] [Installing AOD...]"
-                    pm install "$HAOD"
+                    pm install -r "$HAOD"
             else
                 ui_print " [089] [Skipping AOD]"
             fi
@@ -442,17 +446,17 @@ ui_print " [000] [Getting ready...]"
                  "  touch \$MODDIR/disable"                                                                                                             \
                  "  reboot"                                                                                                                             \
                  "fi"                                                                                                                                   \
-                 " "                                                                                                                                    \
-                 'if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then'                                                            \
-                 '  echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log'                                                                                  \
-                 "else"                                                                                                                                 \
-                 '  echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log'                                         \
-                 "  pm install -r \$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"                                                                 \
-                 "fi"                                                                                                                                   \
-                 'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10'                                                                          \
-                 'resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10'                                                                   \
-                 'resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1'                                                                          \
                  > $MODPATH/service.sh
+                 if [[ "$HyperOS2" == "true" ]]; then
+                     'if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then'                                                            \
+                     '  echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log'                                                               \
+                     "else"                                                                                                                                 \
+                     '  echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log'                                         \
+                     "  pm install -r \$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"                                                                 \
+                     "fi"                                                                                                                                   \
+                     'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10' 'resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10' 'resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1'
+                     >> $MODPATH/service.sh
+                 fi
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
             echo "[\$(date)]: MxG successfully installed." >> /sdcard/mxg.log
