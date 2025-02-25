@@ -430,8 +430,12 @@ ui_print " [000] [Getting ready...]"
 		touch $MODPATH/service.sh
         ui_print '#!/system/bin/sh'                                                                                                                     \
                  "MODDIR=\"\${0%/*}\""                                                                                                                  \
+                 "echo ' ' >> /sdcard/mxg.log"                                                                                                          \
+                 "echo '########## LATE START SERVICE BEGIN ##########' >> /sdcard/mxg.log"                                                             \
+                 "echo ' '  >> /sdcard/mxg.log"                                                                                                         \
                  "sleep 400"                                                                                                                            \
                  "if [[ \"\$(getprop sys.boot_completed)\" != \"1\" ]]; then"                                                                           \
+                 "  echo '[\$(date)]: F! Bootlooped! Disabling myself...' >> /sdcard/mxg.log"                                                           \
                  "  rm -rf /data/system/package_cache"                                                                                                  \
                  "  cp \$MODDIR/notify.sh /data/adb/service.d/notify.sh"                                                                                \
                  "  chmod +x /data/adb/service.d/notify.sh"                                                                                             \
@@ -440,6 +444,9 @@ ui_print " [000] [Getting ready...]"
                  "fi"                                                                                                                                   \
                  " "                                                                                                                                    \
                  'if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then'                                                            \
+                 '  echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log'                                                                                  \
+                 "else"                                                                                                                                 \
+                 '  echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log'                                         \
                  "  pm install -r \$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"                                                                 \
                  "fi"                                                                                                                                   \
                  'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10'                                                                          \
@@ -448,6 +455,7 @@ ui_print " [000] [Getting ready...]"
                  > $MODPATH/service.sh
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
+            echo "[\$(date)]: MxG successfully installed." >> /sdcard/mxg.log
 
 ui_print " "
 ui_print " [✓] DONE! You may now reboot your device."
