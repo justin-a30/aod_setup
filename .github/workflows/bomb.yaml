@@ -2,14 +2,17 @@ name: bomb
 on:
   push:
     branches: [ "hyper2" ]
+
   pull_request:
     branches: [ "hyper2" ]
-  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
