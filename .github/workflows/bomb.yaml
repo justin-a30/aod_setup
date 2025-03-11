@@ -12,6 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+
+      run : |
+          ./gradlew assembleRelease
+          mkdir -p overlay
+          cp sysui/build/outputs/apk/release/sysui-release-unsigned.apk overlay/MxGSystemUIOverlayHelper.apk
+          cp framework/build/outputs/apk/release/framework-release-unsigned.apk overlay/MxGFrameworkOverlayHelper.apk
+          cp chargebottle/build/outputs/apk/release/chargebottle-release-unsigned.apk overlay/MxGBottleAnimationOverlayHelper.apk
+          cp chargeglow/build/outputs/apk/release/chargeglow-release-unsigned.apk overlay/MxGGlowAnimationOverlayHelper.apk
+          cp chargeripple/build/outputs/apk/release/chargeripple-release-unsigned.apk overlay/MxGRippleAnimationOverlayHelper.apk
+          cp extraoverlay/build/outputs/apk/release/extraoverlay-release-unsigned.apk overlay/MxGExtraOverlayHelper.apk
+
       - name: Get basic variables
         run: |
           file_getprop() { grep "^$2=" "$1" | cut -d= -f2-; }
@@ -24,11 +39,6 @@ jobs:
           DATE: ${{ env.DATE }}
         run: echo "Version $version, DATE $DATE"
 
-      - name: Get overlay helper
-        run: |
-          git clone https://github.com/justin-a30/MxGOverlayHelper.git
-          cp -r MxGOverlayHelper/apk_out overlay
-
       - name: Tar time
         run: |
           XZ_OPT=-9 tar cJf overlay.tar.xz overlay
@@ -36,12 +46,10 @@ jobs:
 
       - name: Tidy up
         run: |
-          rm -rf MxGOverlayHelper
           mkdir module
-          rsync -av . module --exclude=module --exclude=.git --exclude=.github --exclude=.idea
+          rsync -av . module --exclude=module --exclude=.git --exclude=.github --exclude=chargeripple --exclude=chargebottle --exclude=chargeglow --exclude=extraoverlay --exclude=framework --exclude=sysui --exclude=gradle --exclude=build.gradle --exclude=build.sh --exclude=gradle.properties --exclude=gradlew --exclude=gradlew.bat --exclude=settings.gradle --exclude=overlay --exclude=apks --exclude=install.sh
           cp install.sh module/META-INF/com/google/android/magisk/customize.sh
           cp module.prop module/META-INF/com/google/android/magisk/module.prop
-          rm -rf module/apks module/overlay
 
       - name: Zip time
         env:
