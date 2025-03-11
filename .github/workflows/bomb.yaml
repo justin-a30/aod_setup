@@ -16,7 +16,6 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-
       run : |
           ./gradlew assembleRelease
           mkdir -p overlay
