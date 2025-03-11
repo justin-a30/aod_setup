@@ -22,5 +22,4 @@
     <bool name="doze_suspend_display_state_supported">true</bool>
     <bool name="keyguard_charge_support_shader">true</bool>
     <bool name="shade_header_gradient_blur">true</bool>
-    <bool name="flag_charging_ripple">true</bool>
 </resources>
