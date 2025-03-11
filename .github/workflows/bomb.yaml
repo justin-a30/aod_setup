@@ -11,21 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Build with Gradle
-      run : |
-          ./gradlew assembleRelease
-          mkdir -p overlay
-          cp sysui/build/outputs/apk/release/sysui-release-unsigned.apk overlay/MxGSystemUIOverlayHelper.apk
-          cp framework/build/outputs/apk/release/framework-release-unsigned.apk overlay/MxGFrameworkOverlayHelper.apk
-          cp chargebottle/build/outputs/apk/release/chargebottle-release-unsigned.apk overlay/MxGBottleAnimationOverlayHelper.apk
-          cp chargeglow/build/outputs/apk/release/chargeglow-release-unsigned.apk overlay/MxGGlowAnimationOverlayHelper.apk
-          cp chargeripple/build/outputs/apk/release/chargeripple-release-unsigned.apk overlay/MxGRippleAnimationOverlayHelper.apk
-          cp extraoverlay/build/outputs/apk/release/extraoverlay-release-unsigned.apk overlay/MxGExtraOverlayHelper.apk
+      - name: Build with Gradle
+        run : |
+            ./gradlew assembleRelease
+            mkdir -p overlay
+            cp sysui/build/outputs/apk/release/sysui-release-unsigned.apk overlay/MxGSystemUIOverlayHelper.apk
+            cp framework/build/outputs/apk/release/framework-release-unsigned.apk overlay/MxGFrameworkOverlayHelper.apk
+            cp chargebottle/build/outputs/apk/release/chargebottle-release-unsigned.apk overlay/MxGBottleAnimationOverlayHelper.apk
+            cp chargeglow/build/outputs/apk/release/chargeglow-release-unsigned.apk overlay/MxGGlowAnimationOverlayHelper.apk
+            cp chargeripple/build/outputs/apk/release/chargeripple-release-unsigned.apk overlay/MxGRippleAnimationOverlayHelper.apk
+            cp extraoverlay/build/outputs/apk/release/extraoverlay-release-unsigned.apk overlay/MxGExtraOverlayHelper.apk
 
       - name: Get basic variables
         run: |
