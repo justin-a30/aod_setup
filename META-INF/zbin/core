@@ -13,12 +13,35 @@ update_int() {
 
     # Updated regex: [0-9]+(\.[0-9]+)? matches integers and decimals
     if contains "<integer name=\"$feature_name\">" "$file"; then
-        replace "<integer name=\"$feature_name\">[0-9]+(\.[0-9]+)?</integer>" "<integer name=\"$feature_name\">$feature_value</integer>" "$file"
+        sed -Ei "s/<integer name=\"$feature_name\">[0-9]+<\/integer>/<integer name=\"$feature_name\">$feature_value<\/integer>/g" "$file"
     else
         add_lines_string -al '<features>' "    <integer name=\"$feature_name\">$feature_value</integer>" "$file"
     fi
 }
 
+update_float() {
+    local feature_name="$1"
+    local feature_value="$2"
+    local file="$3"
+
+    if contains "<float name=\"$feature_name\">" "$file"; then
+        sed -Ei "s/<float name=\"$feature_name\">[0-9]+\.[0-9]+<\/float>/<float name=\"$feature_name\">$feature_value<\/float>/g" "$file"
+    else
+        add_lines_string -al '<features>' "    <float name=\"$feature_name\">$feature_value</float>" "$file"
+    fi
+}
+
+update_str() {
+    local feature_name="$1"
+    local feature_value="$2"
+    local file="$3"
+
+    if contains "<string name=\"$feature_name\">" "$file"; then
+        sed -Ei "s|<string name=\"$feature_name\">[^<]*</string>|<string name=\"$feature_name\">$feature_value</string>|g" "$file"
+    else
+        add_lines_string -al '<features>' "    <string name=\"$feature_name\">$feature_value</string>" "$file"
+    fi
+}
 
 update_feature() {
     local feature_name="$1"
