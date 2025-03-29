@@ -20,21 +20,6 @@
     ui_print " Keynote: If you see [+], this means Volume Up"
     ui_print "          If you see [-], this means Volume Down"
     ui_print " "
-# FILE PREPARATION
-    ui_print " --## FILE PREPARATION ##--"
-    ui_print " Extracting required files..."
-    ui_print " "
-    WORKLOAD="/data/local/tmp/mxg/workhelper"
-    mkdir -p $WORKLOAD/extracted
-    package_extract_file "apks.tar.xz" $WORKLOAD/apks.tar.xz
-    package_extract_file "overlay.tar.xz" $WORKLOAD/overlay.tar.xz
-    tar xJf $WORKLOAD/apks.tar.xz -C $WORKLOAD/extracted
-    tar xJf $WORKLOAD/overlay.tar.xz -C $WORKLOAD/extracted
-    if [ -d $WORKLOAD/extracted ]; then
-        ui_print " [✓] Files extracted."
-    else
-        end " [!] Error: Files not extracted."
-    fi
 # PRINT INFO
     ui_print " [i] Device info"
     ui_print " - Android version: "$Android""
@@ -58,6 +43,7 @@
     else
 
         # CONFIRM USER PERMISSION BEFORE INSTALLING MODS
+            ui_print " "
             ui_print " [#] Note"
             ui_print " Once the installation begins,"
             ui_print " this can't be stopped. Continue?"
@@ -512,8 +498,7 @@ ui_print " [000] [Getting ready...]"
                             update_str "game_enhance_feature_name" "game_enhance_fisr" "$TMP_FEAT"
                             copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
                             # Install MiLink Full (Global)
-                            ML="$WORKLOAD/extracted/apks/MLOS2.apk"
-                            copy $ML "$MODPATH/system/$MILINKPATH"
+                            package_extract_file "apks/MLOS2.apk" "$MODPATH/system/$MILINKPATH"
                     else
                         ui_print " "
                         ui_print " [005] [Skipping HighEnd props]"
@@ -559,19 +544,16 @@ ui_print " [000] [Getting ready...]"
             if [[ "$AodOpt" -eq 1 ]]; then
                 # PLACE AOD
                 if [[ "$HyperOS2" -eq "true" ]]; then
-                    HAOD="$WORKLOAD/extracted/apks/aod/hyper2.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy $HAOD "$MODPATH/system/$AODMODPATH"
+                    package_extract_file "apks/aod/hyper2.apk" "$MODPATH/system/$AODMODPATH"
                     ui_print " "
                     ui_print " [037] [Installing Extra effects for AOD...]"
-                    WALLFX="$WORKLOAD/extracted/apks/aod/wallfx.apk"
-                    copy $WALLFX "$MODPATH/system/$WALLFXPATH"
+                    package_extract_file "apks/aod/wallfx.apk" "$MODPATH/system/$WALLFXPATH"
                 elif [[ "$HyperOS1" -eq "true" ]]; then
-                    HAOD="$WORKLOAD/extracted/apks/aod/hyper.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy $HAOD "$MODPATH/system/$AODMODPATH"
+                    package_extract_file "apks/aod/hyper.apk" "$MODPATH/system/$AODMODPATH"
                 fi
                 # PLACE PROP
                     ui_print " "
@@ -806,8 +788,8 @@ ui_print " [000] [Getting ready...]"
                 # GET OVERLAY
                     ui_print " "
                     ui_print " [069] [Installing overlays to system...]"
-                    copy "$WORKLOAD/extracted/overlay/MxGSystemUIOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGSysUIHelper/MxGSystemUIOverlayHelper.apk"
-                    copy "$WORKLOAD/extracted/overlay/MxGFrameworkOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGFrameworkHelper/MxGFrameworkOverlayHelper.apk"
+                    package_extract_file "overlay/MxGSystemUIOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGSysUIHelper/MxGSystemUIOverlayHelper.apk"
+                    package_extract_file "overlay/MxGFrameworkOverlayHelper.apk" "$MODPATH/system/product/overlay/MxGFrameworkHelper/MxGFrameworkOverlayHelper.apk"
                 # PLACE PERMISSION PROP
                     ui_print " "
                     ui_print " [078] [Getting permission file]"
@@ -840,19 +822,6 @@ ui_print " [000] [Getting ready...]"
                  "  reboot"                                                                                                                             \
                  "fi"                                                                                                                                   \
                  > $MODPATH/service.sh
-                if [[ "$HyperOS2" == "true" ]]; then
-                        cat << EOF >> "$MODPATH/service.sh"
-                    if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then
-                        echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log
-                    else
-                        echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log
-                        pm install -r "$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"
-                    fi
-                    resetprop -n "persist.vendor.disable_idle_fps.threshold" 10
-                    resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10
-                    resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1
-                    EOF
-                fi
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
             echo "[\$(date)]: MxG successfully installed." >> /sdcard/mxg.log
