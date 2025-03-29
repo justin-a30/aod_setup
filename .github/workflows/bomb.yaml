@@ -39,10 +39,10 @@ jobs:
           DATE: ${{ env.DATE }}
         run: echo "Version $version, DATE $DATE"
 
-      - name: Tar time
-        run: |
-          XZ_OPT=-9 tar cJf overlay.tar.xz overlay
-          XZ_OPT=-9 tar cJf apks.tar.xz apks
+      # - name: Tar time
+        # run: |
+          # XZ_OPT=-9 tar cJf overlay.tar.xz overlay
+          # XZ_OPT=-9 tar cJf apks.tar.xz apks
 
       - name: Tidy up
         run: |

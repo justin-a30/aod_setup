@@ -291,7 +291,9 @@ ui_print " [000] [Getting ready...]"
     # INSTALL HEPROP
         # SET PARAMETERS
             CHARGERMODPATH="$MODPATH/system/vendor/overlay"
-                AODMODPATH="$MODPATH/system/product/priv-app/MIUIAod/MIUIAod.apk"
+                AODMODPATH=$(find_apk "com.miui.aod" /product)
+                WALLFXPATH=$(find_apk "com.miui.miwallpaper" /product)
+                MILINKPATH=$(find_apk "com.milink.service" /product)
                 # CHECK HEPROP OPTIONS
                     if [[ $HE -eq 1 ]]; then
                         # PLACE HEPROP
@@ -509,6 +511,9 @@ ui_print " [000] [Getting ready...]"
                             update_str "finger_alipay_ifaa_model" "Xiaomi-camellia" "$TMP_FEAT"
                             update_str "game_enhance_feature_name" "game_enhance_fisr" "$TMP_FEAT"
                             copy "$TMP_FEAT" "$MODPATH/system/product/etc/device_features/$DevName.xml"
+                            # Install MiLink Full (Global)
+                            ML="$WORKLOAD/extracted/apks/MLOS2.apk"
+                            copy $ML "$MODPATH/system/$MILINKPATH"
                     else
                         ui_print " "
                         ui_print " [005] [Skipping HighEnd props]"
@@ -557,12 +562,16 @@ ui_print " [000] [Getting ready...]"
                     HAOD="$WORKLOAD/extracted/apks/aod/hyper2.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy $HAOD "$AODMODPATH"
+                    copy $HAOD "$MODPATH/system/$AODMODPATH"
+                    ui_print " "
+                    ui_print " [037] [Installing Extra effects for AOD...]"
+                    WALLFX="$WORKLOAD/extracted/apks/aod/wallfx.apk"
+                    copy $WALLFX "$MODPATH/system/$WALLFXPATH"
                 elif [[ "$HyperOS1" -eq "true" ]]; then
                     HAOD="$WORKLOAD/extracted/apks/aod/hyper.apk"
                     ui_print " "
                     ui_print " [037] [Placing AOD app for HyperOS $OS...]"
-                    copy $HAOD "$AODMODPATH"
+                    copy $HAOD "$MODPATH/system/$AODMODPATH"
                 fi
                 # PLACE PROP
                     ui_print " "
@@ -804,10 +813,6 @@ ui_print " [000] [Getting ready...]"
                     ui_print " [078] [Getting permission file]"
                     FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
                     copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
-                # INSTALL AOD
-                    ui_print " "
-                    ui_print " [080] [Installing AOD...]"
-                    pm install -r "$HAOD"
             else
                 ui_print " [089] [Skipping AOD]"
             fi
@@ -835,16 +840,19 @@ ui_print " [000] [Getting ready...]"
                  "  reboot"                                                                                                                             \
                  "fi"                                                                                                                                   \
                  > $MODPATH/service.sh
-                 if [[ "$HyperOS2" == "true" ]]; then
-                     'if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then'                                                            \
-                     '  echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log'                                                               \
-                     "else"                                                                                                                                 \
-                     '  echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log'                                         \
-                     "  pm install -r \$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"                                                                 \
-                     "fi"                                                                                                                                   \
-                     'resetprop -n "persist.vendor.disable_idle_fps.threshold" 10' 'resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10' 'resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1'
-                     >> $MODPATH/service.sh
-                 fi
+                if [[ "$HyperOS2" == "true" ]]; then
+                        cat << EOF >> "$MODPATH/service.sh"
+                    if dumpsys package com.miui.aod | grep -q "DEV-2212.0.0.1-10301608"; then
+                        echo "[\$(date)]: Same AOD version is installed." >> /sdcard/mxg.log
+                    else
+                        echo "[\$(date)]: Same AOD version is NOT installed. Installing now..." >> /sdcard/mxg.log
+                        pm install -r "$MODDIR/system/product/priv-app/MIUIAod/MIUIAod.apk"
+                    fi
+                    resetprop -n "persist.vendor.disable_idle_fps.threshold" 10
+                    resetprop -n "ro.vendor.display.primary_idle_refresh_rate" 60,1:10
+                    resetprop -n "ro.vendor.mi_sf.aod_mode_ddic_refresh_rate" 1
+                    EOF
+                fi
         package_extract_file notify.sh $MODPATH/notify.sh
         ui_print " [100] Added some self-protections"
             echo "[\$(date)]: MxG successfully installed." >> /sdcard/mxg.log
