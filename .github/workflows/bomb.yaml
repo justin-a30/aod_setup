@@ -55,7 +55,7 @@ jobs:
         env:
           version: ${{ env.version }}
           DATE: ${{ env.DATE }}
-        run: 7z a ModdedXGoodies-v"$version"-"$DATE".zip ./module/*  
+        run: 7z a -tzip -mx=9 -m0=LZMA -md=64m -mfb=273 -mpass=15 ModdedXGoodies-v"$version"-"$DATE".zip ./module/*  
 
       - name: Find module
         run: |
