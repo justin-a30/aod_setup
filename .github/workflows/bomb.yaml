@@ -47,7 +47,7 @@ jobs:
       - name: Tidy up
         run: |
           mkdir module
-          rsync -av . module --exclude=module --exclude=.git --exclude=.github --exclude=chargeripple --exclude=chargebottle --exclude=chargeglow --exclude=extraoverlay --exclude=framework --exclude=sysui --exclude=gradle --exclude=build.gradle --exclude=build.sh --exclude=gradle.properties --exclude=gradlew --exclude=gradlew.bat --exclude=settings.gradle --exclude=overlay --exclude=apks --exclude=install.sh
+          rsync -av . module --exclude=module --exclude=.git --exclude=.github --exclude=chargeripple --exclude=chargebottle --exclude=chargeglow --exclude=extraoverlay --exclude=framework --exclude=sysui --exclude=gradle --exclude=build.gradle --exclude=build.sh --exclude=gradle.properties --exclude=gradlew --exclude=gradlew.bat --exclude=settings.gradle --exclude=install.sh
           cp install.sh module/META-INF/com/google/android/magisk/customize.sh
           cp module.prop module/META-INF/com/google/android/magisk/module.prop
 
