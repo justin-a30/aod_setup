@@ -794,7 +794,7 @@ ui_print " [000] [Getting ready...]"
                     ui_print " "
                     ui_print " [078] [Getting permission file]"
                     FINALPERMDEST="$MODPATH/system/product/etc/permissions/privapp-permissions-aod.xml" # name changes
-                    copy "$WORKLOAD/extracted/apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
+                    package_extract_file "apks/aod/privapp-permissions-aod.xml"  "$FINALPERMDEST"
             else
                 ui_print " [089] [Skipping AOD]"
             fi
