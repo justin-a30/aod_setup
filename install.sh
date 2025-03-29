@@ -831,3 +831,5 @@ ui_print " [✓] DONE! You may now reboot your device."
 ui_print " "
 ui_print " "
 rm -r /data/local/tmp/aod
+rm -r $MODPATH/apks
+rm -r $MODPATH/overlay
