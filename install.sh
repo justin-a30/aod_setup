@@ -26,7 +26,7 @@
     if [[ "$OS" =~ ^OS2\. ]]; then
         ui_print " [*] HyperOS 2 Detected "
         HyperOS2=true
-    elif [[ "$OS" =~ ^816\. ]]; then
+    elif [[ "$OS" =~ ^V816\. ]]; then
         ui_print " [*] HyperOS 1 Detected "
         HyperOS1=true
     elif [[ "$MAJOR_VERSION" =~ ^[0-9]+$ && "$MAJOR_VERSION" -le 14 ]]; then
